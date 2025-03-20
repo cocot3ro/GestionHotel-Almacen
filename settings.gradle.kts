@@ -25,9 +25,12 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        mavenLocal()
     }
 }
 
 include(":composeApp")
-include(":server")
+include(":almacen-service")
 include(":shared")
+include(":almacen-service-network-resources")
+include(":almacen-service-network-model")

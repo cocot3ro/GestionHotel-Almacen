@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,10 +6,10 @@ plugins {
 }
 
 kotlin {
+
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget = JvmTarget.JVM_11
         }
     }
 
@@ -18,7 +17,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            api(projects.almacenServiceNetworkModel)
+            api(projects.almacenServiceNetworkResources)
+
+            api(libs.core.shared)
         }
     }
 }
@@ -26,10 +28,12 @@ kotlin {
 android {
     namespace = "com.cocot3ro.gh_almacen.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }

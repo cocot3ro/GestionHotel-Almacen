@@ -40,7 +40,7 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 koin-test = { module = "io.insert-koin:koin-test" }
-koin-test-junit = { module = "io.insert-koin:koin-test-junit" }
+koin-test-junit = { module = "io.insert-koin:koin-test-junit4" }
 
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqldelight" }

@@ -18,7 +18,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.almacenServiceNetworkModel)
-            api(projects.almacenServiceNetworkResources)
 
             api(libs.core.shared)
         }

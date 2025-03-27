@@ -23,7 +23,7 @@ kotlin {
 }
 
 group = "com.cocot3ro.gh_almacen"
-version = "0.1.0"
+version = "0.1.1"
 
 application {
     mainClass = "com.cocot3ro.gh_almacen.ApplicationKt"
@@ -33,6 +33,8 @@ application {
 
 dependencies {
     implementation(projects.shared)
+    implementation(projects.almacenServiceNetworkResources)
+
     implementation(libs.logback)
 
     testImplementation(libs.ktor.server.test.host)

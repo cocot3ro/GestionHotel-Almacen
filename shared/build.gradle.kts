@@ -25,7 +25,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.cocot3ro.gh_almacen.shared"
+    namespace = "com.cocot3ro.gh.almacen.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     compileOptions {

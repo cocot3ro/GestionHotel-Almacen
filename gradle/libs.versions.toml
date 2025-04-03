@@ -1,19 +1,27 @@
 [versions]
 agp = "8.9.1"
+accompanistPermissions = "0.37.2"
 android-compileSdk = "35"
-android-minSdk = "24"
+android-minSdk = "29"
 android-targetSdk = "35"
 androidx-activityCompose = "1.10.1"
 androidx-lifecycle = "2.8.4"
+barcodeScanning = "17.3.0"
+androidx-camera = "1.4.2"
 compose-multiplatform = "1.7.3"
 junit = "4.13.2"
-kotlin = "2.1.10"
+kotlin = "2.1.20"
 kotlinx-coroutines = "1.10.1"
-kotlinxSerializationJson = "1.8.0"
-ktor = "3.1.1"
-koin = "4.0.3"
-logback = "1.5.17"
+kotlinxSerializationJson = "1.8.1"
+ktor = "3.1.2"
+koin = "4.0.4"
+koin-annotations = "2.0.0"
+logback = "1.5.18"
 sqldelight = "2.0.2"
+coil = "3.1.0"
+navigationCompose = "2.8.0-alpha12"
+ksp = "2.1.20-1.0.32"
+datastore = "1.1.4"
 
 
 [libraries]
@@ -26,15 +34,35 @@ kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
+
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "androidx-camera" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "androidx-camera" }
+
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+
 ktor-server-sse = { module = "io.ktor:ktor-server-sse" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources" }
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host-jvm" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core-jvm" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging-jvm" }
+ktor-client-resources = { module = "io.ktor:ktor-client-resources" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
@@ -42,11 +70,22 @@ koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 koin-test = { module = "io.insert-koin:koin-test" }
 koin-test-junit = { module = "io.insert-koin:koin-test-junit4" }
 
+koin-core = { group = "io.insert-koin", name = "koin-core" }
+koin-android = { group = "io.insert-koin", name = "koin-android" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel" }
+
+koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koin-annotations" }
+koin-ksp-compiler = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koin-annotations" }
+
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-primitive-adapters = { module = "app.cash.sqldelight:primitive-adapters", version.ref = "sqldelight" }
 sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 
-core-shared = { module = "com.cocot3ro.gh_core:core-shared", version = "0.1.0" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
+
+core-shared = { module = "com.cocot3ro.gh.core:core-shared", version = "0.1.0" }
 
 
 [plugins]
@@ -59,6 +98,7 @@ kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization"
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 
 [bundles]
@@ -71,7 +111,15 @@ ktor-server = [
     "ktor-server-content-negotiation"
 ]
 
-koin = [
+ktor-client = [
+    "ktor-client-core",
+    "ktor-client-okhttp",
+    "ktor-client-logging",
+    "ktor-client-resources",
+    "ktor-client-content-negotiation"
+]
+
+koin-server = [
     "koin-ktor",
     "koin-logger-slf4j"
 ]
@@ -79,4 +127,10 @@ koin = [
 koin-test = [
     "koin-test",
     "koin-test-junit"
+]
+
+koin-client = [
+    "koin-core",
+    "koin-compose",
+    "koin-compose-viewmodel"
 ]

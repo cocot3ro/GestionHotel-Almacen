@@ -12,6 +12,8 @@ plugins {
 
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.ktor) apply false
+
+    alias(libs.plugins.ksp) apply false
 }
 
 tasks.register("publish") {

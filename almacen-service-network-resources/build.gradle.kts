@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
 }
 
-group = "com.cocot3ro.gh_almacen"
+group = "com.cocot3ro.gh.almacen"
 version = "0.1.0"
 
 java {

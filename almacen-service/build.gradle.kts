@@ -22,11 +22,11 @@ kotlin {
     }
 }
 
-group = "com.cocot3ro.gh_almacen"
+group = "com.cocot3ro.gh.almacen"
 version = "0.1.1"
 
 application {
-    mainClass = "com.cocot3ro.gh_almacen.ApplicationKt"
+    mainClass = "com.cocot3ro.gh.almacen.ApplicationKt"
     applicationDefaultJvmArgs =
         listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
 }
@@ -47,7 +47,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
+    implementation(libs.bundles.koin.server)
 
     implementation(libs.sqldelight.sqlite.driver)
     implementation(libs.sqldelight.coroutines.extensions)
@@ -57,7 +57,7 @@ dependencies {
 sqldelight {
     databases {
         create("AlmacenDatabase") {
-            packageName = "com.cocot3ro.gh_almacen"
+            packageName = "com.cocot3ro.gh.almacen"
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.model.network.data.almacen
+package com.cocot3ro.gh.almacen.data.network.model
 
 import kotlinx.serialization.Serializable
 

@@ -2,9 +2,9 @@ package com.cocot3ro.gh.almacen
 
 import com.cocot3ro.gh.almacen.data.database.AlmacenDbRepository
 import com.cocot3ro.gh.almacen.data.database.toModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenResource
 import com.cocot3ro.gh.almacen.data.network.toDatabase
-import com.cocot3ro.gh.model.network.data.almacen.AlmacenModel
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install

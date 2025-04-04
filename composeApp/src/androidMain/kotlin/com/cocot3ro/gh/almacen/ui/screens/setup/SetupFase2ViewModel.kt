@@ -130,15 +130,13 @@ class SetupFase2ViewModel(
         }
     }
 
-    fun completeSetup() {
+    suspend fun completeSetup() {
         if (this.host.status != TextFieldStatus.VALID ||
             this.port.status != TextFieldStatus.VALID ||
             this._uiSate.value !is UiState.Success<*>
         ) return
 
-        viewModelScope.launch(Dispatchers.IO) {
-            savePreferencesUseCase.setHost(host.value)
-            savePreferencesUseCase.setPort(port.value.toInt())
-        }
+        savePreferencesUseCase.setHost(host.value)
+        savePreferencesUseCase.setPort(port.value.toInt())
     }
 }

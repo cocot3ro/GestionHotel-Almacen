@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +34,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.ui.screens.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.network_manage_48dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -50,10 +54,16 @@ fun SetupFase2(
         floatingActionButton = {
             when (uiState) {
                 is UiState.Success<*> -> {
+                    val coroutineScope = rememberCoroutineScope()
+
                     ExtendedFloatingActionButton(
                         onClick = {
-                            viewModel.completeSetup()
-                            onSetupFaseCompleted()
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    viewModel.completeSetup()
+                                }
+                                onSetupFaseCompleted()
+                            }
                         },
                         icon = {
                             Icon(

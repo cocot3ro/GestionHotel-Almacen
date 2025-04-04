@@ -6,7 +6,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -41,8 +43,12 @@ fun SetupScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                     onSetupFaseCompleted = {
-                        viewModel.completeSetUp()
-                        onSetupCompleted()
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                viewModel.completeSetUp()
+                            }
+                            onSetupCompleted()
+                        }
                     }
                 )
             }

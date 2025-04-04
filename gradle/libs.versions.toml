@@ -54,7 +54,6 @@ ktor-server-sse = { module = "io.ktor:ktor-server-sse" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources" }
-ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host-jvm" }
 
@@ -85,7 +84,9 @@ sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-ex
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
 
-core-shared = { module = "com.cocot3ro.gh.core:core-shared", version = "0.1.0" }
+core-shared = { module = "com.cocot3ro.gh.core:core-shared", version = "1.0.0" }
+core-shared-almacen-gateway = { module = "com.cocot3ro.gh.core:core-shared-almacen-gateway", version = "1.0.0" }
+core-shared-network-resources = { module = "com.cocot3ro.gh.core:core-shared-network-resources", version = "1.0.0" }
 
 
 [plugins]
@@ -107,7 +108,6 @@ ktor-server = [
     "ktor-server-core",
     "ktor-server-netty",
     "ktor-server-resources",
-    "ktor-server-status-pages",
     "ktor-server-content-negotiation"
 ]
 

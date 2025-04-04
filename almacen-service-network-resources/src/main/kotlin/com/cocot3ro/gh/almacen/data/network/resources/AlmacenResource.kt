@@ -1,10 +1,10 @@
 package com.cocot3ro.gh.almacen.data.network.resources
 
-import com.cocot3ro.gh.core.Route
+import com.cocot3ro.gh.core.ResourceRoute
 import io.ktor.resources.Resource
 
 @Resource(AlmacenResource.PATH)
-class AlmacenResource : Route {
+class AlmacenResource : ResourceRoute {
 
     companion object {
         const val PATH: String = "/api/almacen"
@@ -15,7 +15,7 @@ class AlmacenResource : Route {
     @Resource(All.PATH)
     data class All(
         val parent: AlmacenResource = AlmacenResource(),
-    ) : Route {
+    ) : ResourceRoute {
 
         companion object {
             const val PATH: String = "all"
@@ -28,7 +28,7 @@ class AlmacenResource : Route {
     data class Id(
         val parent: AlmacenResource = AlmacenResource(),
         val id: Long,
-    ) : Route {
+    ) : ResourceRoute {
 
         companion object {
             const val PATH: String = "{id}"
@@ -39,7 +39,7 @@ class AlmacenResource : Route {
         @Resource(Edit.PATH)
         class Edit(
             val parent: Id,
-        ) : Route {
+        ) : ResourceRoute {
 
             companion object {
                 const val PATH: String = "edit"

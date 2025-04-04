@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 plugins {
     id("java-library")
@@ -27,8 +28,9 @@ version = "0.1.1"
 
 application {
     mainClass = "com.cocot3ro.gh.almacen.ApplicationKt"
-    applicationDefaultJvmArgs =
-        listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
+
+    val isDevelopment = project.extraProperties["io.ktor.development"].toString().toBoolean()
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
 dependencies {

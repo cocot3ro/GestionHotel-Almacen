@@ -20,6 +20,7 @@ kotlin {
             api(projects.almacenServiceNetworkModel)
 
             api(libs.core.shared)
+            api(libs.core.shared.almacen.gateway)
         }
     }
 }

@@ -34,8 +34,7 @@ class AlmacenDbRepository(
             .asFlow()
             .mapToList(Dispatchers.IO)
 
-    fun getAll(): List<AlmacenEntity> = almacenDao.selectAll()
-        .executeAsList()
+    fun getAll(): List<AlmacenEntity> = almacenDao.selectAll().executeAsList()
 
     fun insert(almacenEntity: AlmacenEntity): Long {
         return database.transactionWithResult {
@@ -45,8 +44,7 @@ class AlmacenDbRepository(
         }
     }
 
-    fun getById(id: Long): AlmacenEntity = almacenDao.selectById(id)
-        .executeAsOneOrNull()
+    fun getById(id: Long): AlmacenEntity? = almacenDao.selectById(id).executeAsOneOrNull()
 
     fun update(almacenEntity: AlmacenEntity) {
         almacenDao.update(

@@ -14,6 +14,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SetupScreen(
     modifier: Modifier,
+    @Suppress("UndeclaredKoinUsage")
     viewModel: SetupViewModel = koinViewModel(),
     onSetupCompleted: () -> Unit,
 ) {

@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
     <string name="app_name">GH-Almacen</string>
+    <string name="finish">Finalizar</string>
+    <string name="connect">Conectar</string>
+    <string name="configure_server">Configura el servidor</string>
+    <string name="ip_address">Dirección IP</string>
+    <string name="ip_address_example">192.168.0.1</string>
+    <string name="http_prefix">http://</string>
+    <string name="empty_value">Campo vacio</string>
+    <string name="invalid_format">Formato inválido</string>
+    <string name="invalid_value">Valor inválido</string>
+    <string name="port">Puerto</string>
+    <string name="port_example">8080</string>
+    <string name="connection_error_explain">Error al conectar con el servidor.\nVerifica la configuración y que el servidor esté activo</string>
+    <string name="continue_without_permission">Continuar sin permiso</string>
+    <string name="request_permission">Solicitar permiso</string>
+    <string name="permission_denied">Permiso denegado</string>
+    <string name="camera_permission_message">Se necesita acceso a la cámara para escanear códigos de barras.</string>
+    <string name="camera_permission_rationale">La cámara es necesaria para escanear códigos de barras, concede el permiso para usar esta característica</string>
 </resources>

@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.ui.screens.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.app_image
@@ -16,6 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SplashScreen(
     modifier: Modifier,
+    @Suppress("UndeclaredKoinUsage")
     viewModel: SplashViewModel = koinViewModel(),
     onSetupRequired: () -> Unit,
     onSplashFinished: () -> Unit,
@@ -28,7 +29,7 @@ fun SplashScreen(
         )
     }
 
-    when (val firstTimeUiState = viewModel.firstTimeUiState.collectAsState().value) {
+    when (val firstTimeUiState = viewModel.firstTimeUiState.collectAsStateWithLifecycle().value) {
         is UiState.Success<*> -> {
 
             if (firstTimeUiState.value as Boolean) {
@@ -39,7 +40,7 @@ fun SplashScreen(
         }
 
         is UiState.Error -> {
-            Log.e("SplashScreen", "Error fetching prefs", firstTimeUiState.throwable)
+            Log.wtf("SplashScreen", "Error fetching prefs", firstTimeUiState.throwable)
         }
 
         UiState.Idle -> Unit

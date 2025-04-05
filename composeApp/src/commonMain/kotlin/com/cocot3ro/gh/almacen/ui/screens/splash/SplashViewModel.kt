@@ -11,9 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Provided
 
+@KoinViewModel
 class SplashViewModel(
-    private val getPreferencesUseCase: GetPreferencesUseCase,
+    @Provided private val getPreferencesUseCase: GetPreferencesUseCase,
 ) : ViewModel() {
 
     private val _firstTimeUiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)

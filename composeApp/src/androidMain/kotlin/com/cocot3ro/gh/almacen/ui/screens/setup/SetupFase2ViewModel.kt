@@ -23,10 +23,10 @@ class SetupFase2ViewModel(
     private val _uiSate = MutableStateFlow<UiState>(UiState.Idle)
     val uiState = _uiSate.asStateFlow()
 
-    var host by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.VALID))
+    var host by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.IDLE))
         private set
 
-    var port by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.VALID))
+    var port by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.IDLE))
         private set
 
     private val hostFormatRegex = """\d{1,3}(\.\d{1,3}){3}""".toRegex()
@@ -124,7 +124,7 @@ class SetupFase2ViewModel(
                     if (connectionSucceeded) {
                         _uiSate.value = UiState.Success(host.value to port.value)
                     } else {
-                        _uiSate.value = UiState.Error(Throwable("Connection failed"))
+                        _uiSate.value = UiState.Error(Throwable())
                     }
                 }
         }

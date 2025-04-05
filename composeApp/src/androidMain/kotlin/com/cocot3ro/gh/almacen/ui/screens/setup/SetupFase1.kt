@@ -35,6 +35,12 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.barcode_scanner_48dp
+import gh_almacen.composeapp.generated.resources.camera_permission_message
+import gh_almacen.composeapp.generated.resources.camera_permission_rationale
+import gh_almacen.composeapp.generated.resources.continue_without_permission
+import gh_almacen.composeapp.generated.resources.permission_denied
+import gh_almacen.composeapp.generated.resources.request_permission
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -59,7 +65,7 @@ fun SetupFase1(
                     )
                 },
                 text = {
-                    Text(text = "Continuar sin permiso")
+                    Text(text = stringResource(Res.string.continue_without_permission))
                 }
             )
         }
@@ -93,23 +99,23 @@ fun SetupFase1(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            var displayText by remember { mutableStateOf("Se necesita acceso a la cámara para escanear códigos de barras.") }
+            var displayText by remember { mutableStateOf(Res.string.camera_permission_message) }
 
             Text(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                text = displayText,
+                text = stringResource(displayText),
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            var buttonText by remember { mutableStateOf("Solicitar permiso") }
+            var buttonText by remember { mutableStateOf(Res.string.request_permission) }
 
             var action: () -> Unit by remember { mutableStateOf(permissionState::launchPermissionRequest) }
 
             Button(onClick = action) {
-                Text(text = buttonText)
+                Text(text = stringResource(buttonText))
             }
 
             when {
@@ -120,8 +126,7 @@ fun SetupFase1(
                 }
 
                 permissionState.status.shouldShowRationale -> {
-                    displayText =
-                        "La cámara es necesaria para escanear códigos de barras, concede el permiso para usar esta característica"
+                    displayText = Res.string.camera_permission_rationale
                     iWasRationale = true
                     canContinue = true
 
@@ -138,7 +143,7 @@ fun SetupFase1(
                         context.startActivity(intent)
                     }
 
-                    buttonText = "Permiso denegado"
+                    buttonText = Res.string.permission_denied
                 }
             }
         }

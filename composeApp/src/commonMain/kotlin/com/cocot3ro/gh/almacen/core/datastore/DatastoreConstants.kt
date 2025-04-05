@@ -2,6 +2,7 @@ package com.cocot3ro.gh.almacen.core.datastore
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 object DatastoreConstants {
@@ -19,5 +20,12 @@ object DatastoreConstants {
 
         const val HOST = "localhost"
         const val PORT = 8080
+
+        val defaultPreferences
+            get() = preferencesOf(
+                Keys.FIRST_TIME to FIRST_TIME,
+                Keys.HOST to HOST,
+                Keys.PORT to PORT
+            )
     }
 }

@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.1"
+agp = "8.9.2"
 accompanistPermissions = "0.37.2"
 android-compileSdk = "35"
 android-minSdk = "29"
@@ -9,17 +9,18 @@ androidx-lifecycle = "2.8.4"
 barcodeScanning = "17.3.0"
 androidx-camera = "1.4.2"
 compose-multiplatform = "1.7.3"
+navigationCompose = "2.8.0-alpha12"
 junit = "4.13.2"
 kotlin = "2.1.20"
 kotlinx-coroutines = "1.10.1"
 kotlinxSerializationJson = "1.8.1"
 ktor = "3.1.2"
+kotzilla = "1.0.1"
 koin = "4.0.4"
 koin-annotations = "2.0.0"
 logback = "1.5.18"
 sqldelight = "2.0.2"
 coil = "3.1.0"
-navigationCompose = "2.8.0-alpha12"
 ksp = "2.1.20-1.0.32"
 datastore = "1.1.4"
 
@@ -33,6 +34,9 @@ androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+kotzilla-plugin = { module = "io.kotzilla:kotzilla-plugin", version.ref = "kotzilla" }
+kotzilla-sdk-ktor3 = { module = "io.kotzilla:kotzilla-sdk-ktor3", version.ref = "kotzilla" }
 
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
@@ -85,7 +89,6 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
 
 core-shared = { module = "com.cocot3ro.gh.core:core-shared", version = "1.0.0" }
-core-shared-almacen-gateway = { module = "com.cocot3ro.gh.core:core-shared-almacen-gateway", version = "1.0.0" }
 core-shared-network-resources = { module = "com.cocot3ro.gh.core:core-shared-network-resources", version = "1.0.0" }
 
 
@@ -100,6 +103,7 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotzilla = { id = "io.kotzilla.kotzilla-plugin" }
 
 
 [bundles]

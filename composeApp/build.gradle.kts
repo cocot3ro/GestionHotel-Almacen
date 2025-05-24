@@ -11,9 +11,13 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
 
     alias(libs.plugins.ksp)
+
+    alias(libs.plugins.kotzilla)
 }
 
 kotlin {
+    jvmToolchain(23)
+
     androidTarget {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
@@ -26,6 +30,7 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
+            runtimeOnly("com.google.android.material:material:1.12.0")
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
@@ -37,8 +42,11 @@ kotlin {
             implementation(libs.androidx.camera.camera2)
             implementation(libs.androidx.camera.lifecycle)
             implementation(libs.androidx.camera.view)
+            implementation(libs.androidx.camera.extensions)
 
             implementation(libs.accompanist.permissions)
+
+            implementation(libs.androidx.core.splashscreen)
         }
 
         commonMain.dependencies {
@@ -52,6 +60,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
 
+            implementation(libs.kotzilla.sdk.ktor3)
+
             implementation(project.dependencies.platform(libs.ktor.bom))
             implementation(libs.bundles.ktor.client)
             implementation(libs.ktor.serialization.kotlinx.json)
@@ -60,15 +70,18 @@ kotlin {
             implementation(libs.bundles.koin.client)
             api(libs.koin.annotations)
 
+            implementation(project.dependencies.platform(libs.coil.bom))
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+            implementation(libs.coil.network.cache.control)
 
             implementation(libs.navigation.compose)
 
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
 
-            implementation(libs.core.shared.network.resources)
+            implementation(libs.core.network.resources)
+            implementation(libs.core.network.model)
         }
 
         desktopMain.dependencies {
@@ -91,9 +104,9 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionName = "0.0.1"
-        versionCode = versionName!!.split(".")
-            .map(String::toInt)
-            .reduce { acc, i -> acc * 100 + i }
+        versionCode = versionName!!.split(".").map(String::toInt).let {
+            it.reduce { acc, i -> acc * 100 + i }
+        }
     }
 
     packaging {
@@ -120,21 +133,6 @@ project.tasks.withType<KotlinCompilationTask<*>>().configureEach {
         dependsOn("kspCommonMainKotlinMetadata")
     }
 }
-
-tasks {
-    register("getDesktopVersion") {
-        doLast {
-            println(compose.desktop.application.nativeDistributions.packageVersion)
-        }
-    }
-
-    register("getAndroidVersion") {
-        doLast {
-            println(android.defaultConfig.versionName)
-        }
-    }
-}
-
 
 dependencies {
     debugImplementation(compose.uiTooling)

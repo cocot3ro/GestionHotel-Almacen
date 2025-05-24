@@ -10,3 +10,15 @@ object Setup
 
 @Serializable
 object Home
+
+@Serializable
+object Almacen
+
+@Serializable
+object Login
+
+@Serializable
+object Settings
+
+@Serializable
+object Carrito

@@ -6,15 +6,19 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cocot3ro.gh.almacen.ui.screens.scanner.BarcodeExample
+import com.cocot3ro.gh.almacen.ui.screens.almacen.AlmacenScreen
+import com.cocot3ro.gh.almacen.ui.screens.home.HomeScreen
+import com.cocot3ro.gh.almacen.ui.screens.login.LoginScreen
+import com.cocot3ro.gh.almacen.ui.screens.settings.SettingsScreen
 import com.cocot3ro.gh.almacen.ui.screens.setup.SetupScreen
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashScreen
 
 @Composable
-fun NavigationWrapper() {
+fun NavigationWrapper(startDestination: Any) {
+
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Splash) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable<Splash> { _ ->
             SplashScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -24,7 +28,7 @@ fun NavigationWrapper() {
                 },
                 onSplashFinished = {
                     navController.popBackStack()
-                    navController.navigate(Home)
+                    navController.navigate(route = Home)
                 }
             )
         }
@@ -34,13 +38,57 @@ fun NavigationWrapper() {
                 modifier = Modifier.fillMaxSize(),
                 onSetupCompleted = {
                     navController.popBackStack()
-                    navController.navigate(Home)
+                    navController.navigate(route = Home)
                 }
             )
         }
 
         composable<Home> { _ ->
-            BarcodeExample(modifier = Modifier.fillMaxSize())
+            HomeScreen(
+                modifier = Modifier.fillMaxSize(),
+                onConnectionSucceeded = {
+                    navController.popBackStack()
+                    navController.navigate(route = Login)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(route = Settings)
+                }
+            )
+        }
+
+        composable<Login> { _ ->
+            LoginScreen(
+                modifier = Modifier.fillMaxSize(),
+                onNavigateToAlmacen = {
+                    navController.navigate(route = Almacen)
+                }
+            )
+        }
+
+        composable<Almacen> { _ ->
+            AlmacenScreen(
+                modifier = Modifier.fillMaxSize(),
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToCarrito = {
+                    navController.navigate(route = Carrito)
+                }
+            )
+        }
+
+        composable<Settings> { _ ->
+            SettingsScreen(
+                modifier = Modifier.fillMaxSize(),
+                onBack = navController::popBackStack,
+                onSettingsChanged = {
+                    navController.popBackStack(Home, false)
+                }
+            )
+        }
+
+        composable<Carrito> {
+
         }
     }
 }

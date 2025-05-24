@@ -1,13 +1,19 @@
 package com.cocot3ro.gh.almacen.ui.screens.splash
 
+import android.app.Activity
 import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cocot3ro.gh.almacen.ui.screens.UiState
+import com.cocot3ro.gh.almacen.ui.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.app_image
 import org.jetbrains.compose.resources.painterResource
@@ -16,34 +22,48 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SplashScreen(
     modifier: Modifier,
-    @Suppress("UndeclaredKoinUsage")
     viewModel: SplashViewModel = koinViewModel(),
     onSetupRequired: () -> Unit,
-    onSplashFinished: () -> Unit,
+    onSplashFinished: () -> Unit
 ) {
-    Box(modifier = modifier) {
-        Image(
-            modifier = Modifier.align(Alignment.Center),
-            painter = painterResource(Res.drawable.app_image),
-            contentDescription = null
-        )
-    }
+    Scaffold(modifier = modifier) { innerPadding ->
 
-    when (val firstTimeUiState = viewModel.firstTimeUiState.collectAsStateWithLifecycle().value) {
-        is UiState.Success<*> -> {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.app_image),
+                contentDescription = null
+            )
 
-            if (firstTimeUiState.value as Boolean) {
-                onSetupRequired()
-            } else {
-                onSplashFinished()
+            when (val uiState: UiState = viewModel.uiState.collectAsStateWithLifecycle().value) {
+
+                UiState.Idle -> Unit
+
+                is UiState.Loading -> Unit
+
+                is UiState.Success<*> -> {
+                    if (uiState.value as Boolean) {
+                        onSetupRequired()
+                    } else {
+                        onSplashFinished()
+//                        androidx.compose.material3.Button(onClick = onSplashFinished) {
+//                            androidx.compose.material3.Text("Continue")
+//                        }
+                    }
+                }
+
+                is UiState.Error<*> -> {
+                    Log.wtf("SplashScreen", "Error loading configuration", uiState.cause)
+
+                    val activity: Activity? = LocalActivity.current
+                    ErrorDialog(onDismissRequest = { activity?.finish() })
+                }
             }
         }
-
-        is UiState.Error -> {
-            Log.wtf("SplashScreen", "Error fetching prefs", firstTimeUiState.throwable)
-        }
-
-        UiState.Idle -> Unit
-        UiState.Loading -> Unit
     }
 }

@@ -44,6 +44,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.bundles.koin.test)
 
+    implementation(libs.password4j)
+
     implementation(platform(libs.ktor.bom))
     implementation(libs.bundles.ktor.server)
     implementation(libs.ktor.serialization.kotlinx.json)
@@ -61,11 +63,5 @@ sqldelight {
         create("AlmacenDatabase") {
             packageName = "com.cocot3ro.gh.almacen"
         }
-    }
-}
-
-tasks.register("getProjectVersion") {
-    doLast {
-        println(project.version)
     }
 }

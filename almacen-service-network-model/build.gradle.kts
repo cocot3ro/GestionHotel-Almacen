@@ -6,10 +6,11 @@ plugins {
     `maven-publish`
 
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 group = "com.cocot3ro.gh.almacen"
-version = "0.1.0"
+version = "1.0.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11

@@ -1,0 +1,30 @@
+CREATE TABLE IF NOT EXISTS almacenStoreEntity (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    image TEXT
+);
+
+selectAll:
+SELECT *
+FROM almacenStoreEntity;
+
+selectById:
+SELECT *
+FROM almacenStoreEntity
+WHERE id = ?;
+
+insert:
+INSERT INTO almacenStoreEntity(name, image)
+VALUES (?, ?);
+
+update:
+UPDATE almacenStoreEntity
+SET name = ?, image = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM almacenStoreEntity
+WHERE id = ?;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

@@ -1,0 +1,37 @@
+import kotlin.LongArray;
+
+CREATE TABLE IF NOT EXISTS almacenItemEntity(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  barcodes TEXT AS LongArray NOT NULL,
+  name TEXT NOT NULL,
+  supplier TEXT,
+  image TEXT,
+  quantity INTEGER AS kotlin.Int NOT NULL,
+  packSize INTEGER AS kotlin.Int NOT NULL,
+  minimum INTEGER AS kotlin.Int NOT NULL
+);
+
+selectAll:
+SELECT *
+FROM almacenItemEntity;
+
+selectById:
+SELECT *
+FROM almacenItemEntity
+WHERE id = ?;
+
+insert:
+INSERT INTO almacenItemEntity(barcodes, name, supplier, image, quantity, packSize, minimum)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE almacenItemEntity
+SET barcodes = ?, name = ?, supplier = ?, image = ?, quantity = ?, packSize = ?, minimum = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM almacenItemEntity
+WHERE id = ?;
+
+lastInsertRowId:
+SELECT last_insert_rowid();

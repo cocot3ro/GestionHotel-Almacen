@@ -1,37 +1,46 @@
-package com.cocot3ro.gh.almacen.ui.screens.setup
+package com.cocot3ro.gh.almacen.ui.screens.settings
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cocot3ro.gh.almacen.domain.usecase.SavePreferencesUseCase
+import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
-import com.cocot3ro.gh.almacen.ui.screens.UiState
+import com.cocot3ro.gh.almacen.ui.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Provided
 
-class SetupFase2ViewModel(
-    private val testConnectionUseCase: TestConnectionUseCase,
-    private val savePreferencesUseCase: SavePreferencesUseCase,
+@KoinViewModel
+class SettingsViewModel(
+    @Provided private val testConnectionUseCase: TestConnectionUseCase,
+    @Provided private val managePreferencesUseCase: ManagePreferencesUseCase,
 ) : ViewModel() {
 
-    private val _uiSate = MutableStateFlow<UiState>(UiState.Idle)
-    val uiState = _uiSate.asStateFlow()
+    private val _uiSate: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiSate.asStateFlow()
 
-    var host by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.IDLE))
+    var host: TextFieldValue<String> by mutableStateOf(
+        TextFieldValue(value = "", status = TextFieldStatus.IDLE)
+    )
         private set
 
-    var port by mutableStateOf(TextFieldValue(value = "", status = TextFieldStatus.IDLE))
+    var port: TextFieldValue<String> by mutableStateOf(
+        TextFieldValue(value = "", status = TextFieldStatus.IDLE)
+    )
         private set
 
-    private val hostFormatRegex = """\d{1,3}(\.\d{1,3}){3}""".toRegex()
+    private val hostFormatRegex: Regex = """\d{1,3}(\.\d{1,3}){3}""".toRegex()
 
-    private val hostValueRegex =
+    private val hostValueRegex: Regex =
         """(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}""".toRegex()
 
     fun updateHost(input: String) {
@@ -73,7 +82,7 @@ class SetupFase2ViewModel(
     }
 
     fun updatePort(input: String) {
-        val port = input.trimStart()
+        val port = input.replace("""\D""".toRegex(), "")
 
         if (port.length > 5) return
 
@@ -112,19 +121,32 @@ class SetupFase2ViewModel(
             this.port.status != TextFieldStatus.VALID
         ) return
 
-        _uiSate.value = UiState.Loading
+        _uiSate.value = UiState.Loading(firstLoad = true)
 
         viewModelScope.launch {
-            testConnectionUseCase(host = host.value, port = port.value.toInt())
-                .catch {
-                    _uiSate.value = UiState.Error(it)
+            testConnectionUseCase(host = host.value, port = port.value.toUShort())
+                .catch { throwable ->
+                    _uiSate.value = UiState.Error(
+                        cause = throwable,
+                        retry = false,
+                        cache = null
+                    )
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { connectionSucceeded ->
-                    if (connectionSucceeded) {
-                        _uiSate.value = UiState.Success(host.value to port.value)
-                    } else {
-                        _uiSate.value = UiState.Error(Throwable())
+                .collect { result: TestConnectionResult ->
+                    when (result) {
+                        TestConnectionResult.Success,
+                        TestConnectionResult.ServiceUnavailable -> {
+                            _uiSate.value = UiState.Success(value = result)
+                        }
+
+                        is TestConnectionResult.Error -> {
+                            _uiSate.value = UiState.Error(
+                                cause = result.cause,
+                                retry = false,
+                                cache = null
+                            )
+                        }
                     }
                 }
         }
@@ -136,7 +158,7 @@ class SetupFase2ViewModel(
             this._uiSate.value !is UiState.Success<*>
         ) return
 
-        savePreferencesUseCase.setHost(host.value)
-        savePreferencesUseCase.setPort(port.value.toInt())
+        managePreferencesUseCase.setHost(host = host.value)
+        managePreferencesUseCase.setPort(port = port.value.toUShort())
     }
 }

@@ -22,3 +22,9 @@ tasks.register("publish") {
         ":almacen-service-network-resources:publishToMavenLocal"
     )
 }
+
+buildscript {
+    dependencies {
+        classpath(libs.kotzilla.plugin)
+    }
+}

@@ -8,11 +8,11 @@ fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
         config?.invoke(this)
         modules(
-            nativeModule,
             ViewModelModule.module,
             UseCaseModule.module,
             DatastoreModule.module,
-            NetworkModule.module
+            UserManagementModule.module,
+            networkModule
         )
     }
 }

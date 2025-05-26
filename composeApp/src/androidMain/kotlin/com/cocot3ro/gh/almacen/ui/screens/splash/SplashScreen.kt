@@ -1,8 +1,5 @@
 package com.cocot3ro.gh.almacen.ui.screens.splash
 
-import android.app.Activity
-import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,22 +44,11 @@ fun SplashScreen(
                 is UiState.Loading -> Unit
 
                 is UiState.Success<*> -> {
-                    if (uiState.value as Boolean) {
-                        onSetupRequired()
-                    } else {
-                        onSplashFinished()
-//                        androidx.compose.material3.Button(onClick = onSplashFinished) {
-//                            androidx.compose.material3.Text("Continue")
-//                        }
-                    }
+                    if (uiState.value as Boolean) onSetupRequired()
+                    else onSplashFinished()
                 }
 
-                is UiState.Error<*> -> {
-                    Log.wtf("SplashScreen", "Error loading configuration", uiState.cause)
-
-                    val activity: Activity? = LocalActivity.current
-                    ErrorDialog(onDismissRequest = { activity?.finish() })
-                }
+                is UiState.Error<*> -> Unit
             }
         }
     }

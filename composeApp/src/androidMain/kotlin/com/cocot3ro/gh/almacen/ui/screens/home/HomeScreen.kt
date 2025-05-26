@@ -1,7 +1,5 @@
 package com.cocot3ro.gh.almacen.ui.screens.home
 
-import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
-import com.cocot3ro.gh.almacen.ui.screens.splash.ErrorDialog
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.network_manage_48dp
@@ -44,7 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeScreen(
     modifier: Modifier,
     viewModel: HomeViewModel = koinViewModel(),
-    onConnectionSucceeded: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     val uiState: Pair<UiState, UiState> by viewModel.uiState.collectAsStateWithLifecycle()
@@ -52,15 +49,15 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
         floatingActionButton = fab@{
-            Column(horizontalAlignment = Alignment.End) {
-                FloatingActionButton(
-                    modifier = Modifier.padding(
-                        paddingValues = WindowInsets.navigationBars
-                            .only(WindowInsetsSides.Horizontal)
-                            .asPaddingValues()
-                    ),
-                    onClick = onNavigateToSettings
-                ) {
+            Column(
+                modifier = Modifier.padding(
+                    paddingValues = WindowInsets.navigationBars
+                        .only(WindowInsetsSides.Horizontal)
+                        .asPaddingValues()
+                ),
+                horizontalAlignment = Alignment.End
+            ) {
+                FloatingActionButton(onClick = onNavigateToSettings) {
                     Icon(
                         modifier = Modifier.size(36.dp),
                         imageVector = vectorResource(Res.drawable.network_manage_48dp),
@@ -108,6 +105,7 @@ fun HomeScreen(
                     uiState.first is UiState.Loading || uiState.second is UiState.Loading -> {
                         when {
                             uiState.first is UiState.Loading -> {
+                                Text(text = "")
                                 Text(text = "Cargando configuración ...")
                             }
 
@@ -129,18 +127,7 @@ fun HomeScreen(
 
                     uiState.first is UiState.Success<*> &&
                             ((uiState.second as? UiState.Success<*>)?.value is TestConnectionResult.Success) -> {
-                        onConnectionSucceeded()
-                    }
-
-                    uiState.first is UiState.Error<*> -> {
-                        Log.wtf(
-                            "HomeScreen",
-                            "Error loading configuration",
-                            (uiState.first as UiState.Error<*>).cause
-                        )
-
-                        val activity = LocalActivity.current
-                        ErrorDialog(onDismissRequest = { activity?.finishAffinity() })
+                        onNavigateToLogin()
                     }
 
                     uiState.second is UiState.Error<*> -> {

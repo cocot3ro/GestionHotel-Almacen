@@ -46,7 +46,7 @@ fun NavigationWrapper(startDestination: Any) {
         composable<Home> { _ ->
             HomeScreen(
                 modifier = Modifier.fillMaxSize(),
-                onConnectionSucceeded = {
+                onNavigateToLogin = {
                     navController.popBackStack()
                     navController.navigate(route = Login)
                 },

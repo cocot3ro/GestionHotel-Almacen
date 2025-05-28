@@ -16,7 +16,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(23)
+    jvmToolchain(21)
 
     androidTarget {
         compilerOptions {
@@ -30,7 +30,6 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
-            runtimeOnly("com.google.android.material:material:1.12.0")
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
@@ -47,6 +46,7 @@ kotlin {
             implementation(libs.accompanist.permissions)
 
             implementation(libs.androidx.core.splashscreen)
+            runtimeOnly(libs.material)
         }
 
         commonMain.dependencies {

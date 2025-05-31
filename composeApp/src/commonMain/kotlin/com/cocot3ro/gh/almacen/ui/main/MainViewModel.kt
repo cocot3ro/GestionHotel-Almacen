@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.almacen
+package com.cocot3ro.gh.almacen.ui.main
 
 import androidx.lifecycle.ViewModel
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
@@ -11,8 +11,6 @@ class MainViewModel(
 ) : ViewModel() {
 
     suspend fun logOut() {
-//        viewModelScope.launch(Dispatchers.IO) {
         manageLoginUsecase.logOut()
-//        }
     }
 }

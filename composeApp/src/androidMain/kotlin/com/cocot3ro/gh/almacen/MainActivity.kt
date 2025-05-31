@@ -2,20 +2,21 @@ package com.cocot3ro.gh.almacen
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cocot3ro.gh.almacen.ui.main.MainViewModel
 import com.cocot3ro.gh.almacen.ui.navigation.Home
 import com.cocot3ro.gh.almacen.ui.navigation.NavigationWrapper
 import com.cocot3ro.gh.almacen.ui.navigation.Setup
 import com.cocot3ro.gh.almacen.ui.navigation.Splash
-import com.cocot3ro.gh.almacen.ui.screens.splash.ErrorDialog
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashViewModel
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import com.cocot3ro.gh.almacen.ui.theme.GhAlmacenTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinContext
 
@@ -50,15 +51,6 @@ class MainActivity : ComponentActivity() {
                                 NavigationWrapper(startDestination = startDestination)
                             }
 
-                            is UiState.Error<*> -> {
-                                Log.wtf(
-                                    "MainActivity",
-                                    "Error loading configuration",
-                                    uiState.cause
-                                )
-                                ErrorDialog(onDismissRequest = ::finish)
-                            }
-
                             // Wait for the splash screen to finish to show any content
                             else -> Unit
                         }
@@ -71,13 +63,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//
-//        Log.v("MainActivity", "onDestroy")
-//
-//        runBlocking {
-//            viewModel.logOut()
-//        }
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        runBlocking(Dispatchers.IO) {
+            viewModel.logOut()
+        }
+    }
 }

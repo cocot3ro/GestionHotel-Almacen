@@ -4,5 +4,8 @@ import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 
 @Module
-@ComponentScan("com.cocot3ro.gh.almacen.ui.screens")
+@ComponentScan(
+    "com.cocot3ro.gh.almacen.ui.screens",
+    "com.cocot3ro.gh.almacen.ui.main"
+)
 object ViewModelModule

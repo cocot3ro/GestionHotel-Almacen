@@ -2,14 +2,16 @@ package com.cocot3ro.gh.almacen.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.ui.state.UiState
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -19,45 +21,35 @@ import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class SplashViewModel(
-    @Provided private val managePreferencesUseCase: ManagePreferencesUseCase
+    @Provided private val managePreferencesUseCase: ManagePreferencesUseCase,
+    @Provided private val manageLoginUsecase: ManageLoginUsecase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState
-        .onStart { fetch() }
+        .onStart { load() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = UiState.Idle
         )
 
-    private fun fetch() {
+    private fun load() {
         _uiState.value = UiState.Loading(firstLoad = true)
 
+        val start: Long = System.currentTimeMillis()
         viewModelScope.launch {
-            val start: Long = System.currentTimeMillis()
+            val deferred: Deferred<Unit> = async(Dispatchers.IO) {
+                manageLoginUsecase.logOut()
+            }
 
             managePreferencesUseCase.getPreferences()
-                .catch { throwable: Throwable ->
-                    if (_uiState.value is UiState.Success<*> || _uiState.value is UiState.Error<*>)
-                        return@catch
-
-                    // TODO: Report to Kotzilla
-
-                    // Wait for at least 1 second
-                    val elapsed: Long = System.currentTimeMillis() - start
-                    delay(1000 - elapsed)
-
-                    _uiState.value = UiState.Error(
-                        cause = throwable,
-                        retry = false,
-                        cache = null
-                    )
-                }
                 .flowOn(Dispatchers.IO)
                 .collect { prefs ->
                     if (_uiState.value is UiState.Success<*> || _uiState.value is UiState.Error<*>)
                         return@collect
+
+                    deferred.await()
 
                     // Wait for at least 1 second
                     val elapsed: Long = System.currentTimeMillis() - start

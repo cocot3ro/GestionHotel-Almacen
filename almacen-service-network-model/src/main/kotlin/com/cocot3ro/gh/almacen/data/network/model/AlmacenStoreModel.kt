@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AlmacenStoreModel(
     val id: Long = 0L,
-    val name: String,
-    val image: String?
+    val name: String
 )

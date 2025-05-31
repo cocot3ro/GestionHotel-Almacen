@@ -5,6 +5,5 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 
 fun AlmacenStoreEntity.toModel(): AlmacenStoreModel = AlmacenStoreModel(
     id = id,
-    name = name,
-    image = image
+    name = name
 )

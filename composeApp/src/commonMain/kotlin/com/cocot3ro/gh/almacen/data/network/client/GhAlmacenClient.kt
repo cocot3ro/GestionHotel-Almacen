@@ -85,27 +85,79 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun getAlmacenUsers(): HttpResponse {
-        return client.get(resource = AlmacenUserResource.All()) {
-            setConnectionValues()
-        }
+    suspend fun getAlmacenUsers(): DefaultClientWebSocketSession {
+        return client.webSocketSession(
+            host = this.host,
+            port = this.port.toInt(),
+            path = AlmacenUserResource.All().getRoute()
+        )
     }
 
-    suspend fun postAlmacenUser(almacenModel: AlmacenUserModel): HttpResponse {
+    suspend fun postAlmacenUser(
+        almacenModel: AlmacenUserModel,
+        imageData: Pair<ByteArray, String>?
+    ): HttpResponse {
         return authClient.post(resource = AlmacenUserResource()) {
             setConnectionValues()
 
-            contentType(ContentType.Application.Json)
-            setBody(almacenModel)
+            contentType(ContentType.MultiPart.FormData)
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append("data", Json.encodeToString(almacenModel))
+                        imageData?.let { (image: ByteArray, imageName: String) ->
+                            append(
+                                key = "image",
+                                value = image,
+                                headers = Headers.build {
+                                    append(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Image.Any.toString()
+                                    )
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "filename=\"${imageName}\""
+                                    )
+                                }
+                            )
+                        }
+                    }
+                )
+            )
         }
     }
 
-    suspend fun putAlmacenUser(almacenModel: AlmacenUserModel): HttpResponse {
+    suspend fun putAlmacenUser(
+        almacenModel: AlmacenUserModel,
+        imageData: Pair<ByteArray, String>?
+    ): HttpResponse {
         return authClient.put(resource = AlmacenUserResource.Id(id = almacenModel.id)) {
             setConnectionValues()
 
-            contentType(ContentType.Application.Json)
-            setBody(almacenModel)
+            contentType(ContentType.MultiPart.FormData)
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append("data", Json.encodeToString(almacenModel))
+                        imageData?.let { (image: ByteArray, imageName: String) ->
+                            append(
+                                key = "image",
+                                value = image,
+                                headers = Headers.build {
+                                    append(
+                                        HttpHeaders.ContentType,
+                                        ContentType.Image.Any.toString()
+                                    )
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "filename=\"${imageName}\""
+                                    )
+                                }
+                            )
+                        }
+                    }
+                )
+            )
         }
     }
 
@@ -125,8 +177,7 @@ class GhAlmacenClient(
 
     suspend fun postAlmacenItem(
         almacenModel: AlmacenItemModel,
-        image: ByteArray?,
-        imageName: String?
+        imageData: Pair<ByteArray, String>?
     ): HttpResponse {
         return authClient.post(resource = AlmacenItemResource()) {
             setConnectionValues()
@@ -136,7 +187,7 @@ class GhAlmacenClient(
                 MultiPartFormDataContent(
                     formData {
                         append("data", Json.encodeToString(almacenModel))
-                        image?.let { image ->
+                        imageData?.let { (image: ByteArray, imageName: String) ->
                             append(
                                 key = "image",
                                 value = image,
@@ -147,7 +198,7 @@ class GhAlmacenClient(
                                     )
                                     append(
                                         HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName!!}\""
+                                        "filename=\"${imageName}\""
                                     )
                                 }
                             )
@@ -160,8 +211,7 @@ class GhAlmacenClient(
 
     suspend fun putAlmacenItem(
         item: AlmacenItemModel,
-        image: ByteArray?,
-        imageName: String?
+        imageData: Pair<ByteArray, String>?
     ): HttpResponse {
         return authClient.put(resource = AlmacenItemResource.Id(id = item.id)) {
             setConnectionValues()
@@ -171,7 +221,7 @@ class GhAlmacenClient(
                 MultiPartFormDataContent(
                     formData {
                         append("data", Json.encodeToString(item))
-                        image?.let { image ->
+                        imageData?.let { (image: ByteArray, imageName: String) ->
                             append(
                                 key = "image",
                                 value = image,
@@ -182,7 +232,7 @@ class GhAlmacenClient(
                                     )
                                     append(
                                         HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName!!}\""
+                                        "filename=\"${imageName}\""
                                     )
                                 }
                             )
@@ -223,10 +273,12 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun getAlmacenStores(): HttpResponse {
-        return authClient.get(resource = AlmacenStoreResource.All()) {
-            setConnectionValues()
-        }
+    suspend fun getAlmacenStores(): DefaultClientWebSocketSession {
+        return authClient.webSocketSession(
+            host = this.host,
+            port = this.port.toInt(),
+            path = AlmacenStoreResource.All().getRoute()
+        )
     }
 
     suspend fun postAlmacenStore(almacenModel: AlmacenStoreModel): HttpResponse {

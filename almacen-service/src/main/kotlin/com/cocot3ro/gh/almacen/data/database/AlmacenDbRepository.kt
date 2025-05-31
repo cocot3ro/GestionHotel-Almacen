@@ -115,8 +115,8 @@ class AlmacenDbRepository(
 
     fun insertAlmacenStore(almacenStoreEntity: AlmacenStoreEntity): Long {
         return database.transactionWithResult {
-            val (_, name, image) = almacenStoreEntity
-            almacenStoreDao.insert(name, image)
+            val (_, name) = almacenStoreEntity
+            almacenStoreDao.insert(name)
             almacenStoreDao.lastInsertRowId().executeAsOne()
         }
     }
@@ -124,8 +124,7 @@ class AlmacenDbRepository(
     fun updateAlmacenStore(almacenStoreEntity: AlmacenStoreEntity) {
         almacenStoreDao.update(
             id = almacenStoreEntity.id,
-            name = almacenStoreEntity.name,
-            image = almacenStoreEntity.image
+            name = almacenStoreEntity.name
         )
     }
 

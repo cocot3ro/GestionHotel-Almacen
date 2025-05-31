@@ -54,11 +54,11 @@ fun Application.configureRouting() {
     install(Resources)
 
     almacenStatus()
+    almacenLoginGateway()
     almacenImagesRouting()
     almacenItemsRouting()
     almacenUsersRouting()
     almacenStoresRouting()
-    almacenLoginGateway()
 }
 
 private fun Application.almacenStatus() {
@@ -73,7 +73,7 @@ private fun Application.almacenLoginGateway() {
     val almacenDbRepository: AlmacenDbRepository by inject()
 
     routing {
-        post<AlmacenLoginRequestResource> { _ ->
+        post<AlmacenLoginRequestResource.Login> { _ ->
             val loginRequest: AlmacenLoginRequestModel = call.receive<AlmacenLoginRequestModel>()
 
             val dbUser: AlmacenUserEntity? =
@@ -130,12 +130,6 @@ private fun Application.almacenImagesRouting() {
         staticFiles(
             remotePath = AlmacenImageResource.User().getRoute(),
             dir = File(StorageConstants.almacenUserImagesDir),
-            index = null
-        )
-
-        staticFiles(
-            remotePath = AlmacenImageResource.Store().getRoute(),
-            dir = File(StorageConstants.almacenStoreImagesDir),
             index = null
         )
     }
@@ -210,11 +204,13 @@ private fun Application.almacenItemsRouting() {
             val savedImageUrl: String = AlmacenImageResource.Item.Id(id = imageFileName)
                 .getRoute()
 
-            almacenDbRepository.updateAlmacenItem(createdEntity.copy(image = savedImageUrl))
+            val updatedEntity: AlmacenItemEntity = createdEntity.copy(image = savedImageUrl)
+
+            almacenDbRepository.updateAlmacenItem(updatedEntity)
 
             call.respond(
                 status = HttpStatusCode.Created,
-                message = almacenDbRepository.getAlmacenItemById(id)!!.toModel()
+                message = updatedEntity.toModel()
             )
         }
 
@@ -288,7 +284,7 @@ private fun Application.almacenItemsRouting() {
                 // else -> keep current image
             }
 
-            val updatedEntity = dbEntity.copy(
+            val updatedEntity: AlmacenItemEntity = dbEntity.copy(
                 name = updatedModel!!.name,
                 quantity = updatedModel!!.quantity,
                 packSize = updatedModel!!.packSize,
@@ -308,9 +304,9 @@ private fun Application.almacenItemsRouting() {
             dbEntity?.let {
                 val quantity: Int = call.receive<AlmacenStockModel>().quantity
                 val newQuantity: Int = (dbEntity.quantity.toLong() - quantity.toLong())
-                    .coerceAtLeast(0L).toInt()
+                    .coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
 
-                val newEntity = dbEntity.copy(quantity = newQuantity)
+                val newEntity: AlmacenItemEntity = dbEntity.copy(quantity = newQuantity)
                 almacenDbRepository.updateAlmacenItem(newEntity)
                 call.respond(status = HttpStatusCode.OK, message = newEntity)
             } ?: run {
@@ -329,7 +325,7 @@ private fun Application.almacenItemsRouting() {
 
                 // Prevent int overflow
                 val newQuantity: Int = (dbEntity.quantity.toLong() + quantity.toLong())
-                    .coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+                    .coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
 
                 val newEntity = dbEntity.copy(quantity = newQuantity)
 
@@ -350,7 +346,10 @@ private fun Application.almacenItemsRouting() {
                 almacenDbRepository.deleteAlmacenItem(idRes.id)
                 call.response.status(value = HttpStatusCode.NoContent)
             } ?: run {
-                call.response.status(value = HttpStatusCode.NotFound)
+                call.respond(
+                    status = HttpStatusCode.NotFound,
+                    message = "Item with id ${idRes.id} not found"
+                )
             }
         }
     }
@@ -361,13 +360,11 @@ private fun Application.almacenUsersRouting() {
     val almacenDbRepository: AlmacenDbRepository by inject()
 
     routing {
-        get<AlmacenUserResource.All> { _ ->
+        webSocket(path = AlmacenUserResource.All().getRoute()) {
             almacenDbRepository.getAlmacenUsers()
                 .map { list -> list.map(AlmacenUserEntity::toModel) }
                 .flowOn(Dispatchers.IO)
-                .collect {
-                    call.respond(status = HttpStatusCode.OK, message = it)
-                }
+                .collect(::sendSerialized)
         }
 
         post<AlmacenUserResource> { _ ->
@@ -578,72 +575,25 @@ private fun Application.almacenStoresRouting() {
     val almacenDbRepository: AlmacenDbRepository by inject()
 
     routing {
-        get<AlmacenStoreResource.All> { _ ->
+        webSocket(path = AlmacenStoreResource.All().getRoute()) {
             almacenDbRepository.getAlmacenStores()
                 .map { list -> list.map(AlmacenStoreEntity::toModel) }
                 .flowOn(Dispatchers.IO)
-                .collect {
-                    call.respond(status = HttpStatusCode.OK, message = it)
-                }
+                .collect(::sendSerialized)
         }
 
         post<AlmacenStoreResource> { _ ->
-            var storeModel: AlmacenStoreModel? = null
-            var imagePair: Pair<ByteArray, String>? = null
-
-            val multipart: MultiPartData = call.receiveMultipart()
-            multipart.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> if (part.name == "data") {
-                        storeModel = Json.decodeFromString<AlmacenStoreModel>(part.value)
-                            .copy(id = 0L, image = null)
-                    }
-
-                    is PartData.FileItem -> if (part.name == "image") {
-                        imagePair = part.provider().toByteArray() to part.originalFileName!!
-                    }
-
-                    else -> Unit
-                }
-                part.dispose()
-            }
+            val storeModel: AlmacenStoreModel? = runCatching {
+                call.receive<AlmacenStoreModel>()
+            }.getOrNull()
 
             if (storeModel == null) {
                 call.respond(HttpStatusCode.BadRequest, message = "Missing store data")
                 return@post
             }
 
-            val entity: AlmacenStoreEntity = storeModel!!.toDatabase()
-            val id: Long = almacenDbRepository.insertAlmacenStore(entity)
-
-            val createdEntity: AlmacenStoreEntity = almacenDbRepository.getAlmacenStoreById(id)!!
-
-            if (imagePair == null) {
-                call.respond(
-                    HttpStatusCode.Created,
-                    createdEntity.toModel()
-                )
-
-                return@post
-            }
-
-            val (imageBytes: ByteArray, originalFileName: String) = imagePair!!
-
-            val imageFileName: String = originalFileName.substringAfterLast(
-                delimiter = '.',
-                missingDelimiterValue = "png"
-            ).let { extension ->
-                "${id}_${createdEntity.name}_${System.currentTimeMillis()}.$extension"
-            }
-
-            File(StorageConstants.almacenStoreImagesDir, imageFileName)
-                .also(File::createNewFile)
-                .writeBytes(imageBytes)
-
-            val savedImageUrl: String = AlmacenImageResource.Store.Id(id = imageFileName)
-                .getRoute()
-
-            almacenDbRepository.updateAlmacenStore(createdEntity.copy(image = savedImageUrl))
+            val entity = storeModel.toDatabase()
+            val id = almacenDbRepository.insertAlmacenStore(entity)
 
             call.respond(
                 status = HttpStatusCode.Created,
@@ -659,77 +609,21 @@ private fun Application.almacenStoresRouting() {
                 return@put
             }
 
-            var updatedModel: AlmacenStoreModel? = null
-            var imageFileData: Pair<ByteArray, String>? = null
+            val storeModel: AlmacenStoreModel? =
+                runCatching { call.receive<AlmacenStoreModel>() }.getOrNull()
 
-            val multipart: MultiPartData = call.receiveMultipart()
-            multipart.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> if (part.name == "data") {
-                        updatedModel = Json.decodeFromString<AlmacenStoreModel>(part.value)
-                    }
-
-                    is PartData.FileItem -> if (part.name == "image") {
-                        imageFileData = part.provider().toByteArray() to part.originalFileName!!
-                    }
-
-                    else -> Unit
-                }
-                part.dispose()
-            }
-
-            if (updatedModel == null) {
-                call.respond(HttpStatusCode.BadRequest, "Missing store data")
+            if (storeModel == null) {
+                call.respond(HttpStatusCode.BadRequest, message = "Missing store data")
                 return@put
             }
 
-            var imageUrl: String? = dbEntity.image
+            val entity = storeModel.toDatabase()
+            almacenDbRepository.updateAlmacenStore(entity)
 
-            when {
-                // Add a new image
-                imageFileData != null -> {
-                    dbEntity.image?.let { oldImageUrl ->
-                        File(
-                            StorageConstants.almacenStoreImagesDir,
-                            oldImageUrl.substringAfterLast('/')
-                        ).takeIf(File::exists)
-                            ?.let(File::delete)
-                    }
-
-                    val (bytes: ByteArray, fileName: String) = imageFileData!!
-                    val extension: String = fileName.substringAfterLast(
-                        delimiter = '.',
-                        missingDelimiterValue = "png"
-                    )
-                    val newImageFileName =
-                        "${idRes.id}_${updatedModel!!.name}_${System.currentTimeMillis()}.$extension"
-
-                    File(StorageConstants.almacenStoreImagesDir, newImageFileName)
-                        .also(File::createNewFile)
-                        .writeBytes(bytes)
-
-                    imageUrl = AlmacenImageResource.Store.Id(id = newImageFileName).getRoute()
-                }
-
-                // Delete the current image
-                updatedModel!!.image == null && dbEntity.image != null -> {
-                    // If `image` is null, delete the current image (if any)
-                    File(
-                        StorageConstants.almacenStoreImagesDir,
-                        dbEntity.image.substringAfterLast('/')
-                    ).takeIf(File::exists)
-                        ?.let(File::delete)
-                    imageUrl = null
-                }
-            }
-
-            val updatedEntity = dbEntity.copy(
-                name = updatedModel!!.name,
-                image = imageUrl
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = entity.toModel()
             )
-
-            almacenDbRepository.updateAlmacenStore(updatedEntity)
-            call.respond(HttpStatusCode.OK, updatedEntity.toModel())
         }
 
         delete<AlmacenStoreResource.Id> { idRes ->

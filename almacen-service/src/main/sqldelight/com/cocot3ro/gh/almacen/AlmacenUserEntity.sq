@@ -8,13 +8,14 @@ CREATE TABLE IF NOT EXISTS almacenUserEntity(
     role TEXT AS UserRoleEntity NOT NULL
 );
 
-INSERT INTO almacenUserEntity(name, image, passwordHash, role)
-SELECT 'admin',
+INSERT INTO almacenUserEntity(id, name, image, passwordHash, role)
+SELECT 1,
+       'admin',
         NULL,
        '$argon2id$v=19$m=4096,t=2,p=1$6rgpDHILJh6v6uQO+Hle1+IIQV94XTCDNEdwwDdbG5BXbuSXtFgky1Bs4rSL8hzaY346buO8n5FcmckqEekg7Q$Ah35fQUtbydQTY2shZIL7ghwdcDnmr9txYRaaN75gsM',
        'ADMIN'
 WHERE NOT EXISTS (
-    SELECT 1 FROM almacenUserEntity WHERE name = 'admin'
+    SELECT 1 FROM almacenUserEntity WHERE id = 1
 );
 
 selectAll:

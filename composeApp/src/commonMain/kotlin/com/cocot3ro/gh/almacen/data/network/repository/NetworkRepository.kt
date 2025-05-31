@@ -22,6 +22,7 @@ import io.ktor.client.plugins.websocket.receiveDeserialized
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlin.properties.Delegates
@@ -85,62 +86,79 @@ class NetworkRepository(
         }
     }
 
-    fun getAlmacenUsers(): Flow<List<AlmacenUserModel>> = flow {
-        val response: HttpResponse = client.getAlmacenUsers()
-        val users: List<AlmacenUserModel> = response.body<List<AlmacenUserModel>>().map { user ->
-            user.copy(
-                image = user.image?.let {
-                    "%s://%s:%d$it".format(
-                        NetworkConstants.SCHEME,
-                        host,
-                        port.toInt()
-                    )
+    fun getAlmacenUsers(): Flow<List<AlmacenUserModel>> = callbackFlow {
+        val webSocketSession: DefaultClientWebSocketSession = client.getAlmacenUsers()
+        with(webSocketSession) {
+            try {
+                while (true) {
+                    val items: List<AlmacenUserModel> =
+                        receiveDeserialized<List<AlmacenUserModel>>().map { item ->
+                            item.copy(
+                                image = item.image?.let {
+                                    "%s://%s:%d$it".format(
+                                        NetworkConstants.SCHEME,
+                                        host,
+                                        port.toInt()
+                                    )
+                                }
+                            )
+                        }
+                    send(items)
                 }
-            )
+            } catch (e: Exception) {
+                close(e)
+            }
         }
-
-        emit(users)
     }
 
-    suspend fun createAlmacenUser(user: AlmacenUserDomain) {
-        client.postAlmacenUser(user.toModel())
+    fun createAlmacenUser(user: AlmacenUserDomain, imageData: Pair<ByteArray, String>?) = flow {
+        val response: HttpResponse = client.postAlmacenUser(user.toModel(), imageData)
+
+        emit(TODO())
     }
 
-    suspend fun editAlmacenUser(user: AlmacenUserDomain) {
-        client.putAlmacenUser(user.toModel())
+    fun editAlmacenUser(user: AlmacenUserDomain, imageData: Pair<ByteArray, String>?) = flow {
+        val response: HttpResponse = client.putAlmacenUser(user.toModel(), imageData)
+
+        emit(TODO())
     }
 
-    suspend fun deleteAlmacenUser(user: AlmacenUserDomain) {
-        client.deleteAlmacenUser(user.toModel())
+    fun deleteAlmacenUser(user: AlmacenUserDomain) = flow {
+        val response: HttpResponse = client.deleteAlmacenUser(user.toModel())
+
+        emit(TODO())
     }
 
-    fun getAlmacenStores(): Flow<List<AlmacenStoreModel>> = flow {
-        val response = client.getAlmacenStores()
-        val stores = response.body<List<AlmacenStoreModel>>().map { store ->
-            store.copy(
-                image = store.image?.let {
-                    "%s://%s:%d$it".format(
-                        NetworkConstants.SCHEME,
-                        host,
-                        port.toInt()
-                    )
+    fun getAlmacenStores(): Flow<List<AlmacenStoreModel>> = callbackFlow {
+        val webSocketSession: DefaultClientWebSocketSession = client.getAlmacenStores()
+        with(webSocketSession) {
+            try {
+                while (true) {
+                    val items: List<AlmacenStoreModel> = receiveDeserialized()
+                    send(items)
                 }
-            )
+            } catch (e: Exception) {
+                close(e)
+            }
         }
-
-        emit(stores)
     }
 
-    suspend fun createAlmacenStore(store: AlmacenStoreDomain) {
-        client.postAlmacenStore(store.toModel())
+    fun createAlmacenStore(store: AlmacenStoreDomain) = flow {
+        val response: HttpResponse = client.postAlmacenStore(store.toModel())
+
+        emit(TODO())
     }
 
-    suspend fun editAlmacenStore(store: AlmacenStoreDomain) {
-        client.putAlmacenStore(store.toModel())
+    fun editAlmacenStore(store: AlmacenStoreDomain) = flow {
+        val response: HttpResponse = client.putAlmacenStore(store.toModel())
+
+        emit(TODO())
     }
 
-    suspend fun deleteAlmacenStore(store: AlmacenStoreDomain) {
-        client.deleteAlmacenStore(store.toModel())
+    fun deleteAlmacenStore(store: AlmacenStoreDomain) = flow {
+        val response: HttpResponse = client.deleteAlmacenStore(store.toModel())
+
+        emit(TODO())
     }
 
     fun getAlmacenItems(): Flow<List<AlmacenItemModel>> = channelFlow {
@@ -169,23 +187,40 @@ class NetworkRepository(
         }
     }
 
-    suspend fun createAlmacenItem(item: AlmacenItemDomain, image: ByteArray?, imageName: String?) {
-        client.postAlmacenItem(item.toModel(), image, imageName)
+    fun createAlmacenItem(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) = flow {
+        val response: HttpResponse = client.postAlmacenItem(item.toModel(), imageData)
+
+        emit(TODO())
     }
 
-    suspend fun editAlamcenItem(item: AlmacenItemDomain, image: ByteArray?, imageName: String?) {
-        client.putAlmacenItem(item.toModel(), image, imageName)
+    fun editAlamcenItem(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) = flow {
+        val response: HttpResponse = client.putAlmacenItem(item.toModel(), imageData)
+
+        emit(TODO())
     }
 
-    suspend fun almacenItemAddStock(item: AlmacenItemDomain, amount: Int) {
-        client.postAddStock(item.toModel(), AlmacenStockModel(amount))
+    fun almacenItemAddStock(
+        item: AlmacenItemDomain,
+        amount: Int
+    ): Flow<List<AlmacenItemModel>> = flow {
+        val response: HttpResponse = client.postAddStock(item.toModel(), AlmacenStockModel(amount))
+        val body: List<AlmacenItemModel> = response.body()
+
+        emit(body)
     }
 
-    suspend fun almacenItemTakeStock(item: AlmacenItemDomain, amount: Int) {
-        client.postTakeStock(item.toModel(), AlmacenStockModel(amount))
+    fun almacenItemTakeStock(item: AlmacenItemDomain, amount: Int) = flow {
+        val resposne: HttpResponse = client.postTakeStock(item.toModel(), AlmacenStockModel(amount))
+        val body: List<AlmacenItemModel> = resposne.body()
+        emit(body)
     }
 
-    suspend fun deleteAlmacenItem(item: AlmacenItemDomain) {
-        client.deleteAlmacenItem(item.toModel())
+    fun deleteAlmacenItem(item: AlmacenItemDomain) = flow {
+        val response: HttpResponse = client.deleteAlmacenItem(item.toModel())
+        when (response.status) {
+
+        }
+
+        emit(TODO())
     }
 }

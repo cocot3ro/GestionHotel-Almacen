@@ -64,14 +64,6 @@ object StorageConstants {
         }
     }.absolutePathString()
 
-    val almacenStoreImagesDir: String = Path.of(imagesDir, "stores").also { path ->
-        path.toFile().let { file ->
-            if (!file.exists()) {
-                file.mkdirs()
-            }
-        }
-    }.absolutePathString()
-
     val almacenItemImagesDir: String = Path.of(imagesDir, "products").also { path ->
         path.toFile().let { file ->
             if (!file.exists()) {

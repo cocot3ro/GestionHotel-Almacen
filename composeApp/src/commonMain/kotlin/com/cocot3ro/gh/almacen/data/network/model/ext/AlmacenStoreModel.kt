@@ -5,6 +5,5 @@ import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 
 fun AlmacenStoreModel.toDomain() = AlmacenStoreDomain(
     id = id,
-    name = name,
-    image = image
+    name = name
 )

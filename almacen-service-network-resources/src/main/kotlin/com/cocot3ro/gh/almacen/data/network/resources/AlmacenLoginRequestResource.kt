@@ -23,17 +23,6 @@ class AlmacenLoginRequestResource : ResourceRoute {
         override fun getRoute(): String = "${parent.getRoute()}/$PATH"
     }
 
-    @Resource(Logout.PATH)
-    data class Logout(
-        val parent: AlmacenLoginRequestResource = AlmacenLoginRequestResource()
-    ) : ResourceRoute {
-        companion object {
-            const val PATH: String = "logout"
-        }
-
-        override fun getRoute(): String = "${parent.getRoute()}/$PATH"
-    }
-
     @Resource(Refresh.PATH)
     data class Refresh(
         val parent: AlmacenLoginRequestResource = AlmacenLoginRequestResource()

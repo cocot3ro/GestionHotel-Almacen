@@ -63,29 +63,4 @@ class AlmacenImageResource : ResourceRoute {
         }
 
     }
-
-    @Resource(Store.PATH)
-    data class Store(
-        val parent: AlmacenImageResource = AlmacenImageResource()
-    ) : ResourceRoute {
-
-        companion object {
-            const val PATH: String = "store"
-        }
-
-        override fun getRoute(): String = "${parent.getRoute()}/$PATH"
-
-        @Resource(Id.PATH)
-        data class Id(
-            val parent: Store = Store(),
-            val id: String
-        ) : ResourceRoute {
-
-            companion object {
-                const val PATH: String = "{id}"
-            }
-
-            override fun getRoute(): String = "${parent.getRoute()}/$id"
-        }
-    }
 }

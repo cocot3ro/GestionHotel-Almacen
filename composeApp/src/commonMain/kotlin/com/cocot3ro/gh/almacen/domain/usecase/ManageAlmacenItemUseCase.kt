@@ -22,26 +22,26 @@ class ManageAlmacenItemUseCase(
         list.map(AlmacenItemModel::toDomain)
     }
 
-    suspend fun create(item: AlmacenItemDomain, image: ByteArray?, imageName: String?) {
+    suspend fun create(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) {
         if (sessionManagementRepository.getUser()?.toDomain()?.role != UserRoleDomain.ADMIN)
             return
 
-        networkRepository.createAlmacenItem(item, image, imageName)
+        networkRepository.createAlmacenItem(item, imageData)
     }
 
     suspend fun takeStock(item: AlmacenItemDomain, amount: Int) {
         networkRepository.almacenItemTakeStock(item, amount)
     }
 
-    suspend fun addStock(item: AlmacenItemDomain, amount: Int) {
+    fun addStock(item: AlmacenItemDomain, amount: Int) {
         networkRepository.almacenItemAddStock(item, amount)
     }
 
-    suspend fun edit(item: AlmacenItemDomain, image: ByteArray?, imageName: String?) {
+    suspend fun edit(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) {
         if (sessionManagementRepository.getUser()?.toDomain()?.role != UserRoleDomain.ADMIN)
             return
 
-        networkRepository.editAlamcenItem(item, image, imageName)
+        networkRepository.editAlamcenItem(item, imageData)
     }
 
     suspend fun delete(item: AlmacenItemDomain) {
@@ -50,5 +50,4 @@ class ManageAlmacenItemUseCase(
 
         networkRepository.deleteAlmacenItem(item)
     }
-
 }

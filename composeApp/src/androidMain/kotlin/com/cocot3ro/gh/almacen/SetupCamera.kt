@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.almacen.ui.screens.setup
+package com.cocot3ro.gh.almacen
 
 import android.content.Intent
 import android.provider.Settings
@@ -45,7 +45,7 @@ import org.jetbrains.compose.resources.vectorResource
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun SetupFase1(
+fun SetupCamera(
     modifier: Modifier,
     onSetupFaseCompleted: () -> Unit,
 ) {
@@ -129,7 +129,6 @@ fun SetupFase1(
                     displayText = Res.string.camera_permission_rationale
                     iWasRationale = true
                     canContinue = true
-
                 }
 
                 permanentDenied -> {
@@ -137,9 +136,8 @@ fun SetupFase1(
 
                     val context = LocalContext.current
                     action = {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = ("package:" + context.packageName).toUri()
-                        }
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .apply { data = "package:${context.packageName}".toUri() }
                         context.startActivity(intent)
                     }
 

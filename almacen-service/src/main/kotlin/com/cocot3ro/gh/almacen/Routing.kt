@@ -543,7 +543,7 @@ private fun Application.almacenUsersRouting() {
             }
 
             if (!Password.check(pwsdModel.currentPassword, dbEntity.passwordHash).withArgon2()) {
-                call.respond(status = HttpStatusCode.Unauthorized, message = "Invalid password")
+                call.respond(status = HttpStatusCode.BadRequest, message = "Invalid password")
                 return@patch
             }
 

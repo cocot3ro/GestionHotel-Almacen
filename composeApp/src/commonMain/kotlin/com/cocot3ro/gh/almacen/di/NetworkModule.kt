@@ -4,7 +4,7 @@ import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
 import com.cocot3ro.gh.almacen.domain.model.AlmacenLoginResponseDomain
 import com.cocot3ro.gh.almacen.domain.model.AuthPreferenceItem
-import com.cocot3ro.gh.almacen.domain.state.LoginResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import io.ktor.client.HttpClient
@@ -80,11 +80,11 @@ val networkModule: Module = module {
                     refreshTokens {
                         runCatching<BearerTokens?> {
                             oldTokens?.let { oldTokens ->
-                                val newTokens =
-                                    manageLoginUsecase.refresh(oldTokens.refreshToken!!).first()
+                                val newTokens = manageLoginUsecase.refresh(oldTokens.refreshToken!!)
+                                    .first()
 
-                                (newTokens as? LoginResult.Success)
-                                    ?.let { newTokens.loginResponse }
+                                (newTokens as? ResponseState.OK<*>)
+                                    ?.let { newTokens.data as AlmacenLoginResponseDomain }
                                     ?.let { response: AlmacenLoginResponseDomain ->
                                         managePreferencesUseCase.setJwtToken(response.jwtToken)
                                         managePreferencesUseCase.setRefreshToken(response.refreshToken)

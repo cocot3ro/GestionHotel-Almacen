@@ -6,6 +6,7 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginRequestModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
 import com.cocot3ro.gh.almacen.data.network.model.RefreshTokenRequestModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenItemResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenLoginRequestResource
@@ -15,20 +16,18 @@ import com.cocot3ro.gh.almacen.data.network.resources.AlmacenUserResource
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
+import io.ktor.client.plugins.resources.patch
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.plugins.resources.put
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
+import io.ktor.http.content.PartData
 import io.ktor.http.contentType
-import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.java.KoinJavaComponent.inject
 import kotlin.properties.Delegates
@@ -85,7 +84,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun getAlmacenUsers(): DefaultClientWebSocketSession {
+    suspend fun wsAlmacenUsers(): DefaultClientWebSocketSession {
         return client.webSocketSession(
             host = this.host,
             port = this.port.toInt(),
@@ -93,71 +92,36 @@ class GhAlmacenClient(
         )
     }
 
-    suspend fun postAlmacenUser(
-        almacenModel: AlmacenUserModel,
-        imageData: Pair<ByteArray, String>?
-    ): HttpResponse {
+    suspend fun postAlmacenUser(multipart: List<PartData>): HttpResponse {
         return authClient.post(resource = AlmacenUserResource()) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append("data", Json.encodeToString(almacenModel))
-                        imageData?.let { (image: ByteArray, imageName: String) ->
-                            append(
-                                key = "image",
-                                value = image,
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Image.Any.toString()
-                                    )
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName}\""
-                                    )
-                                }
-                            )
-                        }
-                    }
-                )
-            )
+            setBody(MultiPartFormDataContent(multipart))
         }
     }
 
     suspend fun putAlmacenUser(
-        almacenModel: AlmacenUserModel,
-        imageData: Pair<ByteArray, String>?
+        id: Long,
+        multipart: List<PartData>
     ): HttpResponse {
-        return authClient.put(resource = AlmacenUserResource.Id(id = almacenModel.id)) {
+        return authClient.put(resource = AlmacenUserResource.Id(id = id)) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append("data", Json.encodeToString(almacenModel))
-                        imageData?.let { (image: ByteArray, imageName: String) ->
-                            append(
-                                key = "image",
-                                value = image,
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Image.Any.toString()
-                                    )
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName}\""
-                                    )
-                                }
-                            )
-                        }
-                    }
-                )
-            )
+            setBody(MultiPartFormDataContent(multipart))
+        }
+    }
+
+    suspend fun patchAlmacenUser(
+        userId: Long,
+        model: AlmacenUserPasswordChangeModel
+    ): HttpResponse {
+        return authClient.patch(resource = AlmacenUserResource.Id(id = userId)) {
+            setConnectionValues()
+
+            contentType(ContentType.Application.Json)
+            setBody(model)
         }
     }
 
@@ -167,7 +131,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun getAlmacenItems(): DefaultClientWebSocketSession {
+    suspend fun wsAlmacenItems(): DefaultClientWebSocketSession {
         return authClient.webSocketSession(
             host = this.host,
             port = this.port.toInt(),
@@ -175,71 +139,24 @@ class GhAlmacenClient(
         )
     }
 
-    suspend fun postAlmacenItem(
-        almacenModel: AlmacenItemModel,
-        imageData: Pair<ByteArray, String>?
-    ): HttpResponse {
+    suspend fun postAlmacenItem(multipart: List<PartData>): HttpResponse {
         return authClient.post(resource = AlmacenItemResource()) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append("data", Json.encodeToString(almacenModel))
-                        imageData?.let { (image: ByteArray, imageName: String) ->
-                            append(
-                                key = "image",
-                                value = image,
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Image.Any.toString()
-                                    )
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName}\""
-                                    )
-                                }
-                            )
-                        }
-                    }
-                )
-            )
+            setBody(MultiPartFormDataContent(multipart))
         }
     }
 
     suspend fun putAlmacenItem(
-        item: AlmacenItemModel,
-        imageData: Pair<ByteArray, String>?
+        id: Long,
+        multipart: List<PartData>
     ): HttpResponse {
-        return authClient.put(resource = AlmacenItemResource.Id(id = item.id)) {
+        return authClient.put(resource = AlmacenItemResource.Id(id = id)) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append("data", Json.encodeToString(item))
-                        imageData?.let { (image: ByteArray, imageName: String) ->
-                            append(
-                                key = "image",
-                                value = image,
-                                headers = Headers.build {
-                                    append(
-                                        HttpHeaders.ContentType,
-                                        ContentType.Image.Any.toString()
-                                    )
-                                    append(
-                                        HttpHeaders.ContentDisposition,
-                                        "filename=\"${imageName}\""
-                                    )
-                                }
-                            )
-                        }
-                    }
-                )
-            )
+            setBody(MultiPartFormDataContent(multipart))
         }
     }
 
@@ -273,7 +190,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun getAlmacenStores(): DefaultClientWebSocketSession {
+    suspend fun wsAlmacenStores(): DefaultClientWebSocketSession {
         return authClient.webSocketSession(
             host = this.host,
             port = this.port.toInt(),

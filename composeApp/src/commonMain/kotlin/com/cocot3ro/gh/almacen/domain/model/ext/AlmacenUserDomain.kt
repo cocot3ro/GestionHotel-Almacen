@@ -15,7 +15,7 @@ fun AlmacenUserDomain.toCore() = AlmacenUserCore(
 fun AlmacenUserDomain.toModel() = AlmacenUserModel(
     id = id,
     name = name,
-    image = image,
+    image = image?.replace("""^https?://[^/]+""".toRegex(), ""),
     requiresPassword = requiresPassword,
     role = role.toModel()
 )

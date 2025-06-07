@@ -156,7 +156,15 @@ class NetworkRepository(
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 
             HttpStatusCode.Created -> {
-                emit(ResponseState.Created(response.body<AlmacenItemModel>()))
+                emit(ResponseState.Created(response.body<AlmacenUserModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -203,7 +211,15 @@ class NetworkRepository(
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<AlmacenUserModel>()))
+                emit(ResponseState.OK(response.body<AlmacenUserModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -229,7 +245,15 @@ class NetworkRepository(
             HttpStatusCode.Forbidden -> emit(ResponseState.Forbidden)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<AlmacenUserModel>()))
+                emit(ResponseState.OK(response.body<AlmacenUserModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -312,9 +336,7 @@ class NetworkRepository(
 
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
-            HttpStatusCode.NoContent -> {
-                emit(ResponseState.NoContent)
-            }
+            HttpStatusCode.NoContent -> emit(ResponseState.NoContent)
 
             else -> {
                 emit(ResponseState.Error(UnexpectedResponseException("Unexpected response: ${response.status}")))
@@ -381,7 +403,15 @@ class NetworkRepository(
             HttpStatusCode.BadRequest -> emit(ResponseState.BadRequest)
 
             HttpStatusCode.Created -> {
-                emit(ResponseState.Created(response.body<AlmacenItemModel>()))
+                emit(ResponseState.Created(response.body<AlmacenItemModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -425,7 +455,15 @@ class NetworkRepository(
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<AlmacenItemModel>()))
+                emit(ResponseState.OK(response.body<AlmacenItemModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -445,7 +483,15 @@ class NetworkRepository(
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<List<AlmacenItemModel>>()))
+                emit(ResponseState.OK(response.body<AlmacenItemModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {
@@ -462,7 +508,15 @@ class NetworkRepository(
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<List<AlmacenItemModel>>()))
+                emit(ResponseState.OK(response.body<AlmacenItemModel>().let { responseItem ->
+                    responseItem.copy(image = responseItem.image?.let {
+                        "%s://%s:%d$it".format(
+                            NetworkConstants.SCHEME,
+                            host,
+                            port.toInt()
+                        )
+                    })
+                }))
             }
 
             else -> {

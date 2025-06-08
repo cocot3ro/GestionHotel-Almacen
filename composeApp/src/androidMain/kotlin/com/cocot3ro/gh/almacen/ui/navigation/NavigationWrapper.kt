@@ -3,12 +3,13 @@ package com.cocot3ro.gh.almacen.ui.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cocot3ro.gh.almacen.ui.screens.almacen.AlmacenScreen
 import com.cocot3ro.gh.almacen.ui.screens.home.HomeScreen
 import com.cocot3ro.gh.almacen.ui.screens.login.LoginScreen
+import com.cocot3ro.gh.almacen.ui.screens.main.MainScreen
 import com.cocot3ro.gh.almacen.ui.screens.settings.SettingsScreen
 import com.cocot3ro.gh.almacen.ui.screens.setup.SetupScreen
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashScreen
@@ -16,7 +17,7 @@ import com.cocot3ro.gh.almacen.ui.screens.splash.SplashScreen
 @Composable
 fun NavigationWrapper(startDestination: Any) {
 
-    val navController = rememberNavController()
+    val navController: NavHostController = rememberNavController()
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable<Splash> { _ ->
@@ -59,21 +60,16 @@ fun NavigationWrapper(startDestination: Any) {
         composable<Login> { _ ->
             LoginScreen(
                 modifier = Modifier.fillMaxSize(),
-                onNavigateToAlmacen = {
-                    navController.navigate(route = Almacen)
+                onNavigateToMain = {
+                    navController.navigate(route = Main)
                 }
             )
         }
 
-        composable<Almacen> { _ ->
-            AlmacenScreen(
+        composable<Main> { _ ->
+            MainScreen(
                 modifier = Modifier.fillMaxSize(),
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                onNavigateToCarrito = {
-                    navController.navigate(route = Carrito)
-                }
+                onNavigateBackToLogin = navController::popBackStack
             )
         }
 
@@ -82,13 +78,9 @@ fun NavigationWrapper(startDestination: Any) {
                 modifier = Modifier.fillMaxSize(),
                 onBack = navController::popBackStack,
                 onSettingsChanged = {
-                    navController.popBackStack(Home, false)
+                    navController.popBackStack(Main, false)
                 }
             )
-        }
-
-        composable<Carrito> {
-
         }
     }
 }

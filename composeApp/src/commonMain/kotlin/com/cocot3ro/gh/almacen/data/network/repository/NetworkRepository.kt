@@ -472,10 +472,7 @@ class NetworkRepository(
         }
     }
 
-    fun almacenItemAddStock(
-        item: AlmacenItemDomain,
-        amount: Int
-    ): Flow<ResponseState> = flow {
+    fun almacenItemAddStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> = flow {
         val response: HttpResponse = client.postAddStock(item.toModel(), AlmacenStockModel(amount))
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)

@@ -3,7 +3,8 @@ package com.cocot3ro.gh.almacen.ui.state
 sealed class UiState {
     data object Idle : UiState()
 
-    data class Loading(val firstLoad: Boolean) : UiState()
+    data object Loading : UiState()
+    data object Reloading : UiState()
 
     data class Success<T>(val value: T) : UiState()
 

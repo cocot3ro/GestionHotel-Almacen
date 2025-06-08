@@ -42,6 +42,7 @@ fun SplashScreen(
                 UiState.Idle -> Unit
 
                 is UiState.Loading -> Unit
+                is UiState.Reloading -> Unit
 
                 is UiState.Success<*> -> {
                     if (uiState.value as Boolean) onSetupRequired()

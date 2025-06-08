@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
 import com.cocot3ro.gh.almacen.ui.screens.settings.TextFieldStatus
@@ -125,7 +125,7 @@ class SetupViewModel(
             this.port.status != TextFieldStatus.VALID
         ) return
 
-        _uiState.value = UiState.Loading(firstLoad = true)
+        _uiState.value = UiState.Loading
 
         viewModelScope.launch {
             delay(1.seconds)
@@ -139,20 +139,21 @@ class SetupViewModel(
                     )
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { result: TestConnectionResult ->
+                .collect { result: ResponseState ->
                     when (result) {
-                        TestConnectionResult.Success,
-                        TestConnectionResult.ServiceUnavailable -> {
+                        is ResponseState.OK<*> -> {
                             _uiState.value = UiState.Success(value = result)
                         }
 
-                        is TestConnectionResult.Error -> {
+                        is ResponseState.Error -> {
                             _uiState.value = UiState.Error(
                                 cause = result.cause,
                                 retry = false,
                                 cache = null
                             )
                         }
+
+                        else -> Unit
                     }
                 }
         }

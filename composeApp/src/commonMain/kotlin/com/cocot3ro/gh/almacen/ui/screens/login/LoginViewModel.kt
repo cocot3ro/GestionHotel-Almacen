@@ -6,10 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
-import com.cocot3ro.gh.almacen.domain.state.LoginResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
 import com.cocot3ro.gh.almacen.domain.usecase.GetAlmacenUsersUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.ui.state.ext.isLoadingOrReloading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -33,10 +36,12 @@ class LoginViewModel(
 
     private var fetchJob: Job? = null
 
+    private var _usersCache: List<AlmacenUserDomain> = emptyList()
     private val _usersState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val usersState: StateFlow<UiState> = _usersState
         .onStart {
-            firstFetch()
+            _usersState.value = UiState.Loading
+            fetchUsers()
         }
         .stateIn(
             viewModelScope,
@@ -55,43 +60,69 @@ class LoginViewModel(
     }
 
     fun setUserToLogin(user: AlmacenUserDomain?) {
-        if (user == null) {
-            _loginUiState.value = LoginUiState.Idle
-            password = ""
-        } else if (user.requiresPassword) {
-            _loginUiState.value = LoginUiState.Waiting(user = user)
-        } else {
-            login(user = user, password = null)
+        when {
+            user == null -> {
+                _loginUiState.value = LoginUiState.Idle
+                password = ""
+            }
+
+            user.requiresPassword -> {
+                _loginUiState.value = LoginUiState.Waiting(user = user)
+            }
+
+            else -> {
+                login(user = user, password = null)
+            }
         }
     }
 
-    private fun firstFetch() {
-        _usersState.value = UiState.Loading(firstLoad = true)
+    fun refreshUsers() {
+        if (_usersState.value.isLoadingOrReloading()) return
+
+        _usersState.value = UiState.Reloading
         fetchUsers()
     }
 
-    fun refreshUsers() {
-        if (_usersState.value is UiState.Loading) return
-
-        _usersState.value = UiState.Loading(firstLoad = false)
-        fetchUsers()
+    private fun onUsersError(cause: Throwable, retry: Boolean) {
+        _usersState.value = UiState.Error(
+            cause = cause,
+            retry = retry,
+            cache = _usersCache
+        )
     }
 
     private fun fetchUsers() {
         fetchJob?.cancel()
 
         fetchJob = viewModelScope.launch {
+            val start: Long = System.currentTimeMillis()
+
             getAlmacenUsersUseCase()
+                .retry(retries = 3) { throwable: Throwable ->
+                    onUsersError(cause = throwable, retry = true)
+
+                    true
+                }
                 .catch { cause: Throwable ->
-                    _usersState.value = UiState.Error(
-                        cause = cause,
-                        retry = false,
-                        cache = (_usersState.value as? UiState.Success<*>)?.value as? List<*>
-                    )
+                    onUsersError(cause = cause, retry = false)
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { users ->
-                    _usersState.value = UiState.Success(users)
+                .collect { response: ResponseState ->
+                    when (response) {
+                        is ResponseState.OK<*> -> {
+                            @Suppress("UNCHECKED_CAST")
+                            _usersCache = response.data as List<AlmacenUserDomain>
+
+                            val elapsed: Long = System.currentTimeMillis() - start
+                            delay(500 - elapsed)
+
+                            _usersState.value = UiState.Success(_usersCache)
+                        }
+
+                        else -> {
+                            onUsersError(cause = response.getExceptionOrDefault(), retry = false)
+                        }
+                    }
                 }
         }
     }
@@ -109,21 +140,30 @@ class LoginViewModel(
                     _loginUiState.value = LoginUiState.Error(user = user, cause = it)
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { result ->
+                .collect { result: ResponseState ->
 
                     // Wait for at least 500 milliseconds
                     val elapsed: Long = System.currentTimeMillis() - start
                     delay(500 - elapsed)
 
-                    _loginUiState.value = when (result) {
-                        is LoginResult.Success -> LoginUiState.Success(user = user)
+                    when (result) {
+                        is ResponseState.OK<*> -> {
+                            _loginUiState.value = LoginUiState.Success(user = user)
+                        }
 
-                        LoginResult.Unauthorized -> LoginUiState.Fail(user = user)
+                        is ResponseState.BadRequest,
+                        is ResponseState.Unauthorized -> {
+                            _loginUiState.value = LoginUiState.Fail(user = user)
+                        }
 
-                        is LoginResult.Error -> LoginUiState.Error(
-                            user = user,
-                            cause = result.cause
-                        )
+                        is ResponseState.Error -> {
+                            _loginUiState.value = LoginUiState.Error(
+                                user = user,
+                                cause = result.cause
+                            )
+                        }
+
+                        else -> Unit
                     }
                 }
         }

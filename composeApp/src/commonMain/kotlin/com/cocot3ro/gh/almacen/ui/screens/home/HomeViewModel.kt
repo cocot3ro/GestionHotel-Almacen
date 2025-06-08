@@ -2,7 +2,7 @@ package com.cocot3ro.gh.almacen.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.SetUpConnectionValuesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
@@ -41,7 +41,7 @@ class HomeViewModel(
 
     private fun getPreferences() {
 
-        _uiState.value = UiState.Loading(firstLoad = true) to UiState.Idle
+        _uiState.value = UiState.Loading to UiState.Idle
 
         viewModelScope.launch {
             delay(1.seconds)
@@ -78,9 +78,8 @@ class HomeViewModel(
         testConnection(host, port)
     }
 
-    // TODO: Download the SSL certificate from the server once the connection is established
     private fun testConnection(host: String, port: UShort) {
-        _uiState.value = _uiState.value.copy(second = UiState.Loading(firstLoad = true))
+        _uiState.value = _uiState.value.copy(second = UiState.Loading)
 
         viewModelScope.launch {
             delay(1.seconds)
@@ -96,9 +95,9 @@ class HomeViewModel(
                     )
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { result: TestConnectionResult ->
+                .collect { result: ResponseState ->
                     when (result) {
-                        TestConnectionResult.Success -> {
+                        is ResponseState.OK<*> -> {
                             _uiState.value = _uiState.value.copy(
                                 second = UiState.Success(value = result)
                             )
@@ -106,13 +105,7 @@ class HomeViewModel(
                             completeConnection(host, port)
                         }
 
-                        TestConnectionResult.ServiceUnavailable -> {
-                            _uiState.value = _uiState.value.copy(
-                                second = UiState.Success(value = result)
-                            )
-                        }
-
-                        is TestConnectionResult.Error -> {
+                        is ResponseState.Error -> {
                             _uiState.value = _uiState.value.copy(
                                 second = UiState.Error(
                                     cause = result.cause,
@@ -121,6 +114,8 @@ class HomeViewModel(
                                 )
                             )
                         }
+
+                        else -> Unit
                     }
                 }
         }

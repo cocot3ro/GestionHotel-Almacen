@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
-import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.ui.screens.settings.TextFieldStatus
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
@@ -274,7 +274,7 @@ fun SetupScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                visible = uiState is UiState.Success<*> && uiState.value is TestConnectionResult.Success
+                visible = uiState is UiState.Success<*> && uiState.value is ResponseState.OK<*>
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = 24.dp),
@@ -288,28 +288,34 @@ fun SetupScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                visible = uiState is UiState.Error<*> ||
-                        (uiState is UiState.Success<*> && uiState.value is TestConnectionResult.ServiceUnavailable)
+                visible = uiState is UiState.Error<*>
             ) {
-                when {
-                    uiState is UiState.Error<*> -> {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 24.dp),
-                            text = stringResource(Res.string.connection_error_explain),
-                            color = Color.Red,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                Text(
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                    text = stringResource(Res.string.connection_error_explain),
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
 
-                    uiState is UiState.Success<*> && uiState.value is TestConnectionResult.ServiceUnavailable -> {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 24.dp),
-                            text = "Servicio no disponible", // TODO: String resource
-                            color = Color.Red,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+//                when {
+//                    uiState is UiState.Error<*> -> {
+//                        Text(
+//                            modifier = Modifier.padding(horizontal = 24.dp),
+//                            text = stringResource(Res.string.connection_error_explain),
+//                            color = Color.Red,
+//                            textAlign = TextAlign.Center
+//                        )
+//                    }
+//
+//                    uiState is UiState.Success<*> && uiState.value is TestConnectionResult.ServiceUnavailable -> {
+//                        Text(
+//                            modifier = Modifier.padding(horizontal = 24.dp),
+//                            text = "Servicio no disponible", // TODO: String resource
+//                            color = Color.Red,
+//                            textAlign = TextAlign.Center
+//                        )
+//                    }
+//                }
             }
         }
     }

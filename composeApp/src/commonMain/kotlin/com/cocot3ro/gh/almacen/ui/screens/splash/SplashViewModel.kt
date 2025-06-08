@@ -35,7 +35,7 @@ class SplashViewModel(
         )
 
     private fun load() {
-        _uiState.value = UiState.Loading(firstLoad = true)
+        _uiState.value = UiState.Loading
 
         val start: Long = System.currentTimeMillis()
         viewModelScope.launch {

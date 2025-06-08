@@ -20,7 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
 import com.cocot3ro.gh.almacen.ui.state.UiState
-import kotlinx.coroutines.CoroutineScope
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,34 +36,30 @@ import org.koin.compose.viewmodel.koinViewModel
 fun LoginScreen(
     modifier: Modifier,
     viewModel: LoginViewModel = koinViewModel(),
-    onNavigateToAlmacen: () -> Unit
+    onNavigateToMain: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
-
-        val coroutineScope: CoroutineScope = rememberCoroutineScope()
-
         val uiState: UiState = viewModel.usersState.collectAsStateWithLifecycle().value
 
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            isRefreshing = (uiState is UiState.Loading && !uiState.firstLoad),
+            isRefreshing = uiState is UiState.Reloading,
             onRefresh = viewModel::refreshUsers
         ) {
 
             val scrollState: ScrollState = rememberScrollState()
 
-            when {
-                uiState is UiState.Idle -> Unit
-
-                uiState is UiState.Loading && !uiState.firstLoad -> {
+            when (uiState) {
+                is UiState.Idle -> Unit
+                is UiState.Loading -> {
                     LinearProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
-                uiState is UiState.Success<*> -> {
-                    val users: List<AlmacenUserDomain> =
-                        (uiState.value as List<*>).map { it as AlmacenUserDomain }
+                is UiState.Success<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val users: List<AlmacenUserDomain> = uiState.value as List<AlmacenUserDomain>
 
                     if (users.isEmpty()) {
                         Column(
@@ -89,25 +84,23 @@ fun LoginScreen(
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(140.dp),
+                                        .height(150.dp),
                                     user = user,
-                                    onClick = {
-                                        viewModel.setUserToLogin(user)
-                                    }
+                                    onClick = { viewModel.setUserToLogin(user) }
                                 )
                             }
                         }
 
-                        val loginUiState: LoginUiState = viewModel.loginUiState
-                            .collectAsStateWithLifecycle().value
+                        val loginUiState: LoginUiState by viewModel.loginUiState.collectAsStateWithLifecycle()
 
                         val userForLogin: AlmacenUserDomain? = when (loginUiState) {
                             LoginUiState.Idle -> null
-                            is LoginUiState.Waiting -> loginUiState.user
-                            is LoginUiState.Loading -> loginUiState.user
                             is LoginUiState.Success -> null
-                            is LoginUiState.Fail -> loginUiState.user
-                            is LoginUiState.Error -> loginUiState.user
+
+                            is LoginUiState.Waiting -> (loginUiState as LoginUiState.Waiting).user
+                            is LoginUiState.Loading -> (loginUiState as LoginUiState.Loading).user
+                            is LoginUiState.Fail -> (loginUiState as LoginUiState.Fail).user
+                            is LoginUiState.Error -> (loginUiState as LoginUiState.Error).user
                         }
 
                         userForLogin?.let { user ->
@@ -126,12 +119,12 @@ fun LoginScreen(
                         if (loginUiState is LoginUiState.Success) {
                             viewModel.setUserToLogin(null)
                             viewModel.updatePassword("")
-                            onNavigateToAlmacen()
+                            onNavigateToMain()
                         }
                     }
                 }
 
-                uiState is UiState.Error<*> -> {
+                is UiState.Error<*> -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -146,6 +139,8 @@ fun LoginScreen(
 
                     Log.e("LoginScreen", "Error fetching users", uiState.cause)
                 }
+
+                else -> Unit
             }
         }
     }

@@ -11,16 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -29,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -59,11 +52,6 @@ import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import com.cocot3ro.gh.almacen.domain.model.UserRoleDomain
 import com.cocot3ro.gh.almacen.ui.dialogs.UnauthorizedDialog
 import com.cocot3ro.gh.almacen.ui.state.UiState
-import gh_almacen.composeapp.generated.resources.Res
-import gh_almacen.composeapp.generated.resources.format_list_bulleted_24dp
-import gh_almacen.composeapp.generated.resources.grid_view_24dp
-import gh_almacen.composeapp.generated.resources.trolley_48dp
-import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -72,8 +60,7 @@ import org.koin.core.parameter.parametersOf
 fun AlmacenScreen(
     modifier: Modifier,
     viewModel: AlmacenViewModel = koinViewModel(),
-    onNavigateBackToLogin: () -> Unit,
-    onNavigateToCarrito: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     val uiState: UiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
@@ -84,11 +71,7 @@ fun AlmacenScreen(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            onNavigateBackToLogin()
-                        }
-                    ) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null,
@@ -102,33 +85,25 @@ fun AlmacenScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = viewModel::toggleDisplayMode) {
-                        Icon(
-                            imageVector = when (viewModel.displayMode) {
-                                DisplayMode.GRID -> vectorResource(Res.drawable.grid_view_24dp)
-                                DisplayMode.LIST -> vectorResource(Res.drawable.format_list_bulleted_24dp)
-                            },
-                            contentDescription = null
-                        )
-                    }
+
                 }
             )
         },
         floatingActionButton = {
-            val navBarsPadding: PaddingValues = WindowInsets.navigationBars
-                .only(WindowInsetsSides.Horizontal)
-                .asPaddingValues()
-
-            FloatingActionButton(
-                modifier = Modifier.padding(navBarsPadding),
-                onClick = onNavigateToCarrito
-            ) {
-                Icon(
-                    modifier = Modifier.size(36.dp),
-                    imageVector = vectorResource(Res.drawable.trolley_48dp),
-                    contentDescription = null
-                )
-            }
+//            val navBarsPadding: PaddingValues = WindowInsets.navigationBars
+//                .only(WindowInsetsSides.Horizontal)
+//                .asPaddingValues()
+//
+//            FloatingActionButton(
+//                modifier = Modifier.padding(navBarsPadding),
+//                onClick = onNavigateToCarrito
+//            ) {
+//                Icon(
+//                    modifier = Modifier.size(36.dp),
+//                    imageVector = vectorResource(Res.drawable.trolley_48dp),
+//                    contentDescription = null
+//                )
+//            }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHost)
@@ -303,7 +278,7 @@ fun AlmacenScreen(
                         UnauthorizedDialog(
                             onAccept = {
                                 viewModel.clearItemManagementUiState()
-                                onNavigateBackToLogin()
+                                onNavigateBack()
                             }
                         )
                     },
@@ -337,7 +312,7 @@ fun AlmacenScreen(
                         UnauthorizedDialog(
                             onAccept = {
                                 viewModel.clearItemManagementUiState()
-                                onNavigateBackToLogin()
+                                onNavigateBack()
                             }
                         )
                     },

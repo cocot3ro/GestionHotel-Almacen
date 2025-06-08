@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
-import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.network_manage_48dp
@@ -126,7 +126,7 @@ fun HomeScreen(
                     }
 
                     uiState.first is UiState.Success<*> &&
-                            ((uiState.second as? UiState.Success<*>)?.value is TestConnectionResult.Success) -> {
+                            ((uiState.second as? UiState.Success<*>)?.value is ResponseState.OK<*>) -> {
                         onNavigateToLogin()
                     }
 

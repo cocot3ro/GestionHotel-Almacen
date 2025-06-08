@@ -53,9 +53,6 @@ class AlmacenViewModel(
     var sortMode: SortMode by mutableStateOf(SortMode.ID)
         private set
 
-    var displayMode: DisplayMode by mutableStateOf(DisplayMode.LIST)
-        private set
-
     var showLowStockFirst: Boolean by mutableStateOf(true)
         private set
 
@@ -225,10 +222,6 @@ class AlmacenViewModel(
         if (_uiState.value !is UiState.Success<*>) return
         this.showLowStockFirst = showLowStockFirst
         _uiState.value = UiState.Success(_items.filter().sort())
-    }
-
-    fun toggleDisplayMode() {
-        this.displayMode = DisplayMode.entries.let { it[(displayMode.ordinal + 1) % it.size] }
     }
 
     fun setTakeStock(item: AlmacenItemDomain) {

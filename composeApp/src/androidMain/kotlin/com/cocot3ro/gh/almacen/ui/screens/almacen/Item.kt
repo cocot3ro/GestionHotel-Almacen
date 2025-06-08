@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,13 +33,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.delivery_truck_speed_24dp
 import gh_almacen.composeapp.generated.resources.trolley_48dp
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
@@ -68,14 +71,25 @@ fun Item(
         ) {
             Row(modifier = Modifier.fillMaxSize()) {
                 if (item.image != null) {
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         modifier = Modifier
                             .size(100.dp)
                             .padding(end = 8.dp),
                         model = item.image,
-                        contentDescription = null,
-                        error = painterResource(Res.drawable.broken_image_24dp)
-                    )
+                        contentDescription = null
+                    ) {
+                        val state: AsyncImagePainter.State by painter.state.collectAsState()
+                        when (state) {
+                            AsyncImagePainter.State.Empty -> Unit
+                            is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
+                            is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
+
+                            is AsyncImagePainter.State.Error -> Icon(
+                                imageVector = vectorResource(Res.drawable.broken_image_24dp),
+                                contentDescription = null
+                            )
+                        }
+                    }
                 }
 
                 Text(

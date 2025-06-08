@@ -2,15 +2,18 @@ package com.cocot3ro.gh.almacen.ui.screens.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
@@ -19,13 +22,17 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserRoleDomain
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.lock_24dp
-import org.jetbrains.compose.resources.painterResource
+import gh_almacen.composeapp.generated.resources.security_24dp
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
@@ -36,9 +43,6 @@ fun User(
 ) {
     Card(
         modifier = modifier,
-//        colors = CardDefaults.cardColors(
-//            containerColor = Color(red = 0.6f, green = 0.7f, blue = 0.9f)
-//        ),
         onClick = onClick
     ) {
         Column(
@@ -47,13 +51,32 @@ fun User(
             verticalArrangement = Arrangement.Center
         ) {
             if (user.image != null) {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
+                        .size(100.dp)
+                        .padding(end = 8.dp),
                     model = user.image,
-                    contentDescription = null,
-                    error = painterResource(Res.drawable.broken_image_24dp)
+                    contentDescription = null
+                ) {
+                    val state: AsyncImagePainter.State by painter.state.collectAsState()
+                    when (state) {
+                        AsyncImagePainter.State.Empty -> Unit
+                        is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
+                        is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
+
+                        is AsyncImagePainter.State.Error -> Icon(
+                            imageVector = vectorResource(Res.drawable.broken_image_24dp),
+                            contentDescription = null
+                        )
+                    }
+                }
+            } else if (user.role == UserRoleDomain.ADMIN) {
+                Icon(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(end = 8.dp),
+                    imageVector = vectorResource(Res.drawable.security_24dp),
+                    contentDescription = null
                 )
             }
 
@@ -68,6 +91,7 @@ fun User(
                 val modId = "lockIcon"
                 val text: AnnotatedString = buildAnnotatedString {
                     appendInlineContent(id = modId, alternateText = "[icon]")
+                    append(' ')
                     append(text = user.name)
                 }
 

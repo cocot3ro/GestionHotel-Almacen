@@ -142,9 +142,9 @@ class LoginViewModel(
                 .flowOn(Dispatchers.IO)
                 .collect { result: ResponseState ->
 
-                    // Wait for at least 500 milliseconds
+                    // Wait for at least 1 second
                     val elapsed: Long = System.currentTimeMillis() - start
-                    delay(500 - elapsed)
+                    delay(1000 - elapsed)
 
                     when (result) {
                         is ResponseState.OK<*> -> {

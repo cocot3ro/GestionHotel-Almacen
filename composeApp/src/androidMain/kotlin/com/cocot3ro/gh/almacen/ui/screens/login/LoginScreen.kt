@@ -95,7 +95,11 @@ fun LoginScreen(
 
                         val userForLogin: AlmacenUserDomain? = when (loginUiState) {
                             LoginUiState.Idle -> null
-                            is LoginUiState.Success -> null
+                            is LoginUiState.Success -> {
+                                viewModel.setUserToLogin(null)
+                                onNavigateToMain()
+                                return@PullToRefreshBox
+                            }
 
                             is LoginUiState.Waiting -> (loginUiState as LoginUiState.Waiting).user
                             is LoginUiState.Loading -> (loginUiState as LoginUiState.Loading).user
@@ -114,12 +118,6 @@ fun LoginScreen(
                                     viewModel.login(user, viewModel.password)
                                 }
                             )
-                        }
-
-                        if (loginUiState is LoginUiState.Success) {
-                            viewModel.setUserToLogin(null)
-                            viewModel.updatePassword("")
-                            onNavigateToMain()
                         }
                     }
                 }

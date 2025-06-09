@@ -1,10 +1,11 @@
-package com.cocot3ro.gh.almacen
+package com.cocot3ro.gh.almacen.ui.activity.main
 
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.ui.main.MainViewModel
@@ -18,7 +19,6 @@ import com.cocot3ro.gh.almacen.ui.theme.GhAlmacenTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.compose.KoinContext
 
 // TODO: Check for updates
 class MainActivity : ComponentActivity() {
@@ -40,24 +40,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            KoinContext {
-                GhAlmacenTheme {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val uiState = splashViewModel.uiState.collectAsStateWithLifecycle().value
-                        when (uiState) {
-                            is UiState.Success<*> -> {
-                                val requiresSetup: Boolean = uiState.value as Boolean
-                                val startDestination: Any = if (requiresSetup) Setup else Home
-                                NavigationWrapper(startDestination = startDestination)
-                            }
-
-                            // Wait for the splash screen to finish to show any content
-                            else -> Unit
+            GhAlmacenTheme {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val uiState: UiState by splashViewModel.uiState.collectAsStateWithLifecycle()
+                    when (uiState) {
+                        is UiState.Success<*> -> {
+                            val requiresSetup: Boolean =
+                                (uiState as UiState.Success<*>).value as Boolean
+                            val startDestination: Any = if (requiresSetup) Setup else Home
+                            NavigationWrapper(startDestination = startDestination)
                         }
-                    } else {
-                        // For Android versions below S (12 API 31), use the custom SplashScreen
-                        NavigationWrapper(startDestination = Splash)
+
+                        // Wait for the splash screen to finish to show any content
+                        else -> Unit
                     }
+                } else {
+                    // For Android versions below S (12 API 31), use the custom SplashScreen
+                    NavigationWrapper(startDestination = Splash)
                 }
             }
         }

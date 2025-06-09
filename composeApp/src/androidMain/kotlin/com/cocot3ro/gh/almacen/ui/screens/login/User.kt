@@ -28,11 +28,9 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
-import com.cocot3ro.gh.almacen.domain.model.UserRoleDomain
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.lock_24dp
-import gh_almacen.composeapp.generated.resources.security_24dp
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
@@ -70,19 +68,11 @@ fun User(
                         )
                     }
                 }
-            } else if (user.role == UserRoleDomain.ADMIN) {
-                Icon(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(end = 8.dp),
-                    imageVector = vectorResource(Res.drawable.security_24dp),
-                    contentDescription = null
-                )
             }
 
             if (!user.requiresPassword) {
                 Text(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier,
                     text = user.name,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center

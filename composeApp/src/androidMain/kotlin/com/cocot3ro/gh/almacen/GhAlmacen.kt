@@ -13,7 +13,6 @@ import com.cocot3ro.gh.almacen.core.storage.StorageConstants
 import com.cocot3ro.gh.almacen.di.initKoin
 import io.kotzilla.sdk.analytics.koin.analytics
 import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
 
 class GhAlmacen : Application(), SingletonImageLoader.Factory {
 
@@ -21,7 +20,6 @@ class GhAlmacen : Application(), SingletonImageLoader.Factory {
         super.onCreate()
 
         initKoin {
-            androidLogger()
             androidContext(this@GhAlmacen)
 
             analytics()

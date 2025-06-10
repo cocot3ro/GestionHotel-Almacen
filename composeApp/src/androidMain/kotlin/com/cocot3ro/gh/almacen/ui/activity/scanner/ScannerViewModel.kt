@@ -47,7 +47,7 @@ class ScannerViewModel : ViewModel() {
                     lastScanTime = currentTime
 
                     vibrate(context)
-                    beep()
+//                    beep()
 
                     onBarcodeScanned(barcode)
                 }

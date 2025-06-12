@@ -117,4 +117,22 @@ class EditItemViewModel(
                 this.packSize?.let { it > 0 } ?: false &&
                 this.minimum?.let { it >= 0 } ?: false
     }
+
+    fun dismiss() {
+        barcodes = mutableSetOf(*originalItem.barcodes.toTypedArray())
+        name = originalItem.name
+        supplier = originalItem.supplier
+        image = originalItem.image
+        quantity = originalItem.quantity
+        packSize = originalItem.packSize
+        minimum = originalItem.minimum
+
+        showBarcodeInput = false
+        newBarcodeInput = ""
+
+        newImageTempUri = null
+        newImageData = null
+
+        showImageSelection = false
+    }
 }

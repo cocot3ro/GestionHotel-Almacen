@@ -147,7 +147,7 @@ fun AlmacenScreen(
                                     onTake = { viewModel.setTakeStock(item) },
                                     onAdd = { viewModel.setAddStock(item) },
                                     onEdit = { viewModel.setEdit(item) },
-                                    onRemove = { viewModel.deleteItem(item) }
+                                    onRemove = { viewModel.setDelete(item) }
                                 )
                             }
 
@@ -229,6 +229,7 @@ fun AlmacenScreen(
                                     onRemove = {}
                                 )
                             }
+
                             item {
                                 Spacer(modifier = Modifier.height(96.dp))
                             }
@@ -334,7 +335,7 @@ fun AlmacenScreen(
 
                 EditBottomSheet(
                     viewModel = koinViewModel<EditItemViewModel>(
-                        key = System.currentTimeMillis().toString(),
+                        key = item.hashCode().toString(),
                         parameters = {
                             parametersOf(item)
                         }
@@ -355,16 +356,48 @@ fun AlmacenScreen(
                             message = "Error: El item '${item.name}' no existe en el servidor",
                             actionLabel = "OK"
                         )
+                    },
+                    onForbidden = {
+                        snackbarHost.showSnackbar(
+                            message = "Error: No tienes permisos para editar este item",
+                            actionLabel = "OK"
+                        )
                     }
                 )
             }
 
             is ItemManagementUiState.ToBeDeleted -> {
-                DeleteItemDialog(
-                    item = ((itemManagementState as ItemManagementUiState.ToBeDeleted).item),
-                    onDismissRequest = viewModel::clearItemManagementUiState,
-                    onDelete = {
 
+                val (
+                    item: AlmacenItemDomain,
+                    itemState: ItemUiState
+                ) = (itemManagementState as ItemManagementUiState.ToBeDeleted)
+                    .let { it.item to it.state }
+
+                DeleteItemDialog(
+                    item = item,
+                    itemState = itemState,
+                    onDismissRequest = viewModel::clearItemManagementUiState,
+                    onDelete = viewModel::onDelete,
+                    onUnauthorized = {
+                        UnauthorizedDialog(
+                            onAccept = {
+                                viewModel.clearItemManagementUiState()
+                                onNavigateBack()
+                            }
+                        )
+                    },
+                    onNotFound = {
+                        snackbarHost.showSnackbar(
+                            message = "Error: El item '${item.name}' no existe en el servidor",
+                            actionLabel = "OK"
+                        )
+                    },
+                    onForbidden = {
+                        snackbarHost.showSnackbar(
+                            message = "Error: No tienes permisos para borrar este item",
+                            actionLabel = "OK"
+                        )
                     }
                 )
             }

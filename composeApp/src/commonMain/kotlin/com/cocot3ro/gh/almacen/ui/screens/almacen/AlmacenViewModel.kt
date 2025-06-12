@@ -125,8 +125,12 @@ class AlmacenViewModel(
                                     _items.firstOrNull { it.id == itemId }?.let { item ->
                                         _itemManagementUiState.value = state.copy(item = item)
                                     } ?: run {
-                                        _itemManagementUiState.value =
-                                            ItemManagementUiState.UnexpectedDeleted(state.item)
+                                        if (state.state !is ItemUiState.Loading &&
+                                            state.state !is ItemUiState.Success
+                                        ) {
+                                            _itemManagementUiState.value =
+                                                ItemManagementUiState.UnexpectedDeleted(state.item)
+                                        }
                                     }
                                 }
 
@@ -236,7 +240,7 @@ class AlmacenViewModel(
         _itemManagementUiState.value = ItemManagementUiState.Edit(item, ItemUiState.Waiting)
     }
 
-    fun deleteItem(item: AlmacenItemDomain) {
+    fun setDelete(item: AlmacenItemDomain) {
         _itemManagementUiState.value = ItemManagementUiState.ToBeDeleted(item, ItemUiState.Waiting)
     }
 
@@ -385,8 +389,52 @@ class AlmacenViewModel(
     }
 
     fun onDelete() {
+        lateinit var item: AlmacenItemDomain
+
         _itemManagementUiState.apply {
             value = (value as ItemManagementUiState.ToBeDeleted).copy(state = ItemUiState.Loading)
+                .also { item = it.item }
+        }
+
+        viewModelScope.launch {
+            val start: Long = System.currentTimeMillis()
+
+            manageAlmacenItemUseCase.delete(item)
+                .catch { throwable: Throwable ->
+                    _itemManagementUiState.apply {
+                        value = (value as ItemManagementUiState.ToBeDeleted).copy(
+                            state = ItemUiState.Error(throwable)
+                        )
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { response: ResponseState ->
+                    when (response) {
+                        is ResponseState.NoContent -> {
+                            val elapsed: Long = System.currentTimeMillis() - start
+
+                            delay(1000 - elapsed)
+
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.ToBeDeleted).copy(
+                                    state = ItemUiState.Success
+                                )
+                            }
+                        }
+
+                        ResponseState.Forbidden,
+                        ResponseState.NotFound,
+                        ResponseState.Unauthorized -> {
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.ToBeDeleted).copy(
+                                    state = ItemUiState.Error(response.getExceptionOrNull()!!)
+                                )
+                            }
+                        }
+
+                        else -> throw IllegalStateException("Unexpected response state: $response")
+                    }
+                }
         }
     }
 }

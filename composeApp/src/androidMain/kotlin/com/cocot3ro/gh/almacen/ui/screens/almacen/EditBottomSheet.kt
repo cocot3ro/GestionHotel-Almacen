@@ -106,7 +106,8 @@ fun EditBottomSheet(
     onEdit: (AlmacenItemDomain, Pair<ByteArray, String>?) -> Unit,
     onDissmiss: () -> Unit,
     onUnauthrized: @Composable () -> Unit,
-    onNotFound: suspend () -> Unit
+    onNotFound: suspend () -> Unit,
+    onForbidden: suspend () -> Unit
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -117,6 +118,7 @@ fun EditBottomSheet(
         modifier = Modifier,
         onDismissRequest = onDismissRequest@{
             if (itemState is ItemUiState.Loading) return@onDismissRequest
+            viewModel.dismiss()
             onDissmiss()
         },
         sheetState = sheetState
@@ -150,6 +152,7 @@ fun EditBottomSheet(
                         coroutineScope.launch { sheetState.hide() }
                             .invokeOnCompletion {
                                 if (!sheetState.isVisible) {
+                                    viewModel.dismiss()
                                     onDissmiss()
                                 }
                             }
@@ -658,6 +661,7 @@ fun EditBottomSheet(
                         .invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 focusManager.clearFocus()
+                                viewModel.dismiss()
                                 onDissmiss()
                                 runBlocking { onNotFound() }
                             }
@@ -673,6 +677,7 @@ fun EditBottomSheet(
                     .invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             focusManager.clearFocus()
+                            viewModel.dismiss()
                             onDissmiss()
 
                             Toast.makeText(

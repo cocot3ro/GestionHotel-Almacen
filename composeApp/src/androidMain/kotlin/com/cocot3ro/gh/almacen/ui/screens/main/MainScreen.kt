@@ -1,11 +1,12 @@
 package com.cocot3ro.gh.almacen.ui.screens.main
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,38 +30,39 @@ fun MainScreen(
     val startDestination: Any = MainDestination.ALMACEN.route
     var selectedDestination: Int by rememberSaveable { mutableIntStateOf(0) }
 
-    Column(
+    Scaffold(
         modifier = modifier,
-        verticalArrangement = Arrangement.Bottom
+        bottomBar = {
+            NavigationBar(modifier = Modifier.fillMaxWidth()) {
+                MainDestination.entries.forEachIndexed { index, destination ->
+                    NavigationBarItem(
+                        selected = selectedDestination == index,
+                        onClick = {
+                            navController.navigate(route = destination.route)
+                            selectedDestination = index
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = vectorResource(destination.icon),
+                                contentDescription = destination.contentDescription
+                            )
+                        },
+                        label = {
+                            Text(destination.label)
+                        }
+                    )
+                }
+            }
+        }
     ) {
         MainNavGraph(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .padding(it)
+                .consumeWindowInsets(it),
             navController = navController,
             startDestination = startDestination,
             onNavigateBackToLogin = onNavigateBackToLogin
         )
-
-        NavigationBar(modifier = Modifier.fillMaxWidth()) {
-            MainDestination.entries.forEachIndexed { index, destination ->
-                NavigationBarItem(
-                    selected = selectedDestination == index,
-                    onClick = {
-                        navController.navigate(route = destination.route)
-                        selectedDestination = index
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = vectorResource(destination.icon),
-                            contentDescription = destination.contentDescription
-                        )
-                    },
-                    label = {
-                        Text(destination.label)
-                    }
-                )
-            }
-        }
     }
 }

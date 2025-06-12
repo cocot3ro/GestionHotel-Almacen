@@ -71,6 +71,7 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.cocot3ro.gh.almacen.BuildConfig
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
+import com.cocot3ro.gh.almacen.domain.state.ex.ForbiddenException
 import com.cocot3ro.gh.almacen.domain.state.ex.NotFoundException
 import com.cocot3ro.gh.almacen.domain.state.ex.UnauthorizedException
 import com.cocot3ro.gh.almacen.ui.activity.scanner.ScannerActivity
@@ -664,6 +665,18 @@ fun EditBottomSheet(
                                 viewModel.dismiss()
                                 onDissmiss()
                                 runBlocking { onNotFound() }
+                            }
+                        }
+                }
+
+                is ForbiddenException -> LaunchedEffect(Unit) {
+                    launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                focusManager.clearFocus()
+                                viewModel.dismiss()
+                                onDissmiss()
+                                runBlocking { onForbidden() }
                             }
                         }
                 }

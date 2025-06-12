@@ -12,19 +12,8 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cocot3ro.gh.almacen.ui.ext.shimmerEffect
-
-@Composable
-@Preview
-fun UserShimmerPreview() {
-    UserShimmer(
-        modifier = Modifier
-            .height(150.dp)
-            .width(130.dp)
-    )
-}
 
 @Composable
 fun UserShimmer(modifier: Modifier) {

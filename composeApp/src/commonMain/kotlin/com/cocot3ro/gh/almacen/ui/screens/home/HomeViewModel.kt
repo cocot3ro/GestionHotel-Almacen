@@ -86,7 +86,11 @@ class HomeViewModel(
 
     private fun testConnection(host: String, port: UShort, isReloading: Boolean) {
         _uiState.value =
-            _uiState.value.copy(second = if (!isReloading) UiState.Loading else UiState.Reloading)
+            _uiState.value.copy(
+                second = if (!isReloading) UiState.Loading else UiState.Reloading(
+                    Unit
+                )
+            )
 
         viewModelScope.launch {
             val start: Long = System.currentTimeMillis()

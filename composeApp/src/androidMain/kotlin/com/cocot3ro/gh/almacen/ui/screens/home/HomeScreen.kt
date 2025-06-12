@@ -102,7 +102,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            isRefreshing = uiState.second is UiState.Reloading,
+            isRefreshing = uiState.second is UiState.Reloading<*>,
             onRefresh = viewModel::retry
         ) {
             val scrollState: ScrollState = rememberScrollState()

@@ -79,7 +79,7 @@ class LoginViewModel(
     fun refreshUsers() {
         if (_usersState.value.isLoadingOrReloading()) return
 
-        _usersState.value = UiState.Reloading
+        _usersState.value = UiState.Reloading(_usersCache)
         fetchUsers()
     }
 

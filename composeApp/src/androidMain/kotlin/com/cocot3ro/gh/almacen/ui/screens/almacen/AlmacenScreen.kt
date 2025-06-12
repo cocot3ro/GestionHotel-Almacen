@@ -60,7 +60,7 @@ import org.koin.core.parameter.parametersOf
 fun AlmacenScreen(
     modifier: Modifier,
     viewModel: AlmacenViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val uiState: UiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
@@ -114,22 +114,56 @@ fun AlmacenScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            isRefreshing = uiState is UiState.Reloading,
+            isRefreshing = uiState is UiState.Reloading<*>,
             onRefresh = viewModel::refresh
         ) {
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Adaptive(minSize = 350.dp),
-                userScrollEnabled = uiState !is UiState.Loading,
                 contentPadding = PaddingValues(all = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 when (uiState) {
                     is UiState.Idle -> Unit
+
                     is UiState.Loading -> {
                         items(count = 50) { _ ->
                             ItemShimmer(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+
+                    is UiState.Reloading<*> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val items = uiState.cache as List<AlmacenItemDomain>
+
+                        if (items.isNotEmpty()) {
+                            items(items) { item ->
+                                Item(
+                                    modifier = Modifier.fillMaxSize(),
+                                    item = item,
+                                    showMenu = false,
+                                    showAdminOptions = false,
+                                    onTake = {},
+                                    onAdd = {},
+                                    onEdit = {},
+                                    onRemove = {}
+                                )
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(96.dp))
+                            }
+
+                        } else {
+                            stickyHeader {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "No hay elementos disponibles"
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -246,8 +280,6 @@ fun AlmacenScreen(
 
                         Log.e("AlmacenScreen", "Error fetching items", uiState.cause)
                     }
-
-                    else -> Unit
                 }
             }
         }

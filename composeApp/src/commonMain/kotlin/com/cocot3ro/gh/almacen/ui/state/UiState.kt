@@ -4,7 +4,7 @@ sealed class UiState {
     data object Idle : UiState()
 
     data object Loading : UiState()
-    data object Reloading : UiState()
+    data class Reloading<T>(val cache: T) : UiState()
 
     data class Success<T>(val value: T) : UiState()
 

@@ -63,7 +63,7 @@ class AlmacenViewModel(
 
     private var fetchJob: Job? = null
 
-    private var _items: List<AlmacenItemDomain> = emptyList()
+    private var _itemsCache: List<AlmacenItemDomain> = emptyList()
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState
         .onStart {
@@ -79,7 +79,7 @@ class AlmacenViewModel(
     fun refresh() {
         if (_uiState.value.isLoadingOrReloading()) return
 
-        _uiState.value = UiState.Reloading
+        _uiState.value = UiState.Reloading(_itemsCache)
         fetch()
     }
 
@@ -89,7 +89,7 @@ class AlmacenViewModel(
         _uiState.value = UiState.Error(
             cause = cause,
             retry = retry,
-            cache = _items.filter().sort()
+            cache = _itemsCache.filter().sort()
         )
     }
 
@@ -115,14 +115,14 @@ class AlmacenViewModel(
 
                         is ResponseState.OK<*> -> {
                             @Suppress("UNCHECKED_CAST")
-                            _items = response.data as List<AlmacenItemDomain>
+                            _itemsCache = response.data as List<AlmacenItemDomain>
 
                             when (val state: ItemManagementUiState = _itemManagementUiState.value) {
                                 is ItemManagementUiState.Idle -> Unit
 
                                 is ItemManagementUiState.ToBeDeleted -> {
                                     val itemId: Long = state.item.id
-                                    _items.firstOrNull { it.id == itemId }?.let { item ->
+                                    _itemsCache.firstOrNull { it.id == itemId }?.let { item ->
                                         _itemManagementUiState.value = state.copy(item = item)
                                     } ?: run {
                                         if (state.state !is ItemUiState.Loading &&
@@ -138,7 +138,7 @@ class AlmacenViewModel(
 
                                 is ItemManagementUiState.AddStock -> {
                                     val itemId: Long = state.item.id
-                                    _items.firstOrNull { it.id == itemId }?.let { item ->
+                                    _itemsCache.firstOrNull { it.id == itemId }?.let { item ->
                                         _itemManagementUiState.value = state.copy(item = item)
                                     } ?: run {
                                         _itemManagementUiState.value =
@@ -148,7 +148,7 @@ class AlmacenViewModel(
 
                                 is ItemManagementUiState.Edit -> {
                                     val itemId: Long = state.item.id
-                                    _items.firstOrNull { it.id == itemId }?.let { item ->
+                                    _itemsCache.firstOrNull { it.id == itemId }?.let { item ->
                                         _itemManagementUiState.value = state.copy(item = item)
                                     } ?: run {
                                         _itemManagementUiState.value =
@@ -158,7 +158,7 @@ class AlmacenViewModel(
 
                                 is ItemManagementUiState.TakeStock -> {
                                     val itemId: Long = state.item.id
-                                    _items.firstOrNull { it.id == itemId }?.let { item ->
+                                    _itemsCache.firstOrNull { it.id == itemId }?.let { item ->
                                         _itemManagementUiState.value = state.copy(item = item)
                                     } ?: run {
                                         _itemManagementUiState.value =
@@ -167,7 +167,7 @@ class AlmacenViewModel(
                                 }
                             }
 
-                            _uiState.value = UiState.Success(_items.filter().sort())
+                            _uiState.value = UiState.Success(_itemsCache.filter().sort())
                         }
 
                         is ResponseState.Error -> {
@@ -207,25 +207,25 @@ class AlmacenViewModel(
     fun updateFilter(filter: String) {
         if (_uiState.value !is UiState.Success<*>) return
         this.filter = filter
-        _uiState.value = UiState.Success(_items.filter().sort())
+        _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun updateFilterMode(filterMode: FilterMode) {
         if (_uiState.value !is UiState.Success<*>) return
         this.filterMode = filterMode
-        _uiState.value = UiState.Success(_items.filter().sort())
+        _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun updateSortBy(sortBy: SortMode) {
         if (_uiState.value !is UiState.Success<*>) return
         this.sortMode = sortBy
-        _uiState.value = UiState.Success(_items.filter().sort())
+        _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun updateShowLowStockFirst(showLowStockFirst: Boolean) {
         if (_uiState.value !is UiState.Success<*>) return
         this.showLowStockFirst = showLowStockFirst
-        _uiState.value = UiState.Success(_items.filter().sort())
+        _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun setTakeStock(item: AlmacenItemDomain) {

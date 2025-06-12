@@ -1,3 +1,5 @@
+@file:Suppress("UndeclaredKoinUsage")
+
 package com.cocot3ro.gh.almacen.ui.screens.splash
 
 import androidx.compose.foundation.Image
@@ -42,7 +44,7 @@ fun SplashScreen(
                 UiState.Idle -> Unit
 
                 is UiState.Loading -> Unit
-                is UiState.Reloading -> Unit
+                is UiState.Reloading<*> -> Unit
 
                 is UiState.Success<*> -> {
                     if (uiState.value as Boolean) onSetupRequired()

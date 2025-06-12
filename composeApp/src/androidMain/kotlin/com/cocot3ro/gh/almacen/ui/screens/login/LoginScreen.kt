@@ -56,7 +56,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            isRefreshing = uiState is UiState.Reloading,
+            isRefreshing = uiState is UiState.Reloading<*>,
             onRefresh = viewModel::refreshUsers
         ) {
 
@@ -69,7 +69,6 @@ fun LoginScreen(
             ) {
                 when (uiState) {
                     UiState.Idle -> Unit
-                    UiState.Reloading -> Unit
 
                     UiState.Loading -> {
                         items(count = 10) {
@@ -78,6 +77,32 @@ fun LoginScreen(
                                     .fillMaxWidth()
                                     .height(150.dp)
                             )
+                        }
+                    }
+
+                    is UiState.Reloading<*> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val users = uiState.cache as List<AlmacenUserDomain>
+
+                        if (users.isNotEmpty()) {
+                            items(users) { user: AlmacenUserDomain ->
+                                User(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(150.dp),
+                                    user = user,
+                                    onClick = {}
+                                )
+                            }
+                        } else {
+                            stickyHeader {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "No hay usuarios registrados"
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -150,6 +175,34 @@ fun LoginScreen(
                                         Text(text = uiState.cause.message ?: "No message provided")
                                         Text(text = uiState.cause.stackTraceToString())
                                     }
+                                }
+                            }
+                        }
+
+                        @Suppress("UNCHECKED_CAST")
+                        val users = uiState.cache as List<AlmacenUserDomain>
+
+                        if (users.isNotEmpty()) {
+                            items(users) { user: AlmacenUserDomain ->
+                                User(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(150.dp),
+                                    user = user,
+                                    onClick = { viewModel.setUserToLogin(user) }
+                                )
+                            }
+                        } else {
+                            stickyHeader {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp)
+                                ) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "No hay usuarios registrados"
+                                    )
                                 }
                             }
                         }

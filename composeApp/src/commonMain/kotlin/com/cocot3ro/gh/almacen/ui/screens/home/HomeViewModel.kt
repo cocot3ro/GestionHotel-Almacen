@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Provided
-import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class HomeViewModel(
@@ -44,7 +43,7 @@ class HomeViewModel(
         _uiState.value = UiState.Loading to UiState.Idle
 
         viewModelScope.launch {
-            delay(1.seconds)
+            val start: Long = System.currentTimeMillis()
 
             managePreferencesUseCase.getPreferences()
                 .catch { throwable: Throwable ->
@@ -57,12 +56,19 @@ class HomeViewModel(
                 }
                 .flowOn(Dispatchers.IO)
                 .collect { preferences ->
+                    val elapsed: Long = System.currentTimeMillis() - start
+                    delay(1000 - elapsed)
+
                     _uiState.value = UiState.Success(
                         // Not null beacause it was already checked in the SplashScreen
                         value = preferences.host!! to preferences.port!!
                     ) to UiState.Idle
 
-                    testConnection(preferences.host, preferences.port)
+                    testConnection(
+                        host = preferences.host,
+                        port = preferences.port,
+                        isReloading = false
+                    )
                 }
         }
     }
@@ -75,17 +81,21 @@ class HomeViewModel(
         val host: String = connectionValues.first as String
         val port: UShort = connectionValues.second as UShort
 
-        testConnection(host, port)
+        testConnection(host = host, port = port, isReloading = true)
     }
 
-    private fun testConnection(host: String, port: UShort) {
-        _uiState.value = _uiState.value.copy(second = UiState.Loading)
+    private fun testConnection(host: String, port: UShort, isReloading: Boolean) {
+        _uiState.value =
+            _uiState.value.copy(second = if (!isReloading) UiState.Loading else UiState.Reloading)
 
         viewModelScope.launch {
-            delay(1.seconds)
+            val start: Long = System.currentTimeMillis()
 
             testConnectionUseCase(host, port)
                 .catch { throwable: Throwable ->
+                    val elapsed: Long = System.currentTimeMillis() - start
+                    delay(500 - elapsed)
+
                     _uiState.value = _uiState.value.copy(
                         second = UiState.Error(
                             cause = throwable,
@@ -98,6 +108,10 @@ class HomeViewModel(
                 .collect { result: ResponseState ->
                     when (result) {
                         is ResponseState.OK<*> -> {
+
+                            val elapsed: Long = System.currentTimeMillis() - start
+                            delay(1000 - elapsed)
+
                             _uiState.value = _uiState.value.copy(
                                 second = UiState.Success(value = result)
                             )
@@ -106,6 +120,9 @@ class HomeViewModel(
                         }
 
                         is ResponseState.Error -> {
+                            val elapsed: Long = System.currentTimeMillis() - start
+                            delay(500 - elapsed)
+
                             _uiState.value = _uiState.value.copy(
                                 second = UiState.Error(
                                     cause = result.cause,

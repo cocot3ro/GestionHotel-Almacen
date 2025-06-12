@@ -342,9 +342,45 @@ class AlmacenViewModel(
         }
     }
 
-    fun onEdit() {
-        _itemManagementUiState.apply {
-            value = (value as ItemManagementUiState.Edit).copy(state = ItemUiState.Loading)
+    fun onEdit(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) {
+        viewModelScope.launch {
+            val start: Long = System.currentTimeMillis()
+
+            manageAlmacenItemUseCase.edit(item, imageData)
+                .catch { throwable: Throwable ->
+                    _itemManagementUiState.apply {
+                        value = (value as ItemManagementUiState.Edit).copy(
+                            state = ItemUiState.Error(throwable)
+                        )
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { response: ResponseState ->
+                    when (response) {
+                        is ResponseState.OK<*> -> {
+                            val elapsed: Long = System.currentTimeMillis() - start
+
+                            delay(1000 - elapsed)
+
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.Edit).copy(
+                                    state = ItemUiState.Success
+                                )
+                            }
+                        }
+
+                        ResponseState.NotFound,
+                        ResponseState.Unauthorized -> {
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.Edit).copy(
+                                    state = ItemUiState.Error(response.getExceptionOrNull()!!)
+                                )
+                            }
+                        }
+
+                        else -> throw IllegalStateException("Unexpected response state: $response")
+                    }
+                }
         }
     }
 

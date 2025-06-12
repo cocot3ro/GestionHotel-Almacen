@@ -2,50 +2,119 @@ package com.cocot3ro.gh.almacen.ui.screens.almacen
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 
 @KoinViewModel
-class EditItemViewModel : ViewModel() {
+class EditItemViewModel(
+    @InjectedParam private val originalItem: AlmacenItemDomain
+) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<ItemUiState> = MutableStateFlow(ItemUiState.Idle)
-    val uiState: StateFlow<ItemUiState> = _uiState.asStateFlow()
+    var barcodes: MutableSet<Long> = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
+        private set
+    var name: String by mutableStateOf(originalItem.name)
+        private set
+    var supplier: String? by mutableStateOf(originalItem.supplier)
+        private set
+    var image: String? by mutableStateOf(originalItem.image)
+        private set
+    var quantity: Int? by mutableStateOf(originalItem.quantity)
+        private set
+    var packSize: Int? by mutableStateOf(originalItem.packSize)
+        private set
+    var minimum: Int? by mutableStateOf(originalItem.minimum)
+        private set
 
-    private var barcode: Long? by mutableStateOf(null)
-    private var name: String? by mutableStateOf(null)
-    private var supplier: String? by mutableStateOf(null)
-    private var image: String? by mutableStateOf(null)
-    private var quantity: Int? by mutableStateOf(null)
-    private var packSize: Int? by mutableStateOf(null)
-    private var minimum: Int? by mutableStateOf(null)
+    var newImageData: Pair<ByteArray, String>? by mutableStateOf(null)
+        private set
 
-    fun updateItem(item: AlmacenItemDomain?) {
-        when (_uiState.value) {
-            ItemUiState.Idle -> {
-                _uiState.value = ItemUiState.Success(item = item!!, hasChanged = false)
-            }
+    var showBarcodeInput: Boolean by mutableStateOf(false)
+        private set
+    var newBarcodeInput: String by mutableStateOf("")
+        private set
 
-            is ItemUiState.Success -> {
-                if (item != null) {
-                    _uiState.value = ItemUiState.Success(item = item, hasChanged = true)
-//                    this.max = Int.MAX_VALUE - item.quantity
-//                    updateAmount(this.amount)
-                } else {
-                    _uiState.value =
-                        ItemUiState.Deleted((_uiState.value as ItemUiState.Success).item)
-//                    this.min = null
-//                    this.max = null
-//                    this.amount = 0
-                }
-            }
+    var newImageTempUri: String? by mutableStateOf(null)
+        private set
+    var showImageSelection: Boolean by mutableStateOf(false)
+        private set
 
-            is ItemUiState.Deleted -> Unit
-        }
+    fun addBarcode(barcode: Long): Boolean = this.barcodes.add(barcode)
+
+    fun removeBarcode(barcode: Long) {
+        this.barcodes -= barcode
     }
 
+    fun updateName(name: String) {
+        this.name = name.trimStart()
+    }
+
+    fun updateSupplier(supplier: String) {
+        this.supplier = supplier.trimStart()
+    }
+
+    fun updateImage(image: String, imageData: Pair<ByteArray, String>) {
+        this.image = image
+        this.newImageData = imageData
+    }
+
+    fun removeImage() {
+        this.newImageData = null
+        this.image = null
+    }
+
+    fun updateQuantity(quantity: String) {
+        val value: Int? = quantity.replace("""\D""".toRegex(), "").toIntOrNull()
+        this.quantity = value
+    }
+
+    fun updatePackSize(packSize: String) {
+        val value: Int? = packSize.replace("""\D""".toRegex(), "").toIntOrNull()
+        this.packSize = value
+    }
+
+    fun updateMinimum(minimum: String) {
+        val value: Int? = minimum.replace("""\D""".toRegex(), "").toIntOrNull()
+        this.minimum = value
+    }
+
+    fun toggleShowbarcodeInput() {
+        this.showBarcodeInput = !showBarcodeInput
+        this.newBarcodeInput = ""
+    }
+
+    fun updateNewBarcodeInput(newBarcodeInput: String) {
+        this.newBarcodeInput = newBarcodeInput
+    }
+
+    fun updateNewImageTempUri(newImageTempUri: String?) {
+        this.newImageTempUri = newImageTempUri
+    }
+
+    fun updateShowImageSelection(showImageSelection: Boolean) {
+        this.showImageSelection = showImageSelection
+    }
+
+    fun getItem(): AlmacenItemDomain = originalItem.copy(
+        barcodes = this.barcodes.toLongArray(),
+        name = this.name,
+        supplier = this.supplier,
+        image = originalItem.image.takeUnless { image == null },
+        quantity = this.quantity!!,
+        packSize = this.packSize!!,
+        minimum = this.minimum!!
+    )
+
+    fun isValidForm(): Boolean {
+        return this.name.isNotBlank() &&
+                this.quantity != null &&
+                this.packSize != null &&
+                this.minimum != null &&
+                this.quantity?.let { it >= 0 } ?: false &&
+                this.packSize?.let { it > 0 } ?: false &&
+                this.minimum?.let { it >= 0 } ?: false
+    }
 }

@@ -326,9 +326,36 @@ fun AlmacenScreen(
             }
 
             is ItemManagementUiState.Edit -> {
+                val (
+                    item: AlmacenItemDomain,
+                    itemState: ItemUiState
+                ) = (itemManagementState as ItemManagementUiState.Edit)
+                    .let { it.item to it.state }
+
                 EditBottomSheet(
-                    item = (itemManagementState as ItemManagementUiState.Edit).item,
-                    onDissmiss = viewModel::clearItemManagementUiState
+                    viewModel = koinViewModel<EditItemViewModel>(
+                        key = System.currentTimeMillis().toString(),
+                        parameters = {
+                            parametersOf(item)
+                        }
+                    ),
+                    itemState = itemState,
+                    onEdit = viewModel::onEdit,
+                    onDissmiss = viewModel::clearItemManagementUiState,
+                    onUnauthrized = {
+                        UnauthorizedDialog(
+                            onAccept = {
+                                viewModel.clearItemManagementUiState()
+                                onNavigateBack()
+                            }
+                        )
+                    },
+                    onNotFound = {
+                        snackbarHost.showSnackbar(
+                            message = "Error: El item '${item.name}' no existe en el servidor",
+                            actionLabel = "OK"
+                        )
+                    }
                 )
             }
 

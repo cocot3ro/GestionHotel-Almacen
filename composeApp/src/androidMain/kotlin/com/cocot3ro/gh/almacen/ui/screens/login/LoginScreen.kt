@@ -62,9 +62,9 @@ fun LoginScreen(
 
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.FixedSize(120.dp),
+                columns = GridCells.Adaptive(minSize = 120.dp),
                 contentPadding = PaddingValues(all = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 when (uiState) {
@@ -222,13 +222,13 @@ fun LoginScreen(
                 onPasswordChange = viewModel::updatePassword,
                 onLogin = {
                     viewModel.login(user, viewModel.password)
-                }
+                },
+                onSuccess = onNavigateToMain
             )
         }
 
         if (loginUiState is LoginUiState.Success) {
             viewModel.setUserToLogin(null)
-            onNavigateToMain()
         }
     }
 }

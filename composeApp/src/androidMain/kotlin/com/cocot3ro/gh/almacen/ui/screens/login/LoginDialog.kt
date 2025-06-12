@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,8 +48,17 @@ fun LoginDialog(
     password: String,
     onPasswordChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    onLogin: () -> Unit
+    onLogin: () -> Unit,
+    onSuccess: () -> Unit
 ) {
+    DisposableEffect(state) {
+        onDispose {
+            if (state is LoginUiState.Success) {
+                onSuccess()
+            }
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
@@ -129,7 +139,9 @@ fun LoginDialog(
                 }
             }
         },
-        confirmButton = {
+        confirmButton = confirmButton@{
+            if (!user.requiresPassword) return@confirmButton
+
             TextButton(onClick = onLogin) {
                 Text(
                     text = "Continuar",
@@ -137,7 +149,9 @@ fun LoginDialog(
                 )
             }
         },
-        dismissButton = {
+        dismissButton = dismissButton@{
+            if (!user.requiresPassword) return@dismissButton
+
             TextButton(onClick = onDismissRequest) {
                 Text(
                     text = "Cancelar",

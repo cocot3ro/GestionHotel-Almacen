@@ -1,8 +1,13 @@
+@file:Suppress("UndeclaredKoinUsage")
+
 package com.cocot3ro.gh.almacen.ui.screens.login
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,18 +21,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.ui.screens.login.ext.getUser
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -35,7 +46,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun LoginScreen(
     modifier: Modifier,
-    viewModel: LoginViewModel = koinViewModel(),
+    viewModel: LoginViewModel = koinViewModel<LoginViewModel>(),
     onNavigateToMain: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
@@ -49,38 +60,33 @@ fun LoginScreen(
             onRefresh = viewModel::refreshUsers
         ) {
 
-            val scrollState: ScrollState = rememberScrollState()
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize(),
+                columns = GridCells.FixedSize(120.dp),
+                contentPadding = PaddingValues(all = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                when (uiState) {
+                    UiState.Idle -> Unit
+                    UiState.Reloading -> Unit
 
-            when (uiState) {
-                is UiState.Idle -> Unit
-                is UiState.Loading -> {
-                    LinearProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-
-                is UiState.Success<*> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val users: List<AlmacenUserDomain> = uiState.value as List<AlmacenUserDomain>
-
-                    if (users.isEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(state = scrollState),
-                        ) {
-                            Text(
-                                text = "No users found",
-                                fontSize = 24.sp
+                    UiState.Loading -> {
+                        items(count = 10) {
+                            UserShimmer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp)
                             )
                         }
-                    } else {
-                        LazyVerticalGrid(
-                            modifier = Modifier.fillMaxSize(),
-                            columns = GridCells.FixedSize(120.dp),
-                            contentPadding = PaddingValues(all = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(users) { user ->
+                    }
+
+                    is UiState.Success<*> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val users = uiState.value as List<AlmacenUserDomain>
+
+                        if (users.isNotEmpty()) {
+                            items(users) { user: AlmacenUserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -89,57 +95,87 @@ fun LoginScreen(
                                     onClick = { viewModel.setUserToLogin(user) }
                                 )
                             }
-                        }
-
-                        val loginUiState: LoginUiState by viewModel.loginUiState.collectAsStateWithLifecycle()
-
-                        val userForLogin: AlmacenUserDomain? = when (loginUiState) {
-                            LoginUiState.Idle -> null
-                            is LoginUiState.Success -> {
-                                viewModel.setUserToLogin(null)
-                                onNavigateToMain()
-                                return@PullToRefreshBox
-                            }
-
-                            is LoginUiState.Waiting -> (loginUiState as LoginUiState.Waiting).user
-                            is LoginUiState.Loading -> (loginUiState as LoginUiState.Loading).user
-                            is LoginUiState.Fail -> (loginUiState as LoginUiState.Fail).user
-                            is LoginUiState.Error -> (loginUiState as LoginUiState.Error).user
-                        }
-
-                        userForLogin?.let { user ->
-                            LoginDialog(
-                                user = user,
-                                state = loginUiState,
-                                onDismissRequest = { viewModel.setUserToLogin(null) },
-                                password = viewModel.password,
-                                onPasswordChange = viewModel::updatePassword,
-                                onLogin = {
-                                    viewModel.login(user, viewModel.password)
+                        } else {
+                            stickyHeader {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "No hay usuarios registrados"
+                                    )
                                 }
+                            }
+                        }
+                    }
+
+                    is UiState.Error<*> -> {
+                        Log.e("LoginScreen", "Error fetching users", uiState.cause)
+
+                        stickyHeader {
+                            var expandError: Boolean by remember { mutableStateOf(false) }
+                            val sheetState: SheetState = rememberModalBottomSheetState(
+                                skipPartiallyExpanded = false
                             )
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(all = 8.dp)
+                                    .background(MaterialTheme.colorScheme.errorContainer)
+                                    .combinedClickable(
+                                        onClick = {},
+                                        onLongClick = { expandError = true },
+                                        onLongClickLabel = "Expand error message"
+                                    ),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(text = "Error de conexión")
+
+                                if (uiState.retry) {
+                                    LinearProgressIndicator(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 2.dp)
+                                    )
+                                }
+
+                                if (!expandError) return@Column
+                                val scrollState: ScrollState = rememberScrollState()
+
+                                ModalBottomSheet(
+                                    modifier = Modifier.fillMaxSize(),
+                                    sheetState = sheetState,
+                                    onDismissRequest = { expandError = false }
+                                ) {
+                                    Column(modifier = Modifier.verticalScroll(scrollState)) {
+                                        Text(text = uiState.cause.message ?: "No message provided")
+                                        Text(text = uiState.cause.stackTraceToString())
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-
-                is UiState.Error<*> -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(state = scrollState),
-                    ) {
-                        Text(
-                            text = "Error",
-                            fontSize = 24.sp,
-                            color = Color.Red
-                        )
-                    }
-
-                    Log.e("LoginScreen", "Error fetching users", uiState.cause)
-                }
-
-                else -> Unit
             }
+        }
+
+        val loginUiState: LoginUiState by viewModel.loginUiState.collectAsStateWithLifecycle()
+
+        loginUiState.getUser()?.let { user ->
+            LoginDialog(
+                user = user,
+                state = loginUiState,
+                onDismissRequest = { viewModel.setUserToLogin(null) },
+                password = viewModel.password,
+                onPasswordChange = viewModel::updatePassword,
+                onLogin = {
+                    viewModel.login(user, viewModel.password)
+                }
+            )
+        }
+
+        if (loginUiState is LoginUiState.Success) {
+            viewModel.setUserToLogin(null)
+            onNavigateToMain()
         }
     }
 }

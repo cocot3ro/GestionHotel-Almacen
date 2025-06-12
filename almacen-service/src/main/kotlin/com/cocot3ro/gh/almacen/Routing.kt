@@ -194,7 +194,12 @@ private fun Application.almacenItemsRouting() {
             val (imageBytes, originalFileName) = imagePair!!
 
             val imageFileName = originalFileName.substringAfterLast('.', "png").let { extension ->
-                "${id}_${createdEntity.name}_${System.currentTimeMillis()}.$extension"
+                "${id}_${
+                    createdEntity.name.replace(
+                        """\s+""".toRegex(),
+                        "-"
+                    )
+                }_${System.currentTimeMillis()}.$extension"
             }
 
             File(StorageConstants.almacenItemImagesDir, imageFileName)
@@ -262,7 +267,12 @@ private fun Application.almacenItemsRouting() {
                     val (bytes, fileName) = imageFileData!!
                     val extension = fileName.substringAfterLast('.', "png")
                     val newImageFileName =
-                        "${idRes.id}_${updatedModel!!.name}_${System.currentTimeMillis()}.$extension"
+                        "${idRes.id}_${
+                            updatedModel!!.name.replace(
+                                """\s+""".toRegex(),
+                                "-"
+                            )
+                        }_${System.currentTimeMillis()}.$extension"
 
                     File(StorageConstants.almacenItemImagesDir, newImageFileName)
                         .also(File::createNewFile)
@@ -422,7 +432,12 @@ private fun Application.almacenUsersRouting() {
                 delimiter = '.',
                 missingDelimiterValue = "png"
             ).let { extension ->
-                "${id}_${createdEntity.name}_${System.currentTimeMillis()}.$extension"
+                "${id}_${
+                    createdEntity.name.replace(
+                        """\s+""".toRegex(),
+                        "-"
+                    )
+                }_${System.currentTimeMillis()}.$extension"
             }
 
             File(StorageConstants.almacenUserImagesDir, imageFileName)
@@ -487,7 +502,12 @@ private fun Application.almacenUsersRouting() {
                     val (bytes: ByteArray, fileName: String) = imageFileData!!
                     val extension = fileName.substringAfterLast('.', "png")
                     val newImageFileName =
-                        "${idRes.id}_${updatedModel!!.name}_${System.currentTimeMillis()}.$extension"
+                        "${idRes.id}_${
+                            updatedModel!!.name.replace(
+                                """\s+""".toRegex(),
+                                "-"
+                            )
+                        }_${System.currentTimeMillis()}.$extension"
 
                     File(StorageConstants.almacenUserImagesDir, newImageFileName)
                         .also(File::createNewFile)

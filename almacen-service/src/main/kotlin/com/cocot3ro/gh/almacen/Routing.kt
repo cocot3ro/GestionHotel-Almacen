@@ -318,7 +318,7 @@ private fun Application.almacenItemsRouting() {
 
                 val newEntity: AlmacenItemEntity = dbEntity.copy(quantity = newQuantity)
                 almacenDbRepository.updateAlmacenItem(newEntity)
-                call.respond(status = HttpStatusCode.OK, message = newEntity)
+                call.respond(status = HttpStatusCode.OK, message = newEntity.toModel())
             } ?: run {
                 call.respond(
                     status = HttpStatusCode.NotFound,

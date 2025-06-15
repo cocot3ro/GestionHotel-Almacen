@@ -60,7 +60,10 @@ fun LoginDialog(
     }
 
     AlertDialog(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest@{
+            if (state is LoginUiState.Loading) return@onDismissRequest
+            onDismissRequest()
+        },
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 user.image?.let { image ->
@@ -152,7 +155,10 @@ fun LoginDialog(
         dismissButton = dismissButton@{
             if (!user.requiresPassword) return@dismissButton
 
-            TextButton(onClick = onDismissRequest) {
+            TextButton(onClick = onClick@{
+                if (state is LoginUiState.Loading) return@onClick
+                onDismissRequest()
+            }) {
                 Text(
                     text = "Cancelar",
                     fontSize = 16.sp

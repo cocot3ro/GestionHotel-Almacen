@@ -71,7 +71,7 @@ fun LoginScreen(
                     UiState.Idle -> Unit
 
                     UiState.Loading -> {
-                        items(count = 10) {
+                        items(count = 50) {
                             UserShimmer(
                                 modifier = Modifier
                                     .fillMaxWidth()

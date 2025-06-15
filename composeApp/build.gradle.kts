@@ -1,3 +1,4 @@
+import com.google.devtools.ksp.KspExperimental
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
@@ -165,6 +166,9 @@ compose.desktop {
 }
 
 ksp {
+    @OptIn(KspExperimental::class)
+    useKsp2 = false
+
     arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
     arg("KOIN_DEFAULT_MODULE", "false")
     arg("KOIN_CONFIG_CHECK", "true")

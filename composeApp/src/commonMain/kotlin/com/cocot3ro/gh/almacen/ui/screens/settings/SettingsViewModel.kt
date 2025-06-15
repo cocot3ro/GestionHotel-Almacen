@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cocot3ro.gh.almacen.domain.state.TestConnectionResult
+import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
 import com.cocot3ro.gh.almacen.ui.state.UiState
@@ -25,8 +25,8 @@ class SettingsViewModel(
     @Provided private val managePreferencesUseCase: ManagePreferencesUseCase,
 ) : ViewModel() {
 
-    private val _uiSate: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
-    val uiState: StateFlow<UiState> = _uiSate.asStateFlow()
+    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     var host: TextFieldValue<String> by mutableStateOf(
         TextFieldValue(value = "", status = TextFieldStatus.IDLE)
@@ -78,7 +78,7 @@ class SettingsViewModel(
             }
         }
 
-        _uiSate.value = UiState.Idle
+        _uiState.value = UiState.Idle
     }
 
     fun updatePort(input: String) {
@@ -109,7 +109,7 @@ class SettingsViewModel(
             }
         }
 
-        _uiSate.value = UiState.Idle
+        _uiState.value = UiState.Idle
     }
 
     fun testConnection() {
@@ -121,32 +121,33 @@ class SettingsViewModel(
             this.port.status != TextFieldStatus.VALID
         ) return
 
-        _uiSate.value = UiState.Loading(firstLoad = true)
+        _uiState.value = UiState.Loading
 
         viewModelScope.launch {
             testConnectionUseCase(host = host.value, port = port.value.toUShort())
                 .catch { throwable ->
-                    _uiSate.value = UiState.Error(
+                    _uiState.value = UiState.Error(
                         cause = throwable,
                         retry = false,
                         cache = null
                     )
                 }
                 .flowOn(Dispatchers.IO)
-                .collect { result: TestConnectionResult ->
+                .collect { result: ResponseState ->
                     when (result) {
-                        TestConnectionResult.Success,
-                        TestConnectionResult.ServiceUnavailable -> {
-                            _uiSate.value = UiState.Success(value = result)
+                        is ResponseState.OK<*> -> {
+                            _uiState.value = UiState.Success(value = result)
                         }
 
-                        is TestConnectionResult.Error -> {
-                            _uiSate.value = UiState.Error(
+                        is ResponseState.Error -> {
+                            _uiState.value = UiState.Error(
                                 cause = result.cause,
                                 retry = false,
                                 cache = null
                             )
                         }
+
+                        else -> Unit
                     }
                 }
         }
@@ -155,7 +156,7 @@ class SettingsViewModel(
     suspend fun completeSetup() {
         if (this.host.status != TextFieldStatus.VALID ||
             this.port.status != TextFieldStatus.VALID ||
-            this._uiSate.value !is UiState.Success<*>
+            this._uiState.value !is UiState.Success<*>
         ) return
 
         managePreferencesUseCase.setHost(host = host.value)

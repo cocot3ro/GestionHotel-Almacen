@@ -377,6 +377,20 @@ private fun Application.almacenUsersRouting() {
                 .collect(::sendSerialized)
         }
 
+        get<AlmacenUserResource.Id> { idRes ->
+            val dbEntity: AlmacenUserEntity? = almacenDbRepository.getAlmacenUserById(idRes.id)
+
+            if (dbEntity == null) {
+                call.respond(HttpStatusCode.NotFound, "User with id ${idRes.id} not found")
+                return@get
+            }
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = dbEntity.toModel()
+            )
+        }
+
         post<AlmacenUserResource> { _ ->
             var userModel: AlmacenUserModel? = null
             var imagePair: Pair<ByteArray, String>? = null

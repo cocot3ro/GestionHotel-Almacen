@@ -5,6 +5,9 @@ import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 sealed class ItemManagementUiState {
 
     data object Idle : ItemManagementUiState()
+
+    data class CreateItem(val state: ItemUiState) : ItemManagementUiState()
+
     data class TakeStock(val item: AlmacenItemDomain, val state: ItemUiState) :
         ItemManagementUiState()
 

@@ -34,7 +34,7 @@ class TakeStockViewModel(
     fun incrementAmount(): Unit = updateAmount(amount + 1)
     fun decrementAmount(): Unit = updateAmount(amount - 1)
 
-    fun dissmiss() {
+    fun dismiss() {
         this.amount = 0
     }
 }

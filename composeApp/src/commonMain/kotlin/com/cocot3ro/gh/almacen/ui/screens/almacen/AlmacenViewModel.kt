@@ -44,15 +44,19 @@ class AlmacenViewModel(
         manageLoginUsecase.getLoggedUser() ?: throw IllegalStateException("User not logged in")
     }
 
+    var showSearch: Boolean by mutableStateOf(false)
+        private set
+    var showFilter: Boolean by mutableStateOf(false)
+        private set
     var filter: String by mutableStateOf("")
         private set
-
     var filterMode: FilterMode by mutableStateOf(FilterMode.NAME)
         private set
 
+    var showSortMode: Boolean by mutableStateOf(false)
+        private set
     var sortMode: SortMode by mutableStateOf(SortMode.ID)
         private set
-
     var showLowStockFirst: Boolean by mutableStateOf(true)
         private set
 
@@ -117,8 +121,13 @@ class AlmacenViewModel(
                             @Suppress("UNCHECKED_CAST")
                             _itemsCache = response.data as List<AlmacenItemDomain>
 
+                            println("${_itemsCache.size} almacen items fetched successfully:")
+                            _itemsCache.forEach(::println)
+
                             when (val state: ItemManagementUiState = _itemManagementUiState.value) {
                                 is ItemManagementUiState.Idle -> Unit
+
+                                is ItemManagementUiState.CreateItem -> Unit
 
                                 is ItemManagementUiState.ToBeDeleted -> {
                                     val itemId: Long = state.item.id
@@ -186,7 +195,7 @@ class AlmacenViewModel(
     }
 
     private fun List<AlmacenItemDomain>.filter(): List<AlmacenItemDomain> {
-        if (filter.isEmpty() || filter.isBlank()) return this
+        if (filter.isBlank()) return this
 
         return filter { item: AlmacenItemDomain ->
             item.name.contains(filter, ignoreCase = true)
@@ -204,28 +213,40 @@ class AlmacenViewModel(
         lowStock + sortedRest
     }
 
+    fun updateShowSearch(showSearch: Boolean) {
+        this.showSearch = showSearch
+    }
+
+    fun updateShowFilter(showFilter: Boolean) {
+        this.showFilter = showFilter
+    }
+
     fun updateFilter(filter: String) {
-        if (_uiState.value !is UiState.Success<*>) return
         this.filter = filter
         _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun updateFilterMode(filterMode: FilterMode) {
-        if (_uiState.value !is UiState.Success<*>) return
         this.filterMode = filterMode
         _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
-    fun updateSortBy(sortBy: SortMode) {
-        if (_uiState.value !is UiState.Success<*>) return
-        this.sortMode = sortBy
+    fun updateShowSortMode(showSortMode: Boolean) {
+        this.showSortMode = showSortMode
+    }
+
+    fun updateSortMode(sortMode: SortMode) {
+        this.sortMode = sortMode
         _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 
     fun updateShowLowStockFirst(showLowStockFirst: Boolean) {
-        if (_uiState.value !is UiState.Success<*>) return
         this.showLowStockFirst = showLowStockFirst
         _uiState.value = UiState.Success(_itemsCache.filter().sort())
+    }
+
+    fun setCreate() {
+        _itemManagementUiState.value = ItemManagementUiState.CreateItem(ItemUiState.Waiting)
     }
 
     fun setTakeStock(item: AlmacenItemDomain) {
@@ -246,6 +267,43 @@ class AlmacenViewModel(
 
     fun clearItemManagementUiState() {
         _itemManagementUiState.value = ItemManagementUiState.Idle
+    }
+
+    fun onCreate(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) {
+        viewModelScope.launch {
+            manageAlmacenItemUseCase.create(item, imageData)
+                .catch { throwable: Throwable ->
+                    _itemManagementUiState.apply {
+                        value = (value as ItemManagementUiState.CreateItem).copy(
+                            state = ItemUiState.Error(throwable)
+                        )
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { response: ResponseState ->
+                    when (response) {
+                        is ResponseState.Created<*> -> {
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.CreateItem).copy(
+                                    state = ItemUiState.Success
+                                )
+                            }
+                        }
+
+                        ResponseState.BadRequest,
+                        ResponseState.Unauthorized,
+                        ResponseState.Forbidden -> {
+                            _itemManagementUiState.apply {
+                                value = (value as ItemManagementUiState.CreateItem).copy(
+                                    state = ItemUiState.Error(response.getExceptionOrNull()!!)
+                                )
+                            }
+                        }
+
+                        else -> throw IllegalStateException("Unexpected response state: $response")
+                    }
+                }
+        }
     }
 
     fun onAddStock(amount: Int) {

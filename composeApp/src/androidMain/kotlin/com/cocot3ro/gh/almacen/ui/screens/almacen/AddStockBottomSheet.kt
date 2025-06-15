@@ -51,7 +51,7 @@ fun AddStockBottomSheet(
     viewModel: AddStockViewModel,
     itemState: ItemUiState,
     onAddStock: (Int) -> Unit,
-    onDissmiss: () -> Unit,
+    onDismiss: () -> Unit,
     onUnauthrized: @Composable () -> Unit,
     onNotFound: suspend () -> Unit
 ) {
@@ -62,8 +62,8 @@ fun AddStockBottomSheet(
         onDismissRequest = onDismissRequest@{
             if (itemState is ItemUiState.Loading) return@onDismissRequest
 
-            viewModel.dissmiss()
-            onDissmiss()
+            viewModel.dismiss()
+            onDismiss()
         },
         sheetState = sheetState
     ) {
@@ -86,8 +86,8 @@ fun AddStockBottomSheet(
                         coroutineScope.launch { sheetState.hide() }
                             .invokeOnCompletion {
                                 if (!sheetState.isVisible) {
-                                    viewModel.dissmiss()
-                                    onDissmiss()
+                                    viewModel.dismiss()
+                                    onDismiss()
                                 }
                             }
                     }
@@ -179,8 +179,8 @@ fun AddStockBottomSheet(
                     launch { sheetState.hide() }
                         .invokeOnCompletion {
                             if (!sheetState.isVisible) {
-                                viewModel.dissmiss()
-                                onDissmiss()
+                                viewModel.dismiss()
+                                onDismiss()
                                 runBlocking { onNotFound() }
                             }
                         }
@@ -195,8 +195,8 @@ fun AddStockBottomSheet(
                 launch { sheetState.hide() }
                     .invokeOnCompletion {
                         if (!sheetState.isVisible) {
-                            viewModel.dissmiss()
-                            onDissmiss()
+                            viewModel.dismiss()
+                            onDismiss()
 
                             Toast.makeText(context, "Stock añadido", Toast.LENGTH_LONG).show()
                         }

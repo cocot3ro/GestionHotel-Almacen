@@ -1,6 +1,5 @@
 package com.cocot3ro.gh.almacen.ui.screens.almacen
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -98,10 +97,10 @@ import java.nio.file.FileSystems
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun EditBottomSheet(
-    viewModel: EditItemViewModel,
+fun CreateItemBottomSheet(
+    viewModel: CreateItemViewModel,
     itemState: ItemUiState,
-    onEdit: (AlmacenItemDomain, Pair<ByteArray, String>?) -> Unit,
+    onCreate: (AlmacenItemDomain, Pair<ByteArray, String>?) -> Unit,
     onDismiss: () -> Unit,
     onUnauthrized: @Composable () -> Unit,
     onNotFound: suspend () -> Unit,
@@ -419,7 +418,7 @@ fun EditBottomSheet(
                         viewModel.isValidForm(),
                 onClick = {
                     focusManager.clearFocus()
-                    onEdit(viewModel.getItem(), viewModel.newImageData)
+                    onCreate(viewModel.getItem(), viewModel.newImageData)
                 }
             ) {
                 Text(
@@ -465,7 +464,7 @@ fun EditBottomSheet(
             )
 
         val cameraPermission: PermissionState = rememberPermissionState(
-            permission = Manifest.permission.CAMERA
+            permission = android.Manifest.permission.CAMERA
         )
 
         if (viewModel.newImageTempUri != null) {
@@ -626,7 +625,7 @@ fun EditBottomSheet(
 
                             Toast.makeText(
                                 context,
-                                "Elemento editado correctamente",
+                                "Elemento creado correctamente",
                                 Toast.LENGTH_LONG
                             ).show()
                         }

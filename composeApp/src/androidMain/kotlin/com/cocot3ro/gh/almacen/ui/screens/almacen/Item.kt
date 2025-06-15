@@ -1,8 +1,10 @@
 package com.cocot3ro.gh.almacen.ui.screens.almacen
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -22,7 +29,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
@@ -69,12 +82,11 @@ fun Item(
                 .fillMaxWidth()
                 .padding(all = 8.dp)
         ) {
-            Row(modifier = Modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 if (item.image != null) {
                     SubcomposeAsyncImage(
                         modifier = Modifier
-                            .size(100.dp)
-                            .padding(end = 8.dp),
+                            .size(100.dp),
                         model = item.image,
                         contentDescription = null
                     ) {
@@ -92,11 +104,83 @@ fun Item(
                     }
                 }
 
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = item.name,
-                    fontSize = 22.sp
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    if (item.quantity <= item.minimum) {
+                        val modId = "lockIcon"
+                        val text: AnnotatedString = buildAnnotatedString {
+                            appendInlineContent(id = modId, alternateText = "[icon]")
+                            append(' ')
+                            append(text = item.name)
+                        }
+
+                        val inlineContent: Map<String, InlineTextContent> = mapOf(
+                            pair = Pair(
+                                first = modId,
+                                second = InlineTextContent(
+                                    placeholder = Placeholder(
+                                        width = 20.sp,
+                                        height = 20.sp,
+                                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                    ),
+                                    children = {
+                                        Icon(
+                                            modifier = Modifier.fillMaxSize(),
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            )
+                        )
+
+                        Text(
+                            text = text,
+                            inlineContent = inlineContent,
+                            fontSize = 22.sp
+                        )
+                    } else {
+                        Text(
+                            text = item.name,
+                            fontSize = 22.sp
+                        )
+                    }
+
+                    if (item.supplier != null) {
+                        val modId = "lockIcon"
+                        val text: AnnotatedString = buildAnnotatedString {
+                            appendInlineContent(id = modId, alternateText = "[icon]")
+                            append(' ')
+                            append(text = item.supplier)
+                        }
+
+                        val inlineContent: Map<String, InlineTextContent> = mapOf(
+                            pair = Pair(
+                                first = modId,
+                                second = InlineTextContent(
+                                    placeholder = Placeholder(
+                                        width = 20.sp,
+                                        height = 20.sp,
+                                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                    ),
+                                    children = {
+                                        Icon(
+                                            modifier = Modifier.fillMaxSize(),
+                                            imageVector = vectorResource(Res.drawable.delivery_truck_speed_24dp),
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            )
+                        )
+
+                        Text(
+                            text = text,
+                            inlineContent = inlineContent
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.width(2.dp))
 
@@ -189,9 +273,38 @@ fun Item(
                 }
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            Text(text = "En stock: ${item.quantity}")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+            ) {
+                Text(text = "En stock: ${item.quantity}")
+
+                VerticalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+
+                Text(text = "Uds. pack: ${item.packSize}")
+            }
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(
+                    items = item.barcodes.toTypedArray(),
+                    key = { barcode: Long -> barcode }
+                ) { barcode: Long ->
+                    SuggestionChip(
+                        onClick = {},
+                        label = {
+                            Text(text = "$barcode")
+                        }
+                    )
+                }
+            }
         }
     }
 }

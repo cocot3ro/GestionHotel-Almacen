@@ -21,7 +21,7 @@ import com.password4j.Password
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.MultiPartData
 import io.ktor.http.content.PartData
-import io.ktor.http.content.asFlow
+import io.ktor.http.content.forEachPart
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -152,7 +152,7 @@ private fun Application.almacenItemsRouting() {
             var imagePair: Pair<ByteArray, String>? = null
 
             val multipart: MultiPartData = call.receiveMultipart()
-            multipart.asFlow().flowOn(Dispatchers.IO).collect { part ->
+            multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> {
                         when (part.name) {
@@ -231,7 +231,7 @@ private fun Application.almacenItemsRouting() {
             var imageFileData: Pair<ByteArray, String>? = null
 
             val multipart: MultiPartData = call.receiveMultipart()
-            multipart.asFlow().flowOn(Dispatchers.IO).collect { part ->
+            multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> if (part.name == "data") {
                         updatedModel = Json.decodeFromString<AlmacenItemModel>(part.value)
@@ -397,7 +397,7 @@ private fun Application.almacenUsersRouting() {
             var hash: String? = null
 
             val multipart: MultiPartData = call.receiveMultipart()
-            multipart.asFlow().flowOn(Dispatchers.IO).collect { part ->
+            multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> when (part.name) {
                         "data" -> {
@@ -480,7 +480,7 @@ private fun Application.almacenUsersRouting() {
             var imageFileData: Pair<ByteArray, String>? = null
 
             val multipart: MultiPartData = call.receiveMultipart()
-            multipart.asFlow().flowOn(Dispatchers.IO).collect { part ->
+            multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> if (part.name == "data") {
                         updatedModel = Json.decodeFromString<AlmacenUserModel>(part.value)

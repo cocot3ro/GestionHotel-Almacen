@@ -29,14 +29,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.content.PartData
 import io.ktor.http.contentType
 import org.koin.core.qualifier.named
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.java.KoinJavaComponent.get
 import kotlin.properties.Delegates
 
 class GhAlmacenClient(
     private val client: HttpClient
 ) {
 
-    private val authClient: HttpClient by inject(HttpClient::class.java, named("authClient"))
+    private val authClient: HttpClient
+        get() = get(HttpClient::class.java, named("authClient"))
 
     private lateinit var host: String
     private var port: UShort by Delegates.notNull()

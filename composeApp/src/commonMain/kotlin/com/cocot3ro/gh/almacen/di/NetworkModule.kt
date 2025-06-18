@@ -44,7 +44,7 @@ val networkModule: Module = module {
         }
     }
 
-    single<HttpClient>(named("authClient")) {
+    factory<HttpClient>(named("authClient")) {
         HttpClient(OkHttp) {
             install(ContentNegotiation) {
                 json()

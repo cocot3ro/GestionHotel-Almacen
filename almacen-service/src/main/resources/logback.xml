@@ -1,5 +1,8 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+
+        <filter class="com.cocot3ro.gh.almacen.LoggerFilter" />
+
         <encoder>
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [almacen-service] %-5level %logger{36} - %msg%n
             </pattern>

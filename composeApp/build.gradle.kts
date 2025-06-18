@@ -83,6 +83,11 @@ kotlin {
 
             implementation(libs.core.network.resources)
             implementation(libs.core.network.model)
+
+            implementation(libs.almacen.service.network.model)
+            implementation(libs.almacen.service.network.resources)
+
+            implementation(libs.core.shared)
         }
 
         desktopMain.dependencies {

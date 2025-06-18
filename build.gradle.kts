@@ -10,17 +10,9 @@ plugins {
 
     alias(libs.plugins.kotlin.plugin.serialization) apply false
 
-    alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.ktor) apply false
 
     alias(libs.plugins.ksp) apply false
-}
-
-tasks.register("publish") {
-    dependsOn(
-        ":almacen-service-network-model:publishToMavenLocal",
-        ":almacen-service-network-resources:publishToMavenLocal"
-    )
 }
 
 buildscript {

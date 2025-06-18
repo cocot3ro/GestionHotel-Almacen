@@ -32,5 +32,3 @@ dependencyResolutionManagement {
 include(":composeApp")
 include(":almacen-service")
 include(":shared")
-include(":almacen-service-network-resources")
-include(":almacen-service-network-model")

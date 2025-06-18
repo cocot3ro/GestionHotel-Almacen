@@ -1,6 +1,6 @@
 package com.cocot3ro.gh.almacen.ui.screens.almacen
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,12 +38,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
@@ -51,9 +52,13 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import gh_almacen.composeapp.generated.resources.Res
+import gh_almacen.composeapp.generated.resources.barcode_24dp
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.delivery_truck_speed_24dp
+import gh_almacen.composeapp.generated.resources.security_24dp
 import gh_almacen.composeapp.generated.resources.trolley_48dp
+import gh_almacen.composeapp.generated.resources.visibility_24dp
+import gh_almacen.composeapp.generated.resources.visibility_off_24dp
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
@@ -67,21 +72,14 @@ fun Item(
     onEdit: () -> Unit,
     onRemove: () -> Unit
 ) {
-    var showDropDown: Boolean by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = modifier
-            .pointerInput(Unit) {
-                detectTapGestures(onLongPress = { _ ->
-                    showDropDown = !showDropDown
-                })
-            }
-    ) {
+    Card(modifier = modifier) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 8.dp)
         ) {
+            var showBarcodeList: Boolean by remember { mutableStateOf(false) }
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 if (item.image != null) {
                     SubcomposeAsyncImage(
@@ -138,12 +136,14 @@ fun Item(
                         Text(
                             text = text,
                             inlineContent = inlineContent,
-                            fontSize = 22.sp
+                            fontSize = 22.sp,
+                            overflow = TextOverflow.Ellipsis
                         )
                     } else {
                         Text(
                             text = item.name,
-                            fontSize = 22.sp
+                            fontSize = 22.sp,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
@@ -184,91 +184,161 @@ fun Item(
 
                 Spacer(modifier = Modifier.width(2.dp))
 
-                Box dropDownBox@{
-                    IconButton(onClick = { showDropDown = !showDropDown }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = null,
-                        )
-                    }
+                Column {
 
-                    if (!showMenu) return@dropDownBox
 
-                    DropdownMenu(
-                        expanded = showDropDown,
-                        onDismissRequest = { showDropDown = false }
-                    ) dropDownMenuContent@{
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = vectorResource(Res.drawable.trolley_48dp),
-                                    contentDescription = null
-                                )
-                            },
-                            text = {
-                                Text(text = "Traer")
-                            },
-                            onClick = {
-                                showDropDown = false
-                                onTake()
+                    Box dropDownBox@{
+                        var showDropDown: Boolean by remember { mutableStateOf(false) }
+
+                        IconButton(onClick = { showDropDown = !showDropDown }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                            )
+                        }
+
+                        if (!showMenu) return@dropDownBox
+
+                        DropdownMenu(
+                            expanded = showDropDown,
+                            onDismissRequest = { showDropDown = false }
+                        ) dropDownMenuContent@{
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(24.dp),
+                                        imageVector = vectorResource(Res.drawable.trolley_48dp),
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = "Traer")
+                                },
+                                onClick = {
+                                    showDropDown = false
+                                    onTake()
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(24.dp),
+                                        imageVector = vectorResource(Res.drawable.delivery_truck_speed_24dp),
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = "Agregar")
+                                },
+                                onClick = {
+                                    showDropDown = false
+                                    onAdd()
+                                }
+                            )
+
+                            HorizontalDivider()
+
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(24.dp),
+                                        imageVector = vectorResource(Res.drawable.barcode_24dp),
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = "Mostrar códigos${System.lineSeparator()}de barras")
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = if (showBarcodeList) {
+                                            vectorResource(Res.drawable.visibility_24dp)
+                                        } else {
+                                            vectorResource(Res.drawable.visibility_off_24dp)
+                                        },
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {
+                                    showDropDown = false
+                                    showBarcodeList = true
+                                }
+                            )
+
+                            if (!showAdminOptions) return@dropDownMenuContent
+
+                            HorizontalDivider()
+
+                            val modId = "secureIcon"
+                            val text: AnnotatedString = buildAnnotatedString {
+                                appendInlineContent(id = modId, alternateText = "[icon]")
+                                append(' ')
+                                append(text = "Administración")
                             }
-                        )
 
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = vectorResource(Res.drawable.delivery_truck_speed_24dp),
-                                    contentDescription = null
+                            val inlineContent: Map<String, InlineTextContent> = mapOf(
+                                pair = Pair(
+                                    first = modId,
+                                    second = InlineTextContent(
+                                        placeholder = Placeholder(
+                                            width = 20.sp,
+                                            height = 20.sp,
+                                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                                        ),
+                                        children = {
+                                            Icon(
+                                                modifier = Modifier.fillMaxSize(),
+                                                imageVector = vectorResource(Res.drawable.security_24dp),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
                                 )
-                            },
-                            text = {
-                                Text(text = "Agregar")
-                            },
-                            onClick = {
-                                showDropDown = false
-                                onAdd()
-                            }
-                        )
+                            )
 
-                        if (!showAdminOptions) return@dropDownMenuContent
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                text = text,
+                                inlineContent = inlineContent
+                            )
 
-                        HorizontalDivider()
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(24.dp),
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = "Editar")
+                                },
+                                onClick = {
+                                    showDropDown = false
+                                    onEdit()
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null
-                                )
-                            },
-                            text = {
-                                Text(text = "Editar")
-                            },
-                            onClick = {
-                                showDropDown = false
-                                onEdit()
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null
-                                )
-                            },
-                            text = {
-                                Text(text = "Borrar")
-                            },
-                            onClick = {
-                                showDropDown = false
-                                onRemove()
-                            }
-                        )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(24.dp),
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = "Borrar")
+                                },
+                                onClick = {
+                                    showDropDown = false
+                                    onRemove()
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -287,22 +357,29 @@ fun Item(
                 Text(text = "Uds. pack: ${item.packSize}")
             }
 
-            LazyRow(
+            AnimatedVisibility(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                visible = showBarcodeList
             ) {
-                items(
-                    items = item.barcodes.toTypedArray(),
-                    key = { barcode: Long -> barcode }
-                ) { barcode: Long ->
-                    SuggestionChip(
-                        onClick = {},
-                        label = {
-                            Text(text = "$barcode")
-                        }
-                    )
+                if (!showBarcodeList) return@AnimatedVisibility
+
+                LazyRow(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = item.barcodes.toTypedArray(),
+                        key = { barcode: Long -> barcode }
+                    ) { barcode: Long ->
+                        SuggestionChip(
+                            onClick = {},
+                            label = {
+                                Text(text = "$barcode")
+                            }
+                        )
+                    }
                 }
             }
         }

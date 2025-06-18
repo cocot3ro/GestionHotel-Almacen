@@ -9,7 +9,6 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
-import com.cocot3ro.gh.almacen.data.network.model.RefreshTokenRequestModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
@@ -17,6 +16,7 @@ import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
 import com.cocot3ro.gh.almacen.domain.model.ext.toModel
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ex.UnexpectedResponseException
+import com.cocot3ro.gh.core.RefreshTokenRequest
 import io.ktor.client.call.body
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.receiveDeserialized
@@ -84,7 +84,7 @@ class NetworkRepository(
     }
 
     fun refresh(token: String): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.refresh(RefreshTokenRequestModel(token))
+        val response: HttpResponse = client.refresh(RefreshTokenRequest(token))
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 

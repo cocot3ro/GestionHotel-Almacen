@@ -7,12 +7,12 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
-import com.cocot3ro.gh.almacen.data.network.model.RefreshTokenRequestModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenItemResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenLoginRequestResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenStoreResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenUserResource
+import com.cocot3ro.gh.core.RefreshTokenRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
@@ -76,7 +76,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun refresh(tokenRequest: RefreshTokenRequestModel): HttpResponse {
+    suspend fun refresh(tokenRequest: RefreshTokenRequest): HttpResponse {
         return authClient.post(resource = AlmacenLoginRequestResource.Refresh()) {
             setConnectionValues()
 

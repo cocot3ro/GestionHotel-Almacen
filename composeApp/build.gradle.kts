@@ -101,6 +101,8 @@ kotlin {
     }
 }
 
+val version: String = "0.0.1"
+
 android {
     namespace = "com.cocot3ro.gh.almacen"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -109,7 +111,7 @@ android {
         applicationId = "com.cocot3ro.gh.almacen"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionName = "0.0.1"
+        versionName = version
         versionCode = versionName!!.split(".").map(String::toInt).let {
             it.reduce { acc, i -> acc * 100 + i }
         }
@@ -165,7 +167,7 @@ compose.desktop {
                 TargetFormat.Rpm
             )
             packageName = "com.cocot3ro.gh.almacen"
-            packageVersion = "0.0.1"
+            packageVersion = version
         }
     }
 }

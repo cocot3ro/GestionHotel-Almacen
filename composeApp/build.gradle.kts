@@ -101,7 +101,7 @@ kotlin {
     }
 }
 
-val version: String = "0.0.1"
+val version: String = "1.0.0"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"

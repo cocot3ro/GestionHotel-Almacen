@@ -64,3 +64,37 @@ jobs:
           files: |
             gh-almacen-v${{ steps.version.outputs.version }}.apk
             gh-almacen-v${{ steps.version.outputs.version }}.msi
+
+      - name: Generate versions.json
+        shell: bash
+        run: |
+          echo "{
+            \"desktop\": {
+              \"version\": \"${{ steps.version.outputs.version }}\",
+              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.msi\"
+            },
+            \"android\": {
+              \"version\": \"${{ steps.version.outputs.version }}\",
+              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.apk\"
+            }
+          }" > versions.json
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: gh-pages
+
+      - name: Copy versions.json to gh-pages
+        run: |
+          Copy-Item versions.json gh-pages\versions.json -Force
+
+      - name: Commit and push versions.json
+        working-directory: gh-pages
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add versions.json
+          git commit -m "chore: update versions.json to v${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push origin gh-pages

@@ -30,5 +30,4 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
-include(":almacen-service")
 include(":shared")

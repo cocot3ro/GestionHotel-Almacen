@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -39,9 +38,6 @@ import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import com.cocot3ro.gh.almacen.ui.state.ext.isLoadingOrReloading
-import gh_almacen.composeapp.generated.resources.Res
-import gh_almacen.composeapp.generated.resources.network_manage_48dp
-import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,18 +61,18 @@ fun HomeScreen(
                 ),
                 horizontalAlignment = Alignment.End
             ) {
-                FloatingActionButton(onClick = onNavigateToSettings) {
-                    Icon(
-                        modifier = Modifier.size(36.dp),
-                        imageVector = vectorResource(Res.drawable.network_manage_48dp),
-                        contentDescription = null
-                    )
-                }
+//                FloatingActionButton(onClick = onNavigateToSettings) {
+//                    Icon(
+//                        modifier = Modifier.size(36.dp),
+//                        imageVector = vectorResource(Res.drawable.network_manage_48dp),
+//                        contentDescription = null
+//                    )
+//                }
 
                 if (uiState.first !is UiState.Success<*> || uiState.second !is UiState.Error<*>)
                     return@fab
 
-                Spacer(modifier = Modifier.height(8.dp))
+//                Spacer(modifier = Modifier.height(8.dp))
 
                 ExtendedFloatingActionButton(
                     onClick = viewModel::retry,

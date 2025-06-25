@@ -34,6 +34,10 @@ jobs:
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_OUTPUT
 
+      - name: Decode kotzilla.json
+        shell: bash
+        run: echo "${{ secrets.KOTZILLA_JSON_BASE64 }}" | base64 -d > composeApp/kotzilla.json
+
       - name: Build APK signed
         shell: bash
         run: |

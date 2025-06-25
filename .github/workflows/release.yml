@@ -1,6 +1,7 @@
 name: Build and Release
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [closed]
     branches: [main]
@@ -9,12 +10,6 @@ jobs:
   build-and-release:
     if: github.event.pull_request.merged == true
     runs-on: windows-latest
-
-    env:
-      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -27,33 +22,36 @@ jobs:
           java-version: 21
 
       - name: Decode keystore
+        shell: bash
         run: |
-          echo "${env:KEYSTORE_BASE64}" | base64 -d > keystore.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
 
       - name: Extract version from Gradle file
         id: version
-        shell: pwsh
+        shell: bash
         run: |
-          $versionLine = Get-Content build.gradle.kts | Where-Object { $_ -match 'val version: String' }
-          $version = ($versionLine -split '"')[1]
-          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          version=$(grep 'val version: String' build.gradle.kts | sed -E 's/.*"(.+)".*/\1/')
+          echo "VERSION=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Build APK signed
+        shell: bash
         run: |
-          ./gradlew assembleRelease `
-            -Pandroid.injected.signing.store.file=keystore.jks `
-            -Pandroid.injected.signing.store.password=${env:KEYSTORE_PASSWORD} `
-            -Pandroid.injected.signing.key.alias=${env:KEY_ALIAS} `
-            -Pandroid.injected.signing.key.password=${env:KEY_PASSWORD}
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=keystore.jks \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
       - name: Build MSI
+        shell: bash
         run: ./gradlew packageMsi
 
       - name: Rename generated artifacts
+        shell: bash
         run: |
-          mv composeApp/build/outputs/apk/release/composeApp-release.apk gh-almacen-v${{ env.VERSION }}.apk
-          mv composeApp/build/compose/binaries/main/msi/com.cocot3ro.gh.almacen-${{ env.VERSION }}.msi gh-almacen-v${{ env.VERSION }}.msi
+          mv composeApp/build/outputs/apk/release/composeApp-release.apk gh-almacen-v${VERSION}.apk
+          mv composeApp/build/compose/binaries/main/msi/com.cocot3ro.gh.almacen-${VERSION}.msi gh-almacen-v${VERSION}.msi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -87,10 +85,11 @@ jobs:
           path: gh-pages
 
       - name: Copy versions.json to gh-pages
-        run: |
-          Copy-Item versions.json gh-pages\versions.json -Force
+        shell: bash
+        run: cp versions.json gh-pages/versions.json
 
       - name: Commit and push versions.json
+        shell: bash
         working-directory: gh-pages
         run: |
           git config user.name "github-actions"

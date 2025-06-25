@@ -12,6 +12,13 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Install dependencies
+        shell: bash
+        run: |
+          git clone https://github.com/cocot3ro/GestionHotel-Core
+          ./gradlew publish
+          rm -rf GestionHotel-Core
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -23,8 +30,7 @@ jobs:
 
       - name: Decode keystore
         shell: bash
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
 
       - name: Extract version from Gradle file
         id: version

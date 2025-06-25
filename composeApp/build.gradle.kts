@@ -104,7 +104,7 @@ kotlin {
     }
 }
 
-val version: String = "1.0.0"
+val version: String = "1.1.0"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"
@@ -115,7 +115,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionName = version
-        versionCode = versionName!!.split(".").map(String::toInt).run {
+        versionCode = version.split(".").map(String::toInt).run {
             reduce { acc, i -> acc * 100 + i }
         }
     }

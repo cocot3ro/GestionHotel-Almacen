@@ -103,7 +103,7 @@ fun EditBottomSheet(
     itemState: ItemUiState,
     onEdit: (AlmacenItemDomain, Pair<ByteArray, String>?) -> Unit,
     onDismiss: () -> Unit,
-    onUnauthrized: @Composable () -> Unit,
+    onUnauthorized: @Composable () -> Unit,
     onNotFound: suspend () -> Unit,
     onForbidden: suspend () -> Unit
 ) {
@@ -585,7 +585,7 @@ fun EditBottomSheet(
             when (itemState.cause) {
                 is UnauthorizedException -> {
                     focusManager.clearFocus()
-                    onUnauthrized()
+                    onUnauthorized()
                 }
 
                 is NotFoundException -> LaunchedEffect(Unit) {

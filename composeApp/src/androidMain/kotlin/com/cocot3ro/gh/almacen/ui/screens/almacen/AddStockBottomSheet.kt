@@ -52,7 +52,7 @@ fun AddStockBottomSheet(
     itemState: ItemUiState,
     onAddStock: (Int) -> Unit,
     onDismiss: () -> Unit,
-    onUnauthrized: @Composable () -> Unit,
+    onUnauthorized: @Composable () -> Unit,
     onNotFound: suspend () -> Unit
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState()
@@ -173,7 +173,7 @@ fun AddStockBottomSheet(
     when (itemState) {
         is ItemUiState.Error -> {
             when (itemState.cause) {
-                is UnauthorizedException -> onUnauthrized()
+                is UnauthorizedException -> onUnauthorized()
 
                 is NotFoundException -> LaunchedEffect(Unit) {
                     launch { sheetState.hide() }

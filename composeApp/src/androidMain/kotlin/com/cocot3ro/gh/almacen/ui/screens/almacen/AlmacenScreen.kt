@@ -409,7 +409,7 @@ fun AlmacenScreen(
                         itemState = (itemManagementState as ItemManagementUiState.CreateItem).state,
                         onCreate = viewModel::onCreate,
                         onDismiss = viewModel::clearItemManagementUiState,
-                        onUnauthrized = {
+                        onUnauthorized = {
                             UnauthorizedDialog(
                                 onAccept = {
                                     viewModel.clearItemManagementUiState()
@@ -449,7 +449,7 @@ fun AlmacenScreen(
                         itemState = itemState,
                         onAddStock = viewModel::onAddStock,
                         onDismiss = viewModel::clearItemManagementUiState,
-                        onUnauthrized = {
+                        onUnauthorized = {
                             UnauthorizedDialog(
                                 onAccept = {
                                     viewModel.clearItemManagementUiState()
@@ -483,7 +483,7 @@ fun AlmacenScreen(
                         itemState = itemState,
                         onTakeStock = viewModel::onTakeStock,
                         onDismiss = viewModel::clearItemManagementUiState,
-                        onUnauthrized = {
+                        onUnauthorized = {
                             UnauthorizedDialog(
                                 onAccept = {
                                     viewModel.clearItemManagementUiState()
@@ -517,7 +517,7 @@ fun AlmacenScreen(
                         itemState = itemState,
                         onEdit = viewModel::onEdit,
                         onDismiss = viewModel::clearItemManagementUiState,
-                        onUnauthrized = {
+                        onUnauthorized = {
                             UnauthorizedDialog(
                                 onAccept = {
                                     viewModel.clearItemManagementUiState()

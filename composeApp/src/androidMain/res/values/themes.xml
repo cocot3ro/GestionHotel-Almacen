@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.GhAlmacen.Splash" parent="Theme.GhAlmacen.App" />
+
+    <style name="Theme.GhAlmacen.App" parent="Theme.Material3.DayNight.NoActionBar" />
+</resources>

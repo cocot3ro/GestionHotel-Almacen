@@ -121,9 +121,6 @@ class AlmacenViewModel(
                             @Suppress("UNCHECKED_CAST")
                             _itemsCache = response.data as List<AlmacenItemDomain>
 
-                            println("${_itemsCache.size} almacen items fetched successfully:")
-                            _itemsCache.forEach(::println)
-
                             when (val state: ItemManagementUiState = _itemManagementUiState.value) {
                                 is ItemManagementUiState.Idle -> Unit
 

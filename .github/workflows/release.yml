@@ -16,6 +16,8 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/cocot3ro/GestionHotel-Core
+          ls -la
+          pwd
           cd GestionHotel-Core
           ./gradlew publish
           cd ..

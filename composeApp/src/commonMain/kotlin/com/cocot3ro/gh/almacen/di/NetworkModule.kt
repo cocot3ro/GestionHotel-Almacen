@@ -1,6 +1,7 @@
 package com.cocot3ro.gh.almacen.di
 
 import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
+import com.cocot3ro.gh.almacen.data.network.client.UpdateClient
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
 import com.cocot3ro.gh.almacen.domain.model.AlmacenLoginResponseDomain
 import com.cocot3ro.gh.almacen.domain.model.AuthPreferenceItem
@@ -13,8 +14,10 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
@@ -28,7 +31,29 @@ val networkModule: Module = module {
     single<GhAlmacenClient> {
         GhAlmacenClient(client = get<HttpClient>(named("basicClient")))
     }
+
+    single<UpdateClient> {
+        UpdateClient(client = get<HttpClient>(named("updateClient")))
+    }
+
     singleOf(::NetworkRepository)
+
+    single<HttpClient>(named("updateClient")) {
+        HttpClient(OkHttp) {
+            install(ContentNegotiation) {
+                json()
+            }
+
+            install(Resources)
+
+            defaultRequest {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = "cocot3ro.github.io"
+                }
+            }
+        }
+    }
 
     single<HttpClient>(named("basicClient")) {
         HttpClient(OkHttp) {

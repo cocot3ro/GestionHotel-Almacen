@@ -2,9 +2,13 @@ package com.cocot3ro.gh.almacen.ui.screens.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cocot3ro.gh.almacen.BuildConfig
+import com.cocot3ro.gh.almacen.domain.model.AppVersionDomain
+import com.cocot3ro.gh.almacen.domain.model.PreferenceItem
+import com.cocot3ro.gh.almacen.domain.model.getPlatform
+import com.cocot3ro.gh.almacen.domain.usecase.GetLatestVersionUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
-import com.cocot3ro.gh.almacen.ui.state.UiState
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -12,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -22,41 +27,66 @@ import org.koin.core.annotation.Provided
 @KoinViewModel
 class SplashViewModel(
     @Provided private val managePreferencesUseCase: ManagePreferencesUseCase,
-    @Provided private val manageLoginUsecase: ManageLoginUsecase
+    @Provided private val manageLoginUsecase: ManageLoginUsecase,
+    @Provided private val getLatestVersionUseCase: GetLatestVersionUseCase
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
-    val uiState: StateFlow<UiState> = _uiState
+    private val _uiState: MutableStateFlow<SplashUiState> = MutableStateFlow(SplashUiState.Idle)
+    val uiState: StateFlow<SplashUiState> = _uiState
         .onStart { load() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
-            initialValue = UiState.Idle
+            initialValue = SplashUiState.Idle
         )
 
     private fun load() {
-        _uiState.value = UiState.Loading
+        _uiState.value = SplashUiState.Loading
 
         val start: Long = System.currentTimeMillis()
         viewModelScope.launch {
-            val deferred: Deferred<Unit> = async(Dispatchers.IO) {
+            val logoutDeferred: Deferred<Unit> = async(Dispatchers.IO) {
                 manageLoginUsecase.logOut()
             }
 
-            managePreferencesUseCase.getPreferences()
-                .flowOn(Dispatchers.IO)
-                .collect { prefs ->
-                    if (_uiState.value is UiState.Success<*> || _uiState.value is UiState.Error<*>)
-                        return@collect
+            val updatesDeferred: Deferred<Result<AppVersionDomain>> = async {
+                getLatestVersionUseCase.invoke(getPlatform().appDistribution)
+            }
 
-                    deferred.await()
+            val prefsDeferred: Deferred<PreferenceItem> = async {
+                managePreferencesUseCase.getPreferences()
+                    .flowOn(Dispatchers.IO)
+                    .first()
+            }
 
-                    // Wait for at least 1 second
-                    val elapsed: Long = System.currentTimeMillis() - start
-                    delay(1000 - elapsed)
+            updatesDeferred.await().onSuccess { appVersion: AppVersionDomain ->
+                val newVersionCode: Int = appVersion.version.versionName.split(".")
+                    .map(String::toInt)
+                    .reduce { acc, i -> acc * 100 + i }
 
-                    _uiState.value = UiState.Success(prefs.host == null || prefs.port == null)
+                if (BuildConfig.VERSION_CODE < newVersionCode) {
+                    logoutDeferred.await()
+
+                    delay(1000 - System.currentTimeMillis() - start)
+                    _uiState.value = SplashUiState.UpdateRequired(appVersion.version)
+
+                    return@launch
                 }
+            }
+
+            prefsDeferred.await().let { prefs: PreferenceItem ->
+                if (prefs.host == null || prefs.port == null) {
+                    logoutDeferred.await()
+
+                    delay(1000 - System.currentTimeMillis() - start)
+                    _uiState.value = SplashUiState.SetupRequired
+                } else {
+                    logoutDeferred.await()
+
+                    delay(1000 - System.currentTimeMillis() - start)
+                    _uiState.value = SplashUiState.SplashUiFinished
+                }
+            }
         }
     }
 }

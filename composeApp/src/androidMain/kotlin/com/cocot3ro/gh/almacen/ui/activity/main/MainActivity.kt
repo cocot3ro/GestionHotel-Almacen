@@ -1,3 +1,5 @@
+@file:Suppress("UndeclaredKoinUsage")
+
 package com.cocot3ro.gh.almacen.ui.activity.main
 
 import android.os.Build
@@ -13,8 +15,8 @@ import com.cocot3ro.gh.almacen.ui.navigation.Home
 import com.cocot3ro.gh.almacen.ui.navigation.NavigationWrapper
 import com.cocot3ro.gh.almacen.ui.navigation.Setup
 import com.cocot3ro.gh.almacen.ui.navigation.Splash
+import com.cocot3ro.gh.almacen.ui.screens.splash.SplashUiState
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashViewModel
-import com.cocot3ro.gh.almacen.ui.state.UiState
 import com.cocot3ro.gh.almacen.ui.theme.GhAlmacenTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -32,7 +34,7 @@ class MainActivity : ComponentActivity() {
             // Keep the splash while uiState is Idle or Loading
             splashScreen.setKeepOnScreenCondition {
                 val uiState = splashViewModel.uiState.value
-                uiState is UiState.Idle || uiState is UiState.Loading
+                uiState is SplashUiState.Idle || uiState is SplashUiState.Loading
             }
         }
 
@@ -42,20 +44,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             GhAlmacenTheme {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val uiState: UiState by splashViewModel.uiState.collectAsStateWithLifecycle()
+                    val uiState: SplashUiState by splashViewModel.uiState.collectAsStateWithLifecycle()
                     when (uiState) {
-                        is UiState.Success<*> -> {
-                            val requiresSetup: Boolean =
-                                (uiState as UiState.Success<*>).value as Boolean
-                            val startDestination: Any = if (requiresSetup) Setup else Home
-                            NavigationWrapper(startDestination = startDestination)
+                        is SplashUiState.SetupRequired -> {
+                            NavigationWrapper(startDestination = Setup)
+                        }
+
+                        is SplashUiState.UpdateRequired -> {
+                            NavigationWrapper(startDestination = Splash)
+                        }
+
+                        is SplashUiState.SplashUiFinished -> {
+                            NavigationWrapper(startDestination = Home)
                         }
 
                         // Wait for the splash screen to finish to show any content
                         else -> Unit
                     }
                 } else {
-                    // For Android versions below S (12 API 31), use the custom SplashScreen
+//                     For Android versions below S (12 API 31), use the custom SplashScreen
                     NavigationWrapper(startDestination = Splash)
                 }
             }

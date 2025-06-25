@@ -97,7 +97,10 @@ kotlin {
     }
 
     sourceSets.commonMain.configure {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+        kotlin.srcDirs(
+            "build/generated/ksp/metadata/commonMain/kotlin",
+            "build/generated/buildConfig/kotlin/commonMain"
+        )
     }
 }
 
@@ -112,8 +115,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionName = version
-        versionCode = versionName!!.split(".").map(String::toInt).let {
-            it.reduce { acc, i -> acc * 100 + i }
+        versionCode = versionName!!.split(".").map(String::toInt).run {
+            reduce { acc, i -> acc * 100 + i }
         }
     }
 
@@ -137,13 +140,14 @@ android {
 
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
 project.tasks.withType<KotlinCompilationTask<*>>().configureEach {
     if (name != "kspCommonMainKotlinMetadata") {
         dependsOn("kspCommonMainKotlinMetadata")
+    } else {
+        dependsOn("generateBuildConfig")
     }
 }
 
@@ -179,4 +183,30 @@ ksp {
     arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
     arg("KOIN_DEFAULT_MODULE", "false")
     arg("KOIN_CONFIG_CHECK", "true")
+}
+
+val generateBuildConfig by tasks.registering {
+    val outputDir =
+        layout.buildDirectory.dir("generated/buildConfig/kotlin/commonMain").get().asFile
+    val buildConfigFile = File(outputDir, "com/cocot3ro/gh/almacen/BuildConfig.kt")
+
+    inputs.property("version", version)
+    outputs.file(buildConfigFile)
+
+    doLast {
+        buildConfigFile.parentFile.mkdirs()
+        buildConfigFile.writeText(
+            """
+            |package com.cocot3ro.gh.almacen
+            |
+            |object BuildConfig {
+            |    const val VERSION_NAME: String = "$version"
+            |    const val VERSION_CODE: Int = ${
+                version.split(".").map(String::toInt).reduce { acc, i -> acc * 100 + i }
+            }
+            |    const val APPLICATION_ID: String = "${android.defaultConfig.applicationId}"
+            |}
+            """.trimMargin()
+        )
+    }
 }

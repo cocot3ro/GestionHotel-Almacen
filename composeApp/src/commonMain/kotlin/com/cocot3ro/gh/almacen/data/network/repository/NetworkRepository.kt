@@ -2,6 +2,7 @@ package com.cocot3ro.gh.almacen.data.network.repository
 
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
+import com.cocot3ro.gh.almacen.data.network.client.UpdateClient
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginRequestModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginResponseModel
@@ -9,12 +10,14 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
+import com.cocot3ro.gh.almacen.data.network.model.AppVersionModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
 import com.cocot3ro.gh.almacen.domain.model.ext.toModel
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.almacen.domain.state.ex.NotFoundException
 import com.cocot3ro.gh.almacen.domain.state.ex.UnexpectedResponseException
 import com.cocot3ro.gh.core.RefreshTokenRequest
 import io.ktor.client.call.body
@@ -35,7 +38,8 @@ import kotlinx.serialization.json.Json
 import kotlin.properties.Delegates
 
 class NetworkRepository(
-    private val client: GhAlmacenClient
+    private val client: GhAlmacenClient,
+    private val updateClient: UpdateClient
 ) {
     private lateinit var host: String
     private var port: UShort by Delegates.notNull()
@@ -535,6 +539,22 @@ class NetworkRepository(
             else -> {
                 emit(ResponseState.Error(UnexpectedResponseException("Unexpected response: ${response.status}")))
             }
+        }
+    }
+
+    suspend fun getLatestVersion(): Result<AppVersionModel> {
+        val response: HttpResponse = runCatching { updateClient.getLatestVersion() }
+            .onFailure { return Result.failure(it) }
+            .getOrThrow()
+
+        return when (response.status) {
+            HttpStatusCode.OK -> Result.success(response.body<AppVersionModel>())
+            HttpStatusCode.NotFound -> Result.failure(NotFoundException("Latest version not found"))
+            else -> Result.failure(
+                UnexpectedResponseException(
+                    "Unexpected response: ${response.status}"
+                )
+            )
         }
     }
 }

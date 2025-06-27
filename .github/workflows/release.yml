@@ -12,15 +12,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Install dependencies
-        shell: bash
-        run: |
-          git clone https://github.com/cocot3ro/GestionHotel-Core
-          cd GestionHotel-Core
-          ./gradlew publish
-          cd ..
-          rm -rf GestionHotel-Core
-
       - name: Checkout code
         uses: actions/checkout@v4
 

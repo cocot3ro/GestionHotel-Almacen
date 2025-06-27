@@ -21,6 +21,12 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
+      - name: Configure Gradle
+        run: |
+          mkdir -p ~/.gradle
+          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
+          echo "gpr.key=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+
       - name: Decode keystore
         shell: bash
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks

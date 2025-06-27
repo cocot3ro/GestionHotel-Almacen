@@ -210,3 +210,23 @@ val generateBuildConfig by tasks.registering {
         )
     }
 }
+
+repositories {
+    google {
+        mavenContent {
+            includeGroupAndSubgroups("androidx")
+            includeGroupAndSubgroups("com.android")
+            includeGroupAndSubgroups("com.google")
+        }
+    }
+    mavenCentral()
+    mavenLocal()
+
+    maven {
+        url = uri("https://maven.pkg.github.com/cocot3ro/GestionHotel-Core")
+        credentials {
+            username = project.findProperty("gpr.user") as String
+            password = project.findProperty("gpr.key") as String
+        }
+    }
+}

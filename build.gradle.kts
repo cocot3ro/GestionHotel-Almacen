@@ -13,10 +13,6 @@ plugins {
     alias(libs.plugins.ktor) apply false
 
     alias(libs.plugins.ksp) apply false
-}
 
-buildscript {
-    dependencies {
-        classpath(libs.kotzilla.plugin)
-    }
+    alias(libs.plugins.kotzilla) apply false
 }

@@ -31,8 +31,8 @@ jobs:
       - name: Decode keystore
         shell: bash
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
-          echo "KEYSTORE_FILE=keystore.jks" >> $GITHUB_ENV
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > composeApp/keystore.jks
+          echo "KEYSTORE_FILE=composeApp/keystore.jks" >> $GITHUB_ENV
           echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV

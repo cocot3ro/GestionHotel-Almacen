@@ -104,7 +104,7 @@ kotlin {
     }
 }
 
-val version: String = "1.2.1"
+val version: String = "1.0.0"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"
@@ -222,6 +222,8 @@ val generateBuildConfig by tasks.registering {
 
 repositories {
     google {
+
+        @Suppress("UnstableApiUsage")
         mavenContent {
             includeGroupAndSubgroups("androidx")
             includeGroupAndSubgroups("com.android")

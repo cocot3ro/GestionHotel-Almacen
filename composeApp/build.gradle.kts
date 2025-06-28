@@ -231,10 +231,9 @@ repositories {
         }
     }
     mavenCentral()
-    mavenLocal()
 
     maven {
-        url = uri("https://maven.pkg.github.com/cocot3ro/GestionHotel-Core")
+        url = uri("https://maven.pkg.github.com/cocot3ro/GestionHotel-deps")
         credentials {
             username = project.findProperty("gpr.user") as String
             password = project.findProperty("gpr.key") as String

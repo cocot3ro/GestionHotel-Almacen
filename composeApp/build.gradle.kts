@@ -104,7 +104,7 @@ kotlin {
     }
 }
 
-val version: String = "1.2.1"
+val version: String = "1.0.0"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"
@@ -126,10 +126,19 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "null")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -213,6 +222,8 @@ val generateBuildConfig by tasks.registering {
 
 repositories {
     google {
+
+        @Suppress("UnstableApiUsage")
         mavenContent {
             includeGroupAndSubgroups("androidx")
             includeGroupAndSubgroups("com.android")

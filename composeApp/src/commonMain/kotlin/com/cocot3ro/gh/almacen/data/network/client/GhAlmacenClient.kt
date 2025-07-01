@@ -85,7 +85,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun wsAlmacenUsers(): DefaultClientWebSocketSession {
+    suspend fun wsUsers(): DefaultClientWebSocketSession {
         return client.webSocketSession(
             host = this.host,
             port = this.port.toInt(),
@@ -93,7 +93,7 @@ class GhAlmacenClient(
         )
     }
 
-    suspend fun postAlmacenUser(multipart: List<PartData>): HttpResponse {
+    suspend fun postUser(multipart: List<PartData>): HttpResponse {
         return authClient.post(resource = UserResource()) {
             setConnectionValues()
 
@@ -102,7 +102,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun putAlmacenUser(
+    suspend fun putUser(
         id: Long,
         multipart: List<PartData>
     ): HttpResponse {
@@ -114,7 +114,7 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun patchAlmacenUser(
+    suspend fun patchUser(
         userId: Long,
         model: UserPasswordChangeModel
     ): HttpResponse {
@@ -126,8 +126,8 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun deleteAlmacenUser(almacenUserModel: UserModel): HttpResponse {
-        return authClient.delete(resource = UserResource.Id(id = almacenUserModel.id)) {
+    suspend fun deleteUser(userModel: UserModel): HttpResponse {
+        return authClient.delete(resource = UserResource.Id(id = userModel.id)) {
             setConnectionValues()
         }
     }

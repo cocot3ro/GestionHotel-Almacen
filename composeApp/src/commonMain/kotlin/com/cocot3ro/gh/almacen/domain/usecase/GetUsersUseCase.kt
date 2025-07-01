@@ -10,11 +10,11 @@ import org.koin.core.annotation.Provided
 import org.koin.core.annotation.Single
 
 @Single
-class GetAlmacenUsersUseCase(
+class GetUsersUseCase(
     @Provided private val networkRepository: NetworkRepository,
 ) {
     operator fun invoke(): Flow<ResponseState> {
-        return networkRepository.getAlmacenUsers().map { response: ResponseState ->
+        return networkRepository.getUsers().map { response: ResponseState ->
             if (response !is ResponseState.OK<*>) return@map response
 
             @Suppress("UNCHECKED_CAST")

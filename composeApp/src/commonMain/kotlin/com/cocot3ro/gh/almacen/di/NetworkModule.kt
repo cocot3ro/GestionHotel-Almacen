@@ -3,7 +3,7 @@ package com.cocot3ro.gh.almacen.di
 import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
 import com.cocot3ro.gh.almacen.data.network.client.UpdateClient
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
-import com.cocot3ro.gh.almacen.domain.model.AlmacenLoginResponseDomain
+import com.cocot3ro.gh.almacen.domain.model.LoginResponseDomain
 import com.cocot3ro.gh.almacen.domain.model.AuthPreferenceItem
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
@@ -109,8 +109,8 @@ val networkModule: Module = module {
                                     .first()
 
                                 (newTokens as? ResponseState.OK<*>)
-                                    ?.let { newTokens.data as AlmacenLoginResponseDomain }
-                                    ?.let { response: AlmacenLoginResponseDomain ->
+                                    ?.let { newTokens.data as LoginResponseDomain }
+                                    ?.let { response: LoginResponseDomain ->
                                         managePreferencesUseCase.setJwtToken(response.jwtToken)
                                         managePreferencesUseCase.setRefreshToken(response.refreshToken)
 

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.lock_24dp
@@ -35,7 +35,7 @@ import org.jetbrains.compose.resources.vectorResource
 @Composable
 fun User(
     modifier: Modifier,
-    user: AlmacenUserDomain,
+    user: UserDomain,
     onClick: () -> Unit
 ) {
     Card(

@@ -1,10 +1,10 @@
 package com.cocot3ro.gh.almacen.domain.model.ext
 
-import com.cocot3ro.gh.almacen.core.user.AlmacenUserCore
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.core.user.UserCore
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.services.users.UserModel
 
-fun AlmacenUserDomain.toCore() = AlmacenUserCore(
+fun UserDomain.toCore() = UserCore(
     userId = id,
     name = name,
     image = image,
@@ -12,7 +12,7 @@ fun AlmacenUserDomain.toCore() = AlmacenUserCore(
     role = role.toCore()
 )
 
-fun AlmacenUserDomain.toModel() = UserModel(
+fun UserDomain.toModel() = UserModel(
     id = id,
     name = name,
     image = image?.replace("""^https?://[^/]+""".toRegex(), ""),

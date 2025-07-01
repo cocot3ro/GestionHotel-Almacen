@@ -37,7 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.ui.screens.login.ext.getUser
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,10 +82,10 @@ fun LoginScreen(
 
                     is UiState.Reloading<*> -> {
                         @Suppress("UNCHECKED_CAST")
-                        val users = uiState.cache as List<AlmacenUserDomain>
+                        val users = uiState.cache as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: AlmacenUserDomain ->
+                            items(users) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -108,10 +108,10 @@ fun LoginScreen(
 
                     is UiState.Success<*> -> {
                         @Suppress("UNCHECKED_CAST")
-                        val users = uiState.value as List<AlmacenUserDomain>
+                        val users = uiState.value as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: AlmacenUserDomain ->
+                            items(users) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -180,10 +180,10 @@ fun LoginScreen(
                         }
 
                         @Suppress("UNCHECKED_CAST")
-                        val users = uiState.cache as List<AlmacenUserDomain>
+                        val users = uiState.cache as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: AlmacenUserDomain ->
+                            items(users) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()

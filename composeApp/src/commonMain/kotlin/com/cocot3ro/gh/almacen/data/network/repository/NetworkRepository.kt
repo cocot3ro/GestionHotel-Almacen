@@ -10,7 +10,7 @@ import com.cocot3ro.gh.almacen.data.network.model.AppVersionModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.model.ext.toModel
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ex.NotFoundException
@@ -67,7 +67,7 @@ class NetworkRepository(
         }
     }
 
-    fun login(user: AlmacenUserDomain, password: String?): Flow<ResponseState> = flow {
+    fun login(user: UserDomain, password: String?): Flow<ResponseState> = flow {
         val request = LoginRequestModel(user.toModel().id, password)
         val response: HttpResponse = client.login(request)
 
@@ -103,8 +103,8 @@ class NetworkRepository(
         }
     }
 
-    fun getAlmacenUsers(): Flow<ResponseState> = callbackFlow {
-        val webSocketSession: DefaultClientWebSocketSession = client.wsAlmacenUsers()
+    fun getUsers(): Flow<ResponseState> = callbackFlow {
+        val webSocketSession: DefaultClientWebSocketSession = client.wsUsers()
         with(webSocketSession) {
             try {
                 while (true) {
@@ -129,8 +129,8 @@ class NetworkRepository(
         }
     }
 
-    fun createAlmacenUser(
-        user: AlmacenUserDomain,
+    fun createUser(
+        user: UserDomain,
         imageData: Pair<ByteArray, String>?
     ): Flow<ResponseState> = flow {
         val multipart: List<PartData> = formData {
@@ -153,7 +153,7 @@ class NetworkRepository(
             }
         }
 
-        val response: HttpResponse = client.postAlmacenUser(multipart)
+        val response: HttpResponse = client.postUser(multipart)
 
         when (response.status) {
             HttpStatusCode.BadRequest -> emit(ResponseState.BadRequest)
@@ -177,8 +177,8 @@ class NetworkRepository(
         }
     }
 
-    fun editAlmacenUser(
-        user: AlmacenUserDomain,
+    fun editUser(
+        user: UserDomain,
         imageData: Pair<ByteArray, String>?
     ): Flow<ResponseState> = flow {
 
@@ -205,7 +205,7 @@ class NetworkRepository(
         }
 
 
-        val response: HttpResponse = client.putAlmacenUser(
+        val response: HttpResponse = client.putUser(
             id = model.id,
             multipart = multipart
         )
@@ -232,12 +232,12 @@ class NetworkRepository(
         }
     }
 
-    fun changeAlmacenUserPassword(
-        user: AlmacenUserDomain,
+    fun changeUserPassword(
+        user: UserDomain,
         currPass: String,
         newPass: String
     ): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.patchAlmacenUser(
+        val response: HttpResponse = client.patchUser(
             user.toModel().id,
             UserPasswordChangeModel(currPass, newPass)
         )
@@ -266,8 +266,8 @@ class NetworkRepository(
         }
     }
 
-    fun deleteAlmacenUser(user: AlmacenUserDomain): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.deleteAlmacenUser(user.toModel())
+    fun deleteUser(user: UserDomain): Flow<ResponseState> = flow {
+        val response: HttpResponse = client.deleteUser(user.toModel())
         when (response.status) {
             HttpStatusCode.Forbidden -> emit(ResponseState.Forbidden)
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)

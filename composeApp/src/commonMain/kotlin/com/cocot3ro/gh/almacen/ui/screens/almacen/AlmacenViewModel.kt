@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ex.UnauthorizedException
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
@@ -40,7 +40,7 @@ class AlmacenViewModel(
     @Provided private val manageAlmacenItemUseCase: ManageAlmacenItemUseCase
 ) : ViewModel() {
 
-    val loggedUser: AlmacenUserDomain by lazy {
+    val loggedUser: UserDomain by lazy {
         manageLoginUsecase.getLoggedUser() ?: throw IllegalStateException("User not logged in")
     }
 

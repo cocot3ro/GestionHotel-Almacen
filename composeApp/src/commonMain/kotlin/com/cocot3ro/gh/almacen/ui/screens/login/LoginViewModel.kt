@@ -5,10 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
-import com.cocot3ro.gh.almacen.domain.usecase.GetAlmacenUsersUseCase
+import com.cocot3ro.gh.almacen.domain.usecase.GetUsersUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.ui.state.UiState
 import com.cocot3ro.gh.almacen.ui.state.ext.isLoadingOrReloading
@@ -31,12 +31,12 @@ import org.koin.core.annotation.Provided
 @KoinViewModel
 class LoginViewModel(
     @Provided private val manageLoginUsecase: ManageLoginUsecase,
-    @Provided private val getAlmacenUsersUseCase: GetAlmacenUsersUseCase
+    @Provided private val getUsersUseCase: GetUsersUseCase
 ) : ViewModel() {
 
     private var fetchJob: Job? = null
 
-    private var _usersCache: List<AlmacenUserDomain> = emptyList()
+    private var _usersCache: List<UserDomain> = emptyList()
     private val _usersState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val usersState: StateFlow<UiState> = _usersState
         .onStart {
@@ -59,7 +59,7 @@ class LoginViewModel(
         password = newPassword
     }
 
-    fun setUserToLogin(user: AlmacenUserDomain?) {
+    fun setUserToLogin(user: UserDomain?) {
         when {
             user == null -> {
                 _loginUiState.value = LoginUiState.Idle
@@ -97,7 +97,7 @@ class LoginViewModel(
         fetchJob = viewModelScope.launch {
             val start: Long = System.currentTimeMillis()
 
-            getAlmacenUsersUseCase()
+            getUsersUseCase()
                 .retry(retries = 3) { throwable: Throwable ->
                     onUsersError(cause = throwable, retry = true)
 
@@ -111,7 +111,7 @@ class LoginViewModel(
                     when (response) {
                         is ResponseState.OK<*> -> {
                             @Suppress("UNCHECKED_CAST")
-                            _usersCache = response.data as List<AlmacenUserDomain>
+                            _usersCache = response.data as List<UserDomain>
 
                             val elapsed: Long = System.currentTimeMillis() - start
                             delay(500 - elapsed)
@@ -127,7 +127,7 @@ class LoginViewModel(
         }
     }
 
-    fun login(user: AlmacenUserDomain, password: String?) {
+    fun login(user: UserDomain, password: String?) {
         if (_loginUiState.value is LoginUiState.Loading) return
 
         _loginUiState.value = LoginUiState.Loading(user)

@@ -1,6 +1,6 @@
 package com.cocot3ro.gh.almacen.core.user
 
-data class AlmacenUserCore(
+data class UserCore(
     val userId: Long,
     val name: String,
     val image: String?,

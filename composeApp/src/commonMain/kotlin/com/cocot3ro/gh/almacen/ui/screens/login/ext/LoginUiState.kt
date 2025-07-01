@@ -1,9 +1,9 @@
 package com.cocot3ro.gh.almacen.ui.screens.login.ext
 
-import com.cocot3ro.gh.almacen.domain.model.AlmacenUserDomain
+import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.ui.screens.login.LoginUiState
 
-fun LoginUiState.getUser(): AlmacenUserDomain? = when (this) {
+fun LoginUiState.getUser(): UserDomain? = when (this) {
     is LoginUiState.Idle -> null
     is LoginUiState.Waiting -> user
     is LoginUiState.Loading -> user

@@ -16,7 +16,7 @@ junit = "4.13.2"
 kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.1.3"
-kotzilla = "1.0.1"
+kotzilla = "1.1.0"
 koin = "4.1.0"
 koin-annotations = "2.1.0"
 coil = "3.2.0"
@@ -35,7 +35,6 @@ kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
-kotzilla-plugin = { module = "io.kotzilla:kotzilla-plugin", version.ref = "kotzilla" }
 kotzilla-sdk-ktor3 = { module = "io.kotzilla:kotzilla-sdk-ktor3", version.ref = "kotzilla" }
 
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -78,11 +77,12 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3" }
 coil-network-cache-control = { group = "io.coil-kt.coil3", name = "coil-network-cache-control" }
 
-core-shared = { module = "com.cocot3ro.gh:core-shared", version = "1.0.0-SNAPSHOT" }
-core-network-resources = { module = "com.cocot3ro.gh:core-network-resources", version = "1.0.0-SNAPSHOT" }
-core-network-model = { module = "com.cocot3ro.gh:core-network-model", version = "1.0.0-SNAPSHOT" }
-almacen-service-network-model = { module = "com.cocot3ro.gh:almacen-service-network-model", version = "1.0.0-SNAPSHOT" }
-almacen-service-network-resources = { module = "com.cocot3ro.gh:almacen-service-network-resources", version = "1.0.0-SNAPSHOT" }
+login-service-network-model = { module = "com.cocot3ro.gh.deps:login-service-network-model", version = "1.0.0-SNAPSHOT" }
+login-service-network-resources = { module = "com.cocot3ro.gh.deps:login-service-network-resources", version = "1.0.0-SNAPSHOT" }
+users-service-network-model = { module = "com.cocot3ro.gh.deps:users-service-network-model", version = "1.0.0-SNAPSHOT" }
+users-service-network-resources = { module = "com.cocot3ro.gh.deps:users-service-network-resources", version = "1.0.0-SNAPSHOT" }
+almacen-service-network-model = { module = "com.cocot3ro.gh.deps:almacen-service-network-model", version = "1.0.0-SNAPSHOT" }
+almacen-service-network-resources = { module = "com.cocot3ro.gh.deps:almacen-service-network-resources", version = "1.0.0-SNAPSHOT" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -94,7 +94,7 @@ kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization"
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-kotzilla = { id = "io.kotzilla.kotzilla-plugin" }
+kotzilla = { id = "io.kotzilla.kotzilla-plugin", version.ref = "kotzilla" }
 
 
 [bundles]
@@ -112,4 +112,13 @@ koin-client = [
     "koin-core",
     "koin-compose",
     "koin-compose-viewmodel"
+]
+
+gh-deps = [
+    "login-service-network-model",
+    "login-service-network-resources",
+    "users-service-network-model",
+    "users-service-network-resources",
+    "almacen-service-network-model",
+    "almacen-service-network-resources"
 ]

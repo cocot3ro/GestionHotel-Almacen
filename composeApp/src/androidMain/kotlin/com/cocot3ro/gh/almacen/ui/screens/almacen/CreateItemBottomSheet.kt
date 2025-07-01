@@ -81,7 +81,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.add_a_photo_24dp
-import gh_almacen.composeapp.generated.resources.barcode_scanner_48dp
+import gh_almacen.composeapp.generated.resources.barcode_reader_24dp
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.photo_size_select_small_24dp
 import gh_almacen.composeapp.generated.resources.playlist_add_24dp
@@ -362,7 +362,7 @@ fun CreateItemBottomSheet(
                         ) {
                             Icon(
                                 modifier = Modifier.size(24.dp),
-                                imageVector = vectorResource(Res.drawable.barcode_scanner_48dp),
+                                imageVector = vectorResource(Res.drawable.barcode_reader_24dp),
                                 contentDescription = null
                             )
                         }

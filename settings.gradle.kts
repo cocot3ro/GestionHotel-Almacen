@@ -25,9 +25,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        mavenLocal()
     }
 }
 
 include(":composeApp")
-include(":shared")

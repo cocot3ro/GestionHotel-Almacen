@@ -1,5 +1,6 @@
 import com.google.devtools.ksp.KspExperimental
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.internal.utils.getLocalProperty
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -59,7 +60,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(projects.shared)
 
             implementation(libs.kotzilla.sdk.ktor3)
 
@@ -81,13 +81,7 @@ kotlin {
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
 
-            implementation(libs.core.network.resources)
-            implementation(libs.core.network.model)
-
-            implementation(libs.almacen.service.network.model)
-            implementation(libs.almacen.service.network.resources)
-
-            implementation(libs.core.shared)
+            implementation(libs.bundles.gh.deps)
         }
 
         desktopMain.dependencies {
@@ -128,10 +122,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("KEYSTORE_FILE") ?: "null")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: project.findProperty("gh-almacen.keystore.file") as String)
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("gh-almacen.keystore.password") as String
+            keyAlias = System.getenv("KEY_ALIAS") ?: project.findProperty("gh-almacen.key.alias") as String
+            keyPassword = System.getenv("KEY_PASSWORD") ?: project.findProperty("gh-almacen.key.password") as String
         }
     }
 
@@ -173,12 +167,7 @@ compose.desktop {
         mainClass = "com.cocot3ro.gh.almacen.MainKt"
 
         nativeDistributions {
-            targetFormats(
-                TargetFormat.Msi,
-                TargetFormat.Exe,
-                TargetFormat.Deb,
-                TargetFormat.Rpm
-            )
+            targetFormats(TargetFormat.Msi)
             packageName = "com.cocot3ro.gh.almacen"
             packageVersion = version
         }
@@ -231,10 +220,9 @@ repositories {
         }
     }
     mavenCentral()
-    mavenLocal()
 
     maven {
-        url = uri("https://maven.pkg.github.com/cocot3ro/GestionHotel-Core")
+        url = uri("https://maven.pkg.github.com/cocot3ro/GestionHotel-deps")
         credentials {
             username = project.findProperty("gpr.user") as String
             password = project.findProperty("gpr.key") as String

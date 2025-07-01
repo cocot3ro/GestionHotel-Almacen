@@ -1,9 +1,9 @@
 package com.cocot3ro.gh.almacen.domain.usecase
 
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.services.users.UserModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Provided
@@ -19,8 +19,8 @@ class GetAlmacenUsersUseCase(
 
             @Suppress("UNCHECKED_CAST")
             return@map ResponseState.OK(
-                (response.data as List<AlmacenUserModel>)
-                    .map(AlmacenUserModel::toDomain)
+                (response.data as List<UserModel>)
+                    .map(UserModel::toDomain)
             )
         }
     }

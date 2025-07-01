@@ -77,11 +77,12 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3" }
 coil-network-cache-control = { group = "io.coil-kt.coil3", name = "coil-network-cache-control" }
 
-core-shared = { module = "com.cocot3ro.gh:core-shared", version = "1.0.0-SNAPSHOT" }
-core-network-resources = { module = "com.cocot3ro.gh:core-network-resources", version = "1.0.0-SNAPSHOT" }
-core-network-model = { module = "com.cocot3ro.gh:core-network-model", version = "1.0.0-SNAPSHOT" }
-almacen-service-network-model = { module = "com.cocot3ro.gh:almacen-service-network-model", version = "1.0.0-SNAPSHOT" }
-almacen-service-network-resources = { module = "com.cocot3ro.gh:almacen-service-network-resources", version = "1.0.0-SNAPSHOT" }
+login-service-network-model = { module = "com.cocot3ro.gh.deps:login-service-network-model", version = "1.0.0-SNAPSHOT" }
+login-service-network-resources = { module = "com.cocot3ro.gh.deps:login-service-network-resources", version = "1.0.0-SNAPSHOT" }
+users-service-network-model = { module = "com.cocot3ro.gh.deps:users-service-network-model", version = "1.0.0-SNAPSHOT" }
+users-service-network-resources = { module = "com.cocot3ro.gh.deps:users-service-network-resources", version = "1.0.0-SNAPSHOT" }
+almacen-service-network-model = { module = "com.cocot3ro.gh.deps:almacen-service-network-model", version = "1.0.0-SNAPSHOT" }
+almacen-service-network-resources = { module = "com.cocot3ro.gh.deps:almacen-service-network-resources", version = "1.0.0-SNAPSHOT" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -111,4 +112,13 @@ koin-client = [
     "koin-core",
     "koin-compose",
     "koin-compose-viewmodel"
+]
+
+gh-deps = [
+    "login-service-network-model",
+    "login-service-network-resources",
+    "users-service-network-model",
+    "users-service-network-resources",
+    "almacen-service-network-model",
+    "almacen-service-network-resources"
 ]

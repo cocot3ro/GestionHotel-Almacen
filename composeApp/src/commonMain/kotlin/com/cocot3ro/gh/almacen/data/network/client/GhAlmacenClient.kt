@@ -2,17 +2,17 @@ package com.cocot3ro.gh.almacen.data.network.client
 
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginRequestModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenItemResource
-import com.cocot3ro.gh.almacen.data.network.resources.AlmacenLoginRequestResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenStoreResource
-import com.cocot3ro.gh.almacen.data.network.resources.AlmacenUserResource
-import com.cocot3ro.gh.core.RefreshTokenRequest
+import com.cocot3ro.gh.services.login.LoginRequestModel
+import com.cocot3ro.gh.services.login.LoginRequestResource
+import com.cocot3ro.gh.services.login.RefreshRequestModel
+import com.cocot3ro.gh.services.users.UserModel
+import com.cocot3ro.gh.services.users.UserPasswordChangeModel
+import com.cocot3ro.gh.services.users.UserResource
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
@@ -67,8 +67,8 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun login(almacenLoginRequestModel: AlmacenLoginRequestModel): HttpResponse {
-        return client.post(resource = AlmacenLoginRequestResource.Login()) {
+    suspend fun login(almacenLoginRequestModel: LoginRequestModel): HttpResponse {
+        return client.post(resource = LoginRequestResource.Login()) {
             setConnectionValues()
 
             contentType(ContentType.Application.Json)
@@ -76,8 +76,8 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun refresh(tokenRequest: RefreshTokenRequest): HttpResponse {
-        return authClient.post(resource = AlmacenLoginRequestResource.Refresh()) {
+    suspend fun refresh(tokenRequest: RefreshRequestModel): HttpResponse {
+        return authClient.post(resource = LoginRequestResource.Refresh()) {
             setConnectionValues()
 
             contentType(ContentType.Application.Json)
@@ -89,12 +89,12 @@ class GhAlmacenClient(
         return client.webSocketSession(
             host = this.host,
             port = this.port.toInt(),
-            path = AlmacenUserResource.All().getRoute()
+            path = UserResource.All().getRoute()
         )
     }
 
     suspend fun postAlmacenUser(multipart: List<PartData>): HttpResponse {
-        return authClient.post(resource = AlmacenUserResource()) {
+        return authClient.post(resource = UserResource()) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
@@ -106,7 +106,7 @@ class GhAlmacenClient(
         id: Long,
         multipart: List<PartData>
     ): HttpResponse {
-        return authClient.put(resource = AlmacenUserResource.Id(id = id)) {
+        return authClient.put(resource = UserResource.Id(id = id)) {
             setConnectionValues()
 
             contentType(ContentType.MultiPart.FormData)
@@ -116,9 +116,9 @@ class GhAlmacenClient(
 
     suspend fun patchAlmacenUser(
         userId: Long,
-        model: AlmacenUserPasswordChangeModel
+        model: UserPasswordChangeModel
     ): HttpResponse {
-        return authClient.patch(resource = AlmacenUserResource.Id(id = userId)) {
+        return authClient.patch(resource = UserResource.Id(id = userId)) {
             setConnectionValues()
 
             contentType(ContentType.Application.Json)
@@ -126,8 +126,8 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun deleteAlmacenUser(almacenUserModel: AlmacenUserModel): HttpResponse {
-        return authClient.delete(resource = AlmacenUserResource.Id(id = almacenUserModel.id)) {
+    suspend fun deleteAlmacenUser(almacenUserModel: UserModel): HttpResponse {
+        return authClient.delete(resource = UserResource.Id(id = almacenUserModel.id)) {
             setConnectionValues()
         }
     }

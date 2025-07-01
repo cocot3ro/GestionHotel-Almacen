@@ -1,8 +1,8 @@
 package com.cocot3ro.gh.almacen.domain.model.ext
 
 import com.cocot3ro.gh.almacen.core.user.UserRoleCore
-import com.cocot3ro.gh.almacen.data.network.model.UserRoleModel
 import com.cocot3ro.gh.almacen.domain.model.UserRoleDomain
+import com.cocot3ro.gh.services.users.UserRoleModel
 
 fun UserRoleDomain.toModel(): UserRoleModel = when (this) {
     UserRoleDomain.ADMIN -> UserRoleModel.ADMIN

@@ -4,12 +4,8 @@ import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
 import com.cocot3ro.gh.almacen.data.network.client.UpdateClient
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginRequestModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenLoginResponseModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenUserPasswordChangeModel
 import com.cocot3ro.gh.almacen.data.network.model.AppVersionModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
@@ -19,7 +15,11 @@ import com.cocot3ro.gh.almacen.domain.model.ext.toModel
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ex.NotFoundException
 import com.cocot3ro.gh.almacen.domain.state.ex.UnexpectedResponseException
-import com.cocot3ro.gh.core.RefreshTokenRequest
+import com.cocot3ro.gh.services.login.LoginRequestModel
+import com.cocot3ro.gh.services.login.LoginResponseModel
+import com.cocot3ro.gh.services.login.RefreshRequestModel
+import com.cocot3ro.gh.services.users.UserModel
+import com.cocot3ro.gh.services.users.UserPasswordChangeModel
 import io.ktor.client.call.body
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.receiveDeserialized
@@ -68,12 +68,12 @@ class NetworkRepository(
     }
 
     fun login(user: AlmacenUserDomain, password: String?): Flow<ResponseState> = flow {
-        val request = AlmacenLoginRequestModel(user.toModel().id, password)
+        val request = LoginRequestModel(user.toModel().id, password)
         val response: HttpResponse = client.login(request)
 
         when (response.status) {
             HttpStatusCode.OK -> {
-                val result: AlmacenLoginResponseModel = response.body<AlmacenLoginResponseModel>()
+                val result: LoginResponseModel = response.body<LoginResponseModel>()
                 emit(ResponseState.OK(result.toDomain()))
             }
 
@@ -88,12 +88,12 @@ class NetworkRepository(
     }
 
     fun refresh(token: String): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.refresh(RefreshTokenRequest(token))
+        val response: HttpResponse = client.refresh(RefreshRequestModel(token))
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 
             HttpStatusCode.OK -> {
-                val result: AlmacenLoginResponseModel = response.body<AlmacenLoginResponseModel>()
+                val result: LoginResponseModel = response.body<LoginResponseModel>()
                 emit(ResponseState.OK(result.toDomain()))
             }
 
@@ -108,8 +108,8 @@ class NetworkRepository(
         with(webSocketSession) {
             try {
                 while (true) {
-                    val items: List<AlmacenUserModel> =
-                        receiveDeserialized<List<AlmacenUserModel>>().map { item ->
+                    val items: List<UserModel> =
+                        receiveDeserialized<List<UserModel>>().map { item ->
                             item.copy(
                                 image = item.image?.let {
                                     "%s://%s:%d$it".format(
@@ -160,7 +160,7 @@ class NetworkRepository(
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 
             HttpStatusCode.Created -> {
-                emit(ResponseState.Created(response.body<AlmacenUserModel>().let { responseItem ->
+                emit(ResponseState.Created(response.body<UserModel>().let { responseItem ->
                     responseItem.copy(image = responseItem.image?.let {
                         "%s://%s:%d$it".format(
                             NetworkConstants.SCHEME,
@@ -182,7 +182,7 @@ class NetworkRepository(
         imageData: Pair<ByteArray, String>?
     ): Flow<ResponseState> = flow {
 
-        val model: AlmacenUserModel = user.toModel()
+        val model: UserModel = user.toModel()
 
         val multipart: List<PartData> = formData {
             append("data", Json.encodeToString(model))
@@ -215,7 +215,7 @@ class NetworkRepository(
             HttpStatusCode.NotFound -> emit(ResponseState.NotFound)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<AlmacenUserModel>().let { responseItem ->
+                emit(ResponseState.OK(response.body<UserModel>().let { responseItem ->
                     responseItem.copy(image = responseItem.image?.let {
                         "%s://%s:%d$it".format(
                             NetworkConstants.SCHEME,
@@ -239,7 +239,7 @@ class NetworkRepository(
     ): Flow<ResponseState> = flow {
         val response: HttpResponse = client.patchAlmacenUser(
             user.toModel().id,
-            AlmacenUserPasswordChangeModel(currPass, newPass)
+            UserPasswordChangeModel(currPass, newPass)
         )
 
         when (response.status) {
@@ -249,7 +249,7 @@ class NetworkRepository(
             HttpStatusCode.Forbidden -> emit(ResponseState.Forbidden)
 
             HttpStatusCode.OK -> {
-                emit(ResponseState.OK(response.body<AlmacenUserModel>().let { responseItem ->
+                emit(ResponseState.OK(response.body<UserModel>().let { responseItem ->
                     responseItem.copy(image = responseItem.image?.let {
                         "%s://%s:%d$it".format(
                             NetworkConstants.SCHEME,

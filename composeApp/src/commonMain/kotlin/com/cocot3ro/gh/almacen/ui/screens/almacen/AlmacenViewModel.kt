@@ -402,6 +402,28 @@ class AlmacenViewModel(
     }
 
     fun onEdit(item: AlmacenItemDomain, imageData: Pair<ByteArray, String>?) {
+        if ((_itemManagementUiState.value as ItemManagementUiState.Edit).state is ItemUiState.Loading ||
+            (_itemManagementUiState.value as ItemManagementUiState.Edit).state is ItemUiState.Success
+        ) {
+            return
+        }
+
+        if ((_itemManagementUiState.value as ItemManagementUiState.Edit).item == item) {
+            _itemManagementUiState.apply {
+                value = (value as ItemManagementUiState.Edit).copy(
+                    state = ItemUiState.Success
+                )
+            }
+            return
+        }
+
+        _itemManagementUiState.apply {
+            value = (value as ItemManagementUiState.Edit).copy(
+                item = item,
+                state = ItemUiState.Loading
+            )
+        }
+
         viewModelScope.launch {
             val start: Long = System.currentTimeMillis()
 

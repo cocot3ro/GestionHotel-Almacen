@@ -58,7 +58,7 @@ class ManageAlmacenItemUseCase(
         item: AlmacenItemDomain,
         imageData: Pair<ByteArray, String>?
     ): Flow<ResponseState> {
-        return networkRepository.editAlamcenItem(item, imageData).map { response: ResponseState ->
+        return networkRepository.editAlmacenItem(item, imageData).map { response: ResponseState ->
             if (response !is ResponseState.OK<*>) return@map response
 
             return@map ResponseState.OK((response.data as AlmacenItemModel).toDomain())

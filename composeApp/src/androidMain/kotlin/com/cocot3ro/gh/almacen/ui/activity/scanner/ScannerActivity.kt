@@ -5,12 +5,18 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.Settings
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.MeteringPoint
+import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -59,6 +65,7 @@ import gh_almacen.composeapp.generated.resources.permission_denied
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import java.util.concurrent.TimeUnit
 
 class ScannerActivity : ComponentActivity() {
 
@@ -136,12 +143,38 @@ class ScannerActivity : ComponentActivity() {
                     }
 
                 val cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                val camera: Camera = cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
-                    preview, imageAnalysis
+                    preview,
+                    imageAnalysis
                 )
+
+                // 🚀 Forzar autofocus al centro al iniciar
+                val cameraControl: CameraControl = camera.cameraControl
+                val factory: MeteringPointFactory = previewView.meteringPointFactory
+                val point: MeteringPoint = factory.createPoint(view.width / 2f, view.height / 2f)
+                val action: FocusMeteringAction = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
+                    .setAutoCancelDuration(3, TimeUnit.SECONDS)
+                    .build()
+                cameraControl.startFocusAndMetering(action)
+
+                // 🚀 Opcional: permitir reenfocar al tocar la pantalla
+                previewView.setOnTouchListener { view, event ->
+                    view.performClick()
+
+                    if (event.action == MotionEvent.ACTION_DOWN) {
+                        val tapPoint: MeteringPoint = factory.createPoint(event.x, event.y)
+                        val tapAction: FocusMeteringAction = FocusMeteringAction.Builder(tapPoint, FocusMeteringAction.FLAG_AF)
+                            .setAutoCancelDuration(3, TimeUnit.SECONDS)
+                            .build()
+                        cameraControl.startFocusAndMetering(tapAction)
+                    }
+
+                    true
+                }
             }, ContextCompat.getMainExecutor(context))
         }
     }

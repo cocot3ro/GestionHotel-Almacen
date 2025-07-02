@@ -1,6 +1,5 @@
 import com.google.devtools.ksp.KspExperimental
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.internal.utils.getLocalProperty
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -98,7 +97,7 @@ kotlin {
     }
 }
 
-val version: String = "1.0.0"
+val version: String = "1.0.1"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"

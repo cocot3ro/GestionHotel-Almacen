@@ -424,7 +424,7 @@ class NetworkRepository(
         }
     }
 
-    fun editAlamcenItem(
+    fun editAlmacenItem(
         item: AlmacenItemDomain,
         imageData: Pair<ByteArray, String>?
     ): Flow<ResponseState> = flow {

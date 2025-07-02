@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.lifecycle.ViewModel
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import org.koin.android.annotation.KoinViewModel
@@ -14,7 +15,7 @@ class EditItemViewModel(
     @InjectedParam private val originalItem: AlmacenItemDomain
 ) : ViewModel() {
 
-    var barcodes: MutableSet<Long> = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
+    var barcodes: SnapshotStateSet<Long> = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
         private set
     var name: String by mutableStateOf(originalItem.name)
         private set
@@ -81,7 +82,7 @@ class EditItemViewModel(
         this.minimum = value
     }
 
-    fun toggleShowbarcodeInput() {
+    fun toggleShowBarcodeInput() {
         this.showBarcodeInput = !showBarcodeInput
         this.newBarcodeInput = ""
     }
@@ -119,7 +120,7 @@ class EditItemViewModel(
     }
 
     fun dismiss() {
-        barcodes = mutableSetOf(*originalItem.barcodes.toTypedArray())
+        barcodes = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
         name = originalItem.name
         supplier = originalItem.supplier
         image = originalItem.image

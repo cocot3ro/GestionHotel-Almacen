@@ -11,7 +11,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -113,7 +112,6 @@ fun EditBottomSheet(
     val focusManager: FocusManager = LocalFocusManager.current
 
     ModalBottomSheet(
-        modifier = Modifier,
         onDismissRequest = onDismissRequest@{
             if (itemState is ItemUiState.Loading) return@onDismissRequest
             viewModel.dismiss()
@@ -127,6 +125,7 @@ fun EditBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             val nameFocusRequester: FocusRequester = remember { FocusRequester() }
             val supplierFocusRequester: FocusRequester = remember { FocusRequester() }
@@ -307,7 +306,7 @@ fun EditBottomSheet(
                     fontSize = 24.sp
                 )
 
-                IconButton(onClick = { viewModel.toggleShowbarcodeInput() }) {
+                IconButton(onClick = { viewModel.toggleShowBarcodeInput() }) {
                     Icon(
                         modifier = Modifier.size(36.dp),
                         imageVector = if (viewModel.showBarcodeInput) Icons.Default.Close
@@ -331,7 +330,7 @@ fun EditBottomSheet(
                     )
 
                 val onAppendBarcode: () -> Unit = remember {
-                    onAppendBarcode@ {
+                    onAppendBarcode@{
                         if (viewModel.newBarcodeInput.toLongOrNull() == null) return@onAppendBarcode
 
                         focusManager.clearFocus()
@@ -347,7 +346,7 @@ fun EditBottomSheet(
                         Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
 
                         viewModel.updateNewBarcodeInput("")
-                        viewModel.toggleShowbarcodeInput()
+                        viewModel.toggleShowBarcodeInput()
                     }
                 }
 
@@ -386,13 +385,9 @@ fun EditBottomSheet(
                 )
             }
 
-            val scrollState: ScrollState = rememberScrollState()
-
             FlowRow(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(scrollState),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 viewModel.barcodes.takeIf(MutableSet<Long>::isNotEmpty)?.forEach { barcode ->

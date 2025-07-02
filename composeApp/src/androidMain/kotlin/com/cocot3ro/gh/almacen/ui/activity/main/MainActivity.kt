@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cocot3ro.gh.almacen.ui.main.MainViewModel
 import com.cocot3ro.gh.almacen.ui.navigation.Home
 import com.cocot3ro.gh.almacen.ui.navigation.NavigationWrapper
 import com.cocot3ro.gh.almacen.ui.navigation.Setup
@@ -18,14 +17,11 @@ import com.cocot3ro.gh.almacen.ui.navigation.Splash
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashUiState
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashViewModel
 import com.cocot3ro.gh.almacen.ui.theme.GhAlmacenTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 // TODO: Check for updates
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModel()
     private val splashViewModel: SplashViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,11 +65,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        runBlocking(Dispatchers.IO) {
-            viewModel.logOut()
-        }
-    }
 }

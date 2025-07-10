@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
-import com.cocot3ro.gh.almacen.ui.screens.settings.TextFieldStatus
-import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.domain.model.TextFieldStatus
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.configure_server
 import gh_almacen.composeapp.generated.resources.connect

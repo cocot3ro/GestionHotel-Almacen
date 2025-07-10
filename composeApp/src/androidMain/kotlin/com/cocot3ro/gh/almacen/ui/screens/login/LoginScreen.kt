@@ -38,8 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
-import com.cocot3ro.gh.almacen.ui.screens.login.ext.getUser
-import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.domain.state.LoginUiState
+import com.cocot3ro.gh.almacen.domain.state.ext.getUser
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +48,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun LoginScreen(
     modifier: Modifier,
     viewModel: LoginViewModel = koinViewModel<LoginViewModel>(),
-    onNavigateToMain: () -> Unit
+    onNavigateToAlmacen: () -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
         val uiState: UiState = viewModel.usersState.collectAsStateWithLifecycle().value
@@ -223,7 +224,7 @@ fun LoginScreen(
                 onLogin = {
                     viewModel.login(user, viewModel.password)
                 },
-                onSuccess = onNavigateToMain
+                onSuccess = onNavigateToAlmacen
             )
         }
 

@@ -1,10 +1,10 @@
 {
   "desktop": {
-    "version": "1.1.0",
-    "url": "https://github.com/cocot3ro/GestionHotel-Almacen/releases/download/v1.1.0/gh-almacen-v1.1.0.msi"
+    "version": "1.1.1",
+    "url": "https://github.com/cocot3ro/GestionHotel-Almacen/releases/download/v1.1.1/gh-almacen-v1.1.1.msi"
   },
   "android": {
-    "version": "1.1.0",
-    "url": "https://github.com/cocot3ro/GestionHotel-Almacen/releases/download/v1.1.0/gh-almacen-v1.1.0.apk"
+    "version": "1.1.1",
+    "url": "https://github.com/cocot3ro/GestionHotel-Almacen/releases/download/v1.1.1/gh-almacen-v1.1.1.apk"
   }
 }

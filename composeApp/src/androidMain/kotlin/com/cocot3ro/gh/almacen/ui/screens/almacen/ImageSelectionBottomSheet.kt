@@ -61,7 +61,7 @@ fun ImageSelectionBottomSheet(
                 )
 
 
-                TextButton(onClick = {}) {
+                TextButton(onClick = onGallery) {
                     Text(text = "Galería")
                 }
             }
@@ -80,7 +80,7 @@ fun ImageSelectionBottomSheet(
                     contentDescription = null
                 )
 
-                TextButton(onClick = {}) {
+                TextButton(onClick = onCamera) {
                     Text(text = "Cámara")
                 }
             }
@@ -99,7 +99,7 @@ fun ImageSelectionBottomSheet(
                     contentDescription = null
                 )
 
-                TextButton(onClick = {}) {
+                TextButton(onClick = onRemoveImage) {
                     Text(text = "Eliminar imagen")
                 }
             }

@@ -262,7 +262,7 @@ fun Item(
                                 },
                                 onClick = {
                                     showDropDown = false
-                                    showBarcodeList = true
+                                    showBarcodeList = !showBarcodeList
                                 }
                             )
 

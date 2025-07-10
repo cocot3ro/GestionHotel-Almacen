@@ -24,6 +24,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.domain.model.VersionInfoDomain
+import com.cocot3ro.gh.almacen.domain.state.SplashUiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.app_image
 import org.jetbrains.compose.resources.painterResource

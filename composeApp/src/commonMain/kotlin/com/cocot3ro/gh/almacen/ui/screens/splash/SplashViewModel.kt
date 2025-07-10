@@ -6,6 +6,7 @@ import com.cocot3ro.gh.almacen.BuildConfig
 import com.cocot3ro.gh.almacen.domain.model.AppVersionDomain
 import com.cocot3ro.gh.almacen.domain.model.PreferenceItem
 import com.cocot3ro.gh.almacen.domain.model.getPlatform
+import com.cocot3ro.gh.almacen.domain.state.SplashUiState
 import com.cocot3ro.gh.almacen.domain.usecase.GetLatestVersionUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase

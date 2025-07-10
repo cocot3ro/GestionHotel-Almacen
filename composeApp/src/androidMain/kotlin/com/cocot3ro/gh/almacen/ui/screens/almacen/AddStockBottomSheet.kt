@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cocot3ro.gh.almacen.domain.state.ItemUiState
 import com.cocot3ro.gh.almacen.domain.state.ex.NotFoundException
 import com.cocot3ro.gh.almacen.domain.state.ex.UnauthorizedException
 import gh_almacen.composeapp.generated.resources.Res

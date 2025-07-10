@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.almacen.ui.screens.almacen
+package com.cocot3ro.gh.almacen.domain.state
 
 sealed class ItemUiState {
     data object Idle : ItemUiState()

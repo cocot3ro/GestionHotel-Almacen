@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.almacen.ui.screens.settings
+package com.cocot3ro.gh.almacen.domain.model
 
 enum class TextFieldStatus {
     IDLE,

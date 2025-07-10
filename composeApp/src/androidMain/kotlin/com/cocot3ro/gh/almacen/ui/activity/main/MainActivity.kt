@@ -14,12 +14,11 @@ import com.cocot3ro.gh.almacen.ui.navigation.Home
 import com.cocot3ro.gh.almacen.ui.navigation.NavigationWrapper
 import com.cocot3ro.gh.almacen.ui.navigation.Setup
 import com.cocot3ro.gh.almacen.ui.navigation.Splash
-import com.cocot3ro.gh.almacen.ui.screens.splash.SplashUiState
+import com.cocot3ro.gh.almacen.domain.state.SplashUiState
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashViewModel
 import com.cocot3ro.gh.almacen.ui.theme.GhAlmacenTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-// TODO: Check for updates
 class MainActivity : ComponentActivity() {
 
     private val splashViewModel: SplashViewModel by viewModel()

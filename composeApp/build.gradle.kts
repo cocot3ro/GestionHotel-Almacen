@@ -97,7 +97,7 @@ kotlin {
     }
 }
 
-val version: String = "1.0.3"
+val version: String = "1.1.0"
 
 android {
     namespace = "com.cocot3ro.gh.almacen"
@@ -121,10 +121,19 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("KEYSTORE_FILE") ?: project.findProperty("gh-almacen.keystore.file") as String)
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: project.findProperty("gh-almacen.keystore.password") as String
-            keyAlias = System.getenv("KEY_ALIAS") ?: project.findProperty("gh-almacen.key.alias") as String
-            keyPassword = System.getenv("KEY_PASSWORD") ?: project.findProperty("gh-almacen.key.password") as String
+            storeFile = file(
+                System.getenv("KEYSTORE_FILE")
+                    ?: project.findProperty("gh-almacen.keystore.file") as String
+            )
+
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+                ?: project.findProperty("gh-almacen.keystore.password") as String
+
+            keyAlias = System.getenv("KEY_ALIAS")
+                ?: project.findProperty("gh-almacen.key.alias") as String
+
+            keyPassword = System.getenv("KEY_PASSWORD")
+                ?: project.findProperty("gh-almacen.key.password") as String
         }
     }
 

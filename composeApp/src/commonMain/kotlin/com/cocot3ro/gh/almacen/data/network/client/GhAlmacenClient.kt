@@ -185,6 +185,24 @@ class GhAlmacenClient(
         }
     }
 
+    suspend fun postAddMultipleStock(items: Map<Long, Int>): HttpResponse {
+        return authClient.post(resource = AlmacenItemResource.AddMultipleStock()) {
+            setConnectionValues()
+
+            contentType(ContentType.Application.Json)
+            setBody(items)
+        }
+    }
+
+    suspend fun postTakeMultipleStock(items: Map<Long, Int>): HttpResponse {
+        return authClient.post(resource = AlmacenItemResource.TakeMultipleStock()) {
+            setConnectionValues()
+
+            contentType(ContentType.Application.Json)
+            setBody(items)
+        }
+    }
+
     suspend fun deleteAlmacenItem(almacenItemModel: AlmacenItemModel): HttpResponse {
         return authClient.delete(resource = AlmacenItemResource.Id(id = almacenItemModel.id)) {
             setConnectionValues()

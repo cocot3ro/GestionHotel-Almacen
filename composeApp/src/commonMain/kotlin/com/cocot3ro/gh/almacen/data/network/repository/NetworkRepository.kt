@@ -501,6 +501,26 @@ class NetworkRepository(
         }
     }
 
+    fun almacenItemAddMultipleStock(
+        items: Map<AlmacenItemDomain, Int>
+    ): Flow<ResponseState> = flow {
+        val response: HttpResponse =
+            client.postAddMultipleStock(items.mapKeys { (k: AlmacenItemDomain, _) -> k.toModel().id })
+
+        when (response.status) {
+            HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
+
+            HttpStatusCode.PartialContent -> emit(ResponseState.PartialContent)
+            HttpStatusCode.NoContent -> emit(ResponseState.NoContent)
+
+            HttpStatusCode.OK -> emit(ResponseState.OK(Unit))
+
+            else -> {
+                emit(ResponseState.Error(UnexpectedResponseException("Unexpected response: ${response.status}")))
+            }
+        }
+    }
+
     fun almacenItemTakeStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> = flow {
         val response: HttpResponse = client.postTakeStock(item.toModel(), AlmacenStockModel(amount))
         when (response.status) {
@@ -519,6 +539,26 @@ class NetworkRepository(
                     })
                 }))
             }
+
+            else -> {
+                emit(ResponseState.Error(UnexpectedResponseException("Unexpected response: ${response.status}")))
+            }
+        }
+    }
+
+    fun almacenItemTakeMultipleStock(
+        items: Map<AlmacenItemDomain, Int>
+    ): Flow<ResponseState> = flow {
+        val response: HttpResponse =
+            client.postTakeMultipleStock(items.mapKeys { (k: AlmacenItemDomain, _) -> k.toModel().id })
+
+        when (response.status) {
+            HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
+
+            HttpStatusCode.PartialContent -> emit(ResponseState.PartialContent)
+            HttpStatusCode.NoContent -> emit(ResponseState.NoContent)
+
+            HttpStatusCode.OK -> emit(ResponseState.OK(Unit))
 
             else -> {
                 emit(ResponseState.Error(UnexpectedResponseException("Unexpected response: ${response.status}")))

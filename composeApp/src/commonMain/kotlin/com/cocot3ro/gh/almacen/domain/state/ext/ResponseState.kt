@@ -17,6 +17,7 @@ fun ResponseState.getExceptionOrNull(): Throwable? {
     return when (this) {
         is ResponseState.OK<*>,
         ResponseState.NoContent,
+        ResponseState.PartialContent,
         is ResponseState.Created<*> -> null
 
         ResponseState.NotFound -> NotFoundException()

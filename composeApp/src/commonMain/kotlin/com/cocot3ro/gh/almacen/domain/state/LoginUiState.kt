@@ -1,4 +1,4 @@
-package com.cocot3ro.gh.almacen.ui.screens.login
+package com.cocot3ro.gh.almacen.domain.state
 
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 

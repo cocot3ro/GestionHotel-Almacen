@@ -3,6 +3,7 @@ package com.cocot3ro.gh.almacen.domain.state
 sealed class ResponseState {
     data class OK<T>(val data: T) : ResponseState()
     data class Created<T>(val data: T) : ResponseState()
+    data object PartialContent : ResponseState()
     data object NoContent : ResponseState()
 
     data object BadRequest : ResponseState()

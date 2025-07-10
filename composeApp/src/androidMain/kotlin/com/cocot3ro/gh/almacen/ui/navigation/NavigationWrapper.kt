@@ -3,16 +3,22 @@ package com.cocot3ro.gh.almacen.ui.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.cocot3ro.gh.almacen.domain.model.CargaDescargaMode
+import com.cocot3ro.gh.almacen.ui.screens.almacen.AlmacenScreen
+import com.cocot3ro.gh.almacen.ui.screens.cargadescarga.CargaDescargaScreen
 import com.cocot3ro.gh.almacen.ui.screens.home.HomeScreen
 import com.cocot3ro.gh.almacen.ui.screens.login.LoginScreen
-import com.cocot3ro.gh.almacen.ui.screens.main.MainScreen
 import com.cocot3ro.gh.almacen.ui.screens.settings.SettingsScreen
 import com.cocot3ro.gh.almacen.ui.screens.setup.SetupScreen
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashScreen
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun NavigationWrapper(startDestination: Any) {
@@ -60,16 +66,33 @@ fun NavigationWrapper(startDestination: Any) {
         composable<Login> { _ ->
             LoginScreen(
                 modifier = Modifier.fillMaxSize(),
-                onNavigateToMain = {
-                    navController.navigate(route = Main)
+                onNavigateToAlmacen = {
+                    navController.navigate(route = Almacen)
                 }
             )
         }
 
-        composable<Main> { _ ->
-            MainScreen(
+        composable<Almacen> {
+            AlmacenScreen(
                 modifier = Modifier.fillMaxSize(),
-                onNavigateBackToLogin = navController::popBackStack
+                onNavigateBack = navController::popBackStack,
+                onNavigateToCarga = { cargaDescargaMode: CargaDescargaMode ->
+                    navController.navigate(route = CargaDescarga(cargaDescargaMode))
+                }
+            )
+        }
+
+        composable<CargaDescarga> { navBackStack: NavBackStackEntry ->
+            val cargaDescargaMode: CargaDescargaMode = navBackStack.toRoute<CargaDescarga>().mode
+
+            @Suppress("UndeclaredKoinUsage")
+            CargaDescargaScreen(
+                modifier = Modifier.fillMaxSize(),
+                viewModel = koinViewModel(parameters = { parametersOf(cargaDescargaMode) }),
+                onNavigateBack = navController::popBackStack,
+                onUnauthorized = {
+                    navController.popBackStack(Login, false)
+                }
             )
         }
 
@@ -78,7 +101,7 @@ fun NavigationWrapper(startDestination: Any) {
                 modifier = Modifier.fillMaxSize(),
                 onBack = navController::popBackStack,
                 onSettingsChanged = {
-                    navController.popBackStack(Main, false)
+                    navController.popBackStack(Almacen, false)
                 }
             )
         }

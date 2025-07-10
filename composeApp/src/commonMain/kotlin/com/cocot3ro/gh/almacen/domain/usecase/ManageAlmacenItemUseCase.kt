@@ -46,6 +46,10 @@ class ManageAlmacenItemUseCase(
         }
     }
 
+    fun takeMultipleStock(items: Map<AlmacenItemDomain, Int>): Flow<ResponseState> {
+        return networkRepository.almacenItemTakeMultipleStock(items)
+    }
+
     fun addStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> {
         return networkRepository.almacenItemAddStock(item, amount).map { response: ResponseState ->
             if (response !is ResponseState.OK<*>) return@map response
@@ -53,6 +57,9 @@ class ManageAlmacenItemUseCase(
             return@map ResponseState.OK((response.data as AlmacenItemModel).toDomain())
         }
     }
+
+    fun addMultipleStock(items: Map<AlmacenItemDomain, Int>): Flow<ResponseState> =
+        networkRepository.almacenItemAddMultipleStock(items)
 
     fun edit(
         item: AlmacenItemDomain,

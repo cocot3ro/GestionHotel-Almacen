@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
-import com.cocot3ro.gh.almacen.ui.screens.settings.TextFieldStatus
-import com.cocot3ro.gh.almacen.ui.screens.settings.TextFieldValue
-import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.domain.model.TextFieldStatus
+import com.cocot3ro.gh.almacen.domain.model.TextFieldValue
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

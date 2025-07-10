@@ -6,7 +6,7 @@ import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.SetUpConnectionValuesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
-import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

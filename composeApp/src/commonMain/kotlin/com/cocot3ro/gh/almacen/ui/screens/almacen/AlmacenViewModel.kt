@@ -6,15 +6,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
+import com.cocot3ro.gh.almacen.domain.model.SortMode
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
+import com.cocot3ro.gh.almacen.domain.state.ItemManagementUiState
+import com.cocot3ro.gh.almacen.domain.state.ItemUiState
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import com.cocot3ro.gh.almacen.domain.state.ex.UnauthorizedException
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrNull
+import com.cocot3ro.gh.almacen.domain.state.ext.isLoadingOrReloading
 import com.cocot3ro.gh.almacen.domain.usecase.ManageAlmacenItemUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
-import com.cocot3ro.gh.almacen.ui.state.UiState
-import com.cocot3ro.gh.almacen.ui.state.ext.isLoadingOrReloading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -46,11 +49,7 @@ class AlmacenViewModel(
 
     var showSearch: Boolean by mutableStateOf(false)
         private set
-    var showFilter: Boolean by mutableStateOf(false)
-        private set
     var filter: String by mutableStateOf("")
-        private set
-    var filterMode: FilterMode by mutableStateOf(FilterMode.NAME)
         private set
 
     var showSortMode: Boolean by mutableStateOf(false)
@@ -214,17 +213,8 @@ class AlmacenViewModel(
         this.showSearch = showSearch
     }
 
-    fun updateShowFilter(showFilter: Boolean) {
-        this.showFilter = showFilter
-    }
-
     fun updateFilter(filter: String) {
         this.filter = filter
-        _uiState.value = UiState.Success(_itemsCache.filter().sort())
-    }
-
-    fun updateFilterMode(filterMode: FilterMode) {
-        this.filterMode = filterMode
         _uiState.value = UiState.Success(_itemsCache.filter().sort())
     }
 

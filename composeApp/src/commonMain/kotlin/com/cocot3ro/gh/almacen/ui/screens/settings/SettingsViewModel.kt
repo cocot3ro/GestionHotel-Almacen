@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cocot3ro.gh.almacen.domain.model.TextFieldStatus
+import com.cocot3ro.gh.almacen.domain.model.TextFieldValue
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
-import com.cocot3ro.gh.almacen.ui.state.UiState
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

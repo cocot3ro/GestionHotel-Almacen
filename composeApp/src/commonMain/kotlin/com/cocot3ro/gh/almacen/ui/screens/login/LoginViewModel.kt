@@ -6,12 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
+import com.cocot3ro.gh.almacen.domain.state.LoginUiState
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
 import com.cocot3ro.gh.almacen.domain.usecase.GetUsersUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
-import com.cocot3ro.gh.almacen.ui.state.UiState
-import com.cocot3ro.gh.almacen.ui.state.ext.isLoadingOrReloading
+import com.cocot3ro.gh.almacen.domain.state.UiState
+import com.cocot3ro.gh.almacen.domain.state.ext.isLoadingOrReloading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

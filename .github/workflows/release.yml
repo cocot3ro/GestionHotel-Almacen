@@ -54,15 +54,15 @@ jobs:
         run: |
           ./gradlew assembleRelease
 
-      - name: Build MSI
-        shell: bash
-        run: ./gradlew packageMsi
+#      - name: Build MSI
+#        shell: bash
+#        run: ./gradlew packageMsi
 
       - name: Rename generated artifacts
         shell: bash
         run: |
           mv composeApp/build/outputs/apk/release/composeApp-release.apk gh-almacen-v${VERSION}.apk
-          mv composeApp/build/compose/binaries/main/msi/com.cocot3ro.gh.almacen-${VERSION}.msi gh-almacen-v${VERSION}.msi
+#          mv composeApp/build/compose/binaries/main/msi/com.cocot3ro.gh.almacen-${VERSION}.msi gh-almacen-v${VERSION}.msi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -72,16 +72,26 @@ jobs:
           body: ${{ github.event.pull_request.body }}
           files: |
             gh-almacen-v${{ steps.version.outputs.version }}.apk
-            gh-almacen-v${{ steps.version.outputs.version }}.msi
+#            gh-almacen-v${{ steps.version.outputs.version }}.msi
+
+#      - name: Generate versions.json
+#        shell: bash
+#        run: |
+#          echo "{
+#            \"desktop\": {
+#              \"version\": \"${{ steps.version.outputs.version }}\",
+#              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.msi\"
+#            },
+#            \"android\": {
+#              \"version\": \"${{ steps.version.outputs.version }}\",
+#              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.apk\"
+#            }
+#          }" > versions.json
 
       - name: Generate versions.json
         shell: bash
         run: |
           echo "{
-            \"desktop\": {
-              \"version\": \"${{ steps.version.outputs.version }}\",
-              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.msi\"
-            },
             \"android\": {
               \"version\": \"${{ steps.version.outputs.version }}\",
               \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.apk\"

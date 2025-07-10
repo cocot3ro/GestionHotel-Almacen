@@ -512,7 +512,7 @@ fun CargaDescargaScreen(
             UiState.Loading -> Unit
 
             is UiState.Success<*> -> {
-                Toast.makeText(context, "Stock añadido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Stock modificado", Toast.LENGTH_SHORT).show()
 
                 viewModel.dismiss()
                 onNavigateBack()

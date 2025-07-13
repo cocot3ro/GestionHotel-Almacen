@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.lifecycle.ViewModel
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
 import org.koin.android.annotation.KoinViewModel
@@ -64,21 +65,30 @@ class CreateItemViewModel : ViewModel() {
     }
 
     fun updateQuantity(quantity: String) {
-        val value: Int? = quantity.replace("""\D""".toRegex(), "").toIntOrNull()
+        val value: Int? = quantity.replace("""\D""".toRegex(), "")
+            .toLongOrNull()
+            ?.fastCoerceIn(0, Int.MAX_VALUE.toLong())
+            ?.toInt()
         this.quantity = value
     }
 
     fun updatePackSize(packSize: String) {
-        val value: Int? = packSize.replace("""\D""".toRegex(), "").toIntOrNull()
+        val value: Int? = packSize.replace("""\D""".toRegex(), "")
+            .toLongOrNull()
+            ?.fastCoerceIn(0, Int.MAX_VALUE.toLong())
+            ?.toInt()
         this.packSize = value
     }
 
     fun updateMinimum(minimum: String) {
-        val value: Int? = minimum.replace("""\D""".toRegex(), "").toIntOrNull()
+        val value: Int? = minimum.replace("""\D""".toRegex(), "")
+            .toLongOrNull()
+            ?.fastCoerceIn(0, Int.MAX_VALUE.toLong())
+            ?.toInt()
         this.minimum = value
     }
 
-    fun toggleShowbarcodeInput() {
+    fun toggleShowBarcodeInput() {
         this.showBarcodeInput = !showBarcodeInput
         this.newBarcodeInput = ""
     }
@@ -101,7 +111,7 @@ class CreateItemViewModel : ViewModel() {
         supplier = this.supplier,
         quantity = this.quantity!!,
         packSize = this.packSize!!,
-        minimum = this.minimum!!,
+        minimum = this.minimum,
         image = null
     )
 
@@ -112,7 +122,7 @@ class CreateItemViewModel : ViewModel() {
                 this.minimum != null &&
                 this.quantity?.let { it >= 0 } ?: false &&
                 this.packSize?.let { it > 0 } ?: false &&
-                this.minimum?.let { it >= 0 } ?: false
+                this.minimum?.let { it >= 0 } ?: true
     }
 
     fun dismiss() {

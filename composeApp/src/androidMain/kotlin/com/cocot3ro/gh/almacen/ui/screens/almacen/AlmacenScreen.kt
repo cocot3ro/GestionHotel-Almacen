@@ -77,7 +77,7 @@ fun AlmacenScreen(
     modifier: Modifier,
     viewModel: AlmacenViewModel = koinViewModel<AlmacenViewModel>(),
     onNavigateBack: () -> Unit,
-    onNavigateToCarga: (CargaDescargaMode) -> Unit
+    onNavigateToCargaDescarga: (CargaDescargaMode) -> Unit
 ) {
     val uiState: UiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
@@ -95,8 +95,8 @@ fun AlmacenScreen(
                 viewModel = viewModel,
                 drawerState = drawerState,
                 onNavigateBack = onNavigateBack,
-                onNavigateToCarga = { onNavigateToCarga(CargaDescargaMode.CARGA) },
-                onNavigateToDescarga = { onNavigateToCarga(CargaDescargaMode.DESCARGA) }
+                onNavigateToCarga = { onNavigateToCargaDescarga(CargaDescargaMode.CARGA) },
+                onNavigateToDescarga = { onNavigateToCargaDescarga(CargaDescargaMode.DESCARGA) }
             )
         },
         content = {

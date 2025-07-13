@@ -105,7 +105,7 @@ fun Item(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    if (item.quantity <= item.minimum) {
+                    if (item.minimum != null && item.quantity <= item.minimum) {
                         val modId = "lockIcon"
                         val text: AnnotatedString = buildAnnotatedString {
                             appendInlineContent(id = modId, alternateText = "[icon]")
@@ -248,7 +248,7 @@ fun Item(
                                     )
                                 },
                                 text = {
-                                    Text(text = "Mostrar códigos${System.lineSeparator()}de barras")
+                                    Text(text = "${if (showBarcodeList) "Mostrar" else "Ocultar"} códigos${System.lineSeparator()}de barras")
                                 },
                                 trailingIcon = {
                                     Icon(

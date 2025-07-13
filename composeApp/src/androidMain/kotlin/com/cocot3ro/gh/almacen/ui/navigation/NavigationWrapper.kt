@@ -72,11 +72,11 @@ fun NavigationWrapper(startDestination: Any) {
             )
         }
 
-        composable<Almacen> {
+        composable<Almacen> { _ ->
             AlmacenScreen(
                 modifier = Modifier.fillMaxSize(),
                 onNavigateBack = navController::popBackStack,
-                onNavigateToCarga = { cargaDescargaMode: CargaDescargaMode ->
+                onNavigateToCargaDescarga = { cargaDescargaMode: CargaDescargaMode ->
                     navController.navigate(route = CargaDescarga(cargaDescargaMode))
                 }
             )

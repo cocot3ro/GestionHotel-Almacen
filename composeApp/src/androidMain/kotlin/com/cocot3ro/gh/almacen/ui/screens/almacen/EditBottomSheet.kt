@@ -286,7 +286,7 @@ fun EditBottomSheet(
                     label = { Text(text = "Mínimo") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    isError = viewModel.minimum?.let { it < 0 } ?: true,
+                    isError = viewModel.minimum?.let { it < 0 } ?: false,
                     keyboardActions = KeyboardActions(
                         onDone = {
                             focusManager.clearFocus()

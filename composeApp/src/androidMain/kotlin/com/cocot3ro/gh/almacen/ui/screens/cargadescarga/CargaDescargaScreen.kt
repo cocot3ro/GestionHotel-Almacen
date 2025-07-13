@@ -94,13 +94,12 @@ import gh_almacen.composeapp.generated.resources.trolley_24dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CargaDescargaScreen(
     modifier: Modifier,
-    viewModel: CargaDescargaViewModel = koinViewModel(),
+    viewModel: CargaDescargaViewModel,
     onNavigateBack: () -> Unit,
     onUnauthorized: () -> Unit
 ) {

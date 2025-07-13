@@ -17,14 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,12 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import com.cocot3ro.gh.almacen.domain.state.UiState
 import com.cocot3ro.gh.almacen.domain.state.ext.isLoadingOrReloading
+import gh_almacen.composeapp.generated.resources.Res
+import gh_almacen.composeapp.generated.resources.network_manage_48dp
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,35 +62,13 @@ fun HomeScreen(
                 ),
                 horizontalAlignment = Alignment.End
             ) {
-//                FloatingActionButton(onClick = onNavigateToSettings) {
-//                    Icon(
-//                        modifier = Modifier.size(36.dp),
-//                        imageVector = vectorResource(Res.drawable.network_manage_48dp),
-//                        contentDescription = null
-//                    )
-//                }
-
-                if (uiState.first !is UiState.Success<*> || uiState.second !is UiState.Error<*>)
-                    return@fab
-
-//                Spacer(modifier = Modifier.height(8.dp))
-
-                ExtendedFloatingActionButton(
-                    onClick = viewModel::retry,
-                    icon = {
-                        Icon(
-                            modifier = Modifier.size(36.dp),
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = null
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = "Reintentar",
-                            fontSize = 16.sp
-                        )
-                    }
-                )
+                FloatingActionButton(onClick = onNavigateToSettings) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        imageVector = vectorResource(Res.drawable.network_manage_48dp),
+                        contentDescription = null
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -154,6 +133,10 @@ fun HomeScreen(
                             text = "${NetworkConstants.SCHEME}://$host:$port",
                             color = Color.Red
                         )
+
+                        TextButton(onClick = viewModel::retry) {
+                            Text(text = "Reintentar conexión")
+                        }
                     }
                 }
             }

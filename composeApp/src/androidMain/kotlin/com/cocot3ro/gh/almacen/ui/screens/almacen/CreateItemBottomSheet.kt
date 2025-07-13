@@ -307,7 +307,7 @@ fun CreateItemBottomSheet(
                     fontSize = 24.sp
                 )
 
-                IconButton(onClick = { viewModel.toggleShowbarcodeInput() }) {
+                IconButton(onClick = { viewModel.toggleShowBarcodeInput() }) {
                     Icon(
                         modifier = Modifier.size(36.dp),
                         imageVector = if (viewModel.showBarcodeInput) Icons.Default.Close
@@ -345,7 +345,7 @@ fun CreateItemBottomSheet(
                         Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
 
                         viewModel.updateNewBarcodeInput("")
-                        viewModel.toggleShowbarcodeInput()
+                        viewModel.toggleShowBarcodeInput()
                     }
                 }
 

@@ -81,7 +81,7 @@ login-service-network-model = { module = "com.cocot3ro.gh.deps:login-service-net
 login-service-network-resources = { module = "com.cocot3ro.gh.deps:login-service-network-resources", version = "1.0.0-SNAPSHOT" }
 users-service-network-model = { module = "com.cocot3ro.gh.deps:users-service-network-model", version = "1.0.0-SNAPSHOT" }
 users-service-network-resources = { module = "com.cocot3ro.gh.deps:users-service-network-resources", version = "1.0.0-SNAPSHOT" }
-almacen-service-network-model = { module = "com.cocot3ro.gh.deps:almacen-service-network-model", version = "1.1.0-SNAPSHOT" }
+almacen-service-network-model = { module = "com.cocot3ro.gh.deps:almacen-service-network-model", version = "1.1.1-SNAPSHOT" }
 almacen-service-network-resources = { module = "com.cocot3ro.gh.deps:almacen-service-network-resources", version = "1.1.0-SNAPSHOT" }
 
 [plugins]

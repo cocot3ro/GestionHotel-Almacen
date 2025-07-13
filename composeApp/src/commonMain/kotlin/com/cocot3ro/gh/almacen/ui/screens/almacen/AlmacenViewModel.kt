@@ -199,7 +199,7 @@ class AlmacenViewModel(
     }
 
     private fun List<AlmacenItemDomain>.sort(): List<AlmacenItemDomain> = partition {
-        showLowStockFirst && it.quantity <= it.minimum
+        showLowStockFirst && it.minimum != null && it.quantity <= it.minimum
     }.let { (lowStock: List<AlmacenItemDomain>, rest: List<AlmacenItemDomain>) ->
         val sortedRest: List<AlmacenItemDomain> = when (sortMode) {
             SortMode.ID -> rest.sortedBy(AlmacenItemDomain::id)
@@ -395,15 +395,6 @@ class AlmacenViewModel(
         if ((_itemManagementUiState.value as ItemManagementUiState.Edit).state is ItemUiState.Loading ||
             (_itemManagementUiState.value as ItemManagementUiState.Edit).state is ItemUiState.Success
         ) {
-            return
-        }
-
-        if ((_itemManagementUiState.value as ItemManagementUiState.Edit).item == item) {
-            _itemManagementUiState.apply {
-                value = (value as ItemManagementUiState.Edit).copy(
-                    state = ItemUiState.Success
-                )
-            }
             return
         }
 

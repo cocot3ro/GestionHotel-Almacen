@@ -12,7 +12,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
             ViewModelModule.module,
             UseCaseModule.module,
             DatastoreModule.module,
-            UserManagementModule.module,
+            SessionModule.module,
             networkModule
         )
     }

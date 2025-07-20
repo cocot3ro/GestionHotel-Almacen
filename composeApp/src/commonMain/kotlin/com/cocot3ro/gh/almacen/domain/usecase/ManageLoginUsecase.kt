@@ -1,9 +1,10 @@
 package com.cocot3ro.gh.almacen.domain.usecase
 
 import com.cocot3ro.gh.almacen.core.datastore.DatastoreRepository
-import com.cocot3ro.gh.almacen.core.user.SessionManagementRepository
-import com.cocot3ro.gh.almacen.core.user.ext.toDomain
+import com.cocot3ro.gh.almacen.core.session.SessionManagementRepository
+import com.cocot3ro.gh.almacen.core.session.ext.toDomain
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.LoginResponseDomain
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
@@ -19,7 +20,7 @@ class ManageLoginUsecase(
     @Provided private val datastoreRepository: DatastoreRepository,
     @Provided private val networkRepository: NetworkRepository
 ) {
-    fun logIn(user: UserDomain, password: String?): Flow<ResponseState> =
+    fun logIn(user: UserDomain, password: String?, store: AlmacenStoreDomain): Flow<ResponseState> =
         networkRepository.login(user, password)
             .onEach { loginResult ->
                 (loginResult as? ResponseState.OK<*>)
@@ -28,6 +29,8 @@ class ManageLoginUsecase(
                         sessionManagementRepository.setUser(user)
                         datastoreRepository.setJwtToken(it.jwtToken)
                         datastoreRepository.setRefreshToken(it.refreshToken)
+
+                        sessionManagementRepository.setStore(store)
                     }
             }
             .catch { throwable: Throwable ->
@@ -36,12 +39,17 @@ class ManageLoginUsecase(
 
     suspend fun logOut() {
         sessionManagementRepository.setUser(null)
+        sessionManagementRepository.setStore(null)
         datastoreRepository.setJwtToken(null)
         datastoreRepository.setRefreshToken(null)
     }
 
     fun getLoggedUser(): UserDomain? {
         return sessionManagementRepository.getUser()?.toDomain()
+    }
+
+    fun getLoggedStore(): AlmacenStoreDomain? {
+        return sessionManagementRepository.getStore()?.toDomain()
     }
 
     fun refresh(accessToken: String): Flow<ResponseState> {

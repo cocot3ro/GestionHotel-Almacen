@@ -9,18 +9,17 @@ import com.cocot3ro.gh.almacen.di.AuthDatastore
 import com.cocot3ro.gh.almacen.di.PreferencesDatastore
 import okio.Path.Companion.toOkioPath
 import org.koin.core.annotation.Single
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.core.scope.Scope
 
 @Single
 @PreferencesDatastore
-actual fun getPreferencesDatastore(): DataStore<Preferences> {
+actual fun getPreferencesDatastore(scope: Scope): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(
         corruptionHandler = ReplaceFileCorruptionHandler {
             PrefsDatastoreConstants.Defaults.defaultPreferences
         },
         produceFile = {
-            val context by inject<Context>(Context::class.java)
-            context.filesDir
+            scope.get<Context>().filesDir
                 .resolve(PrefsDatastoreConstants.PREFS_DATA_STORE_FILE_NAME)
                 .toOkioPath()
         }
@@ -29,14 +28,13 @@ actual fun getPreferencesDatastore(): DataStore<Preferences> {
 
 @Single
 @AuthDatastore
-actual fun getAuthDatastore(): DataStore<Preferences> {
+actual fun getAuthDatastore(scope: Scope): DataStore<Preferences> {
     return PreferenceDataStoreFactory.createWithPath(
         corruptionHandler = ReplaceFileCorruptionHandler {
             AuthDatastoreConstants.Defaults.defaultPreferences
         },
         produceFile = {
-            val context: Context by inject(Context::class.java)
-            context.filesDir
+            scope.get<Context>().filesDir
                 .resolve(AuthDatastoreConstants.AUTH_DATA_STORE_FILE_NAME)
                 .toOkioPath()
         }

@@ -4,6 +4,7 @@ import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.data.network.repository.NetworkRepository
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -38,16 +39,24 @@ class ManageAlmacenItemUseCase(
         }
     }
 
-    fun takeStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> {
-        return networkRepository.almacenItemTakeStock(item, amount).map { response: ResponseState ->
-            if (response !is ResponseState.OK<*>) return@map response
+    fun takeStock(
+        item: AlmacenItemDomain,
+        amount: Int,
+        store: AlmacenStoreDomain
+    ): Flow<ResponseState> {
+        return networkRepository.almacenItemTakeStock(item, amount, store)
+            .map { response: ResponseState ->
+                if (response !is ResponseState.OK<*>) return@map response
 
-            return@map ResponseState.OK((response.data as AlmacenItemModel).toDomain())
-        }
+                return@map ResponseState.OK((response.data as AlmacenItemModel).toDomain())
+            }
     }
 
-    fun takeMultipleStock(items: Map<AlmacenItemDomain, Int>): Flow<ResponseState> {
-        return networkRepository.almacenItemTakeMultipleStock(items)
+    fun takeMultipleStock(
+        items: Map<AlmacenItemDomain, Int>,
+        store: AlmacenStoreDomain
+    ): Flow<ResponseState> {
+        return networkRepository.almacenItemTakeMultipleStock(items, store)
     }
 
     fun addStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> {

@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.LoginUiState
-import com.cocot3ro.gh.almacen.domain.state.ext.getUser
 import com.cocot3ro.gh.almacen.domain.state.UiState
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,9 +57,8 @@ fun LoginScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
             isRefreshing = uiState is UiState.Reloading<*>,
-            onRefresh = viewModel::refreshUsers
+            onRefresh = viewModel::refresh
         ) {
-
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Adaptive(minSize = 120.dp),
@@ -72,7 +70,7 @@ fun LoginScreen(
                     UiState.Idle -> Unit
 
                     UiState.Loading -> {
-                        items(count = 50) {
+                        items(count = 50) { _ ->
                             UserShimmer(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -83,10 +81,13 @@ fun LoginScreen(
 
                     is UiState.Reloading<*> -> {
                         @Suppress("UNCHECKED_CAST")
-                        val users = uiState.cache as List<UserDomain>
+                        val users: List<UserDomain> = uiState.cache as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: UserDomain ->
+                            items(
+                                items = users,
+                                key = UserDomain::id
+                            ) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -96,7 +97,7 @@ fun LoginScreen(
                                 )
                             }
                         } else {
-                            stickyHeader {
+                            stickyHeader { _ ->
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         modifier = Modifier.align(Alignment.Center),
@@ -112,7 +113,10 @@ fun LoginScreen(
                         val users = uiState.value as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: UserDomain ->
+                            items(
+                                items = users,
+                                key = UserDomain::id
+                            ) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -122,7 +126,7 @@ fun LoginScreen(
                                 )
                             }
                         } else {
-                            stickyHeader {
+                            stickyHeader { _ ->
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         modifier = Modifier.align(Alignment.Center),
@@ -136,7 +140,7 @@ fun LoginScreen(
                     is UiState.Error<*> -> {
                         Log.e("LoginScreen", "Error fetching users", uiState.cause)
 
-                        stickyHeader {
+                        stickyHeader { _ ->
                             var expandError: Boolean by remember { mutableStateOf(false) }
                             val sheetState: SheetState = rememberModalBottomSheetState(
                                 skipPartiallyExpanded = false
@@ -153,7 +157,7 @@ fun LoginScreen(
                                         onLongClickLabel = "Expand error message"
                                     ),
                                 horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
+                            ) headerColumn@{
                                 Text(text = "Error de conexión")
 
                                 if (uiState.retry) {
@@ -164,7 +168,7 @@ fun LoginScreen(
                                     )
                                 }
 
-                                if (!expandError) return@Column
+                                if (!expandError) return@headerColumn
                                 val scrollState: ScrollState = rememberScrollState()
 
                                 ModalBottomSheet(
@@ -173,7 +177,10 @@ fun LoginScreen(
                                     onDismissRequest = { expandError = false }
                                 ) {
                                     Column(modifier = Modifier.verticalScroll(scrollState)) {
-                                        Text(text = uiState.cause.message ?: "No message provided")
+                                        Text(
+                                            text = uiState.cause.message
+                                                ?: "No message provided"
+                                        )
                                         Text(text = uiState.cause.stackTraceToString())
                                     }
                                 }
@@ -181,10 +188,13 @@ fun LoginScreen(
                         }
 
                         @Suppress("UNCHECKED_CAST")
-                        val users = uiState.cache as List<UserDomain>
+                        val users: List<UserDomain> = uiState.cache as List<UserDomain>
 
                         if (users.isNotEmpty()) {
-                            items(users) { user: UserDomain ->
+                            items(
+                                items = users,
+                                key = UserDomain::id
+                            ) { user: UserDomain ->
                                 User(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -194,7 +204,7 @@ fun LoginScreen(
                                 )
                             }
                         } else {
-                            stickyHeader {
+                            stickyHeader { _ ->
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -213,19 +223,21 @@ fun LoginScreen(
         }
 
         val loginUiState: LoginUiState by viewModel.loginUiState.collectAsStateWithLifecycle()
+        val storesState: UiState by viewModel.storesState.collectAsStateWithLifecycle()
 
-        loginUiState.getUser()?.let { user ->
-            LoginDialog(
-                user = user,
-                state = loginUiState,
-                onDismissRequest = { viewModel.setUserToLogin(null) },
-                password = viewModel.password,
-                onPasswordChange = viewModel::updatePassword,
-                onLogin = {
-                    viewModel.login(user, viewModel.password)
-                },
-                onSuccess = onNavigateToAlmacen
-            )
+        if (loginUiState !is LoginUiState.Idle) {
+            if ((loginUiState as? LoginUiState.Waiting)?.let { it.user == null } != true) {
+                LoginDialog(
+                    state = loginUiState,
+                    onDismissRequest = { viewModel.setUserToLogin(null) },
+                    password = viewModel.password,
+                    onPasswordChange = viewModel::updatePassword,
+                    storesState = storesState,
+                    onStoreChange = viewModel::setStoreToLogin,
+                    onLogin = viewModel::login,
+                    onSuccess = onNavigateToAlmacen
+                )
+            }
         }
 
         if (loginUiState is LoginUiState.Success) {

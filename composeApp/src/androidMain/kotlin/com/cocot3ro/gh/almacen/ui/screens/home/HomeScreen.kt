@@ -4,6 +4,7 @@ package com.cocot3ro.gh.almacen.ui.screens.home
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,19 +18,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
@@ -41,7 +41,6 @@ import gh_almacen.composeapp.generated.resources.network_manage_48dp
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier,
@@ -72,13 +71,10 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-
-        PullToRefreshBox(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            isRefreshing = uiState.second is UiState.Reloading<*>,
-            onRefresh = viewModel::retry
+                .padding(innerPadding)
         ) {
             val scrollState: ScrollState = rememberScrollState()
 
@@ -129,13 +125,19 @@ fun HomeScreen(
                             text = "Error al conectar con el servidor",
                             color = Color.Red
                         )
+
                         Text(
                             text = "${NetworkConstants.SCHEME}://$host:$port",
                             color = Color.Red
                         )
 
+                        Spacer(modifier = Modifier.height(4.dp))
+
                         TextButton(onClick = viewModel::retry) {
-                            Text(text = "Reintentar conexión")
+                            Text(
+                                text = "Reintentar conexión",
+                                textDecoration = TextDecoration.Underline
+                            )
                         }
                     }
                 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.CargaDescargaData
 import com.cocot3ro.gh.almacen.domain.model.CargaDescargaMode
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
@@ -49,6 +50,10 @@ class CargaDescargaViewModel(
         manageLoginUsecase.getLoggedUser() ?: throw IllegalStateException("User not logged in")
     }
 
+    val loggedStore: AlmacenStoreDomain by lazy {
+        manageLoginUsecase.getLoggedStore() ?: throw IllegalStateException("Store not selected")
+    }
+
     var showSearch: Boolean by mutableStateOf(false)
         private set
     var searchText: String by mutableStateOf("")
@@ -83,15 +88,19 @@ class CargaDescargaViewModel(
 
             _cargaUiState.value = UiState.Loading
 
+            val items = _cargaMap.mapNotNullTo(
+                destination = mutableListOf(),
+                transform = { (k: AlmacenItemDomain, v: Int?) -> v?.let { k to v } }
+            ).toMap()
+
             when (cargaDescargaMode) {
-                CargaDescargaMode.CARGA -> manageAlmacenItemUseCase::addMultipleStock
-                CargaDescargaMode.DESCARGA -> manageAlmacenItemUseCase::takeMultipleStock
-            }.invoke(
-                _cargaMap.mapNotNullTo(
-                    destination = mutableListOf(),
-                    transform = { (k: AlmacenItemDomain, v: Int?) -> v?.let { k to v } }
-                ).toMap()
-            )
+                CargaDescargaMode.CARGA -> manageAlmacenItemUseCase.addMultipleStock(items)
+
+                CargaDescargaMode.DESCARGA -> manageAlmacenItemUseCase.takeMultipleStock(
+                    items = items,
+                    store = loggedStore
+                )
+            }
                 .catch {
                     _cargaUiState.value = UiState.Error(
                         cause = it,

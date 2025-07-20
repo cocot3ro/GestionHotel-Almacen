@@ -5,21 +5,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.LoginUiState
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import com.cocot3ro.gh.almacen.domain.state.ext.getExceptionOrDefault
+import com.cocot3ro.gh.almacen.domain.state.ext.getStore
+import com.cocot3ro.gh.almacen.domain.state.ext.getUser
+import com.cocot3ro.gh.almacen.domain.state.ext.isLoadingOrReloading
+import com.cocot3ro.gh.almacen.domain.usecase.GetAlmacenStoresUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.GetUsersUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.ManageLoginUsecase
-import com.cocot3ro.gh.almacen.domain.state.UiState
-import com.cocot3ro.gh.almacen.domain.state.ext.isLoadingOrReloading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
@@ -28,15 +32,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Provided
+import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class LoginViewModel(
     @Provided private val manageLoginUsecase: ManageLoginUsecase,
-    @Provided private val getUsersUseCase: GetUsersUseCase
+    @Provided private val getUsersUseCase: GetUsersUseCase,
+    @Provided private val getAlmacenStoresUseCase: GetAlmacenStoresUseCase
 ) : ViewModel() {
 
-    private var fetchJob: Job? = null
-
+    private var fetchUsersJob: Job? = null
     private var _usersCache: List<UserDomain> = emptyList()
     private val _usersState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val usersState: StateFlow<UiState> = _usersState
@@ -45,13 +50,31 @@ class LoginViewModel(
             fetchUsers()
         }
         .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds),
+            initialValue = UiState.Idle
+        )
+
+    private var fetchStoresJob: Job? = null
+    private val _storesCache: List<UserDomain> = emptyList()
+    private val _storesState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
+    val storesState: StateFlow<UiState> = _storesState
+        .onStart {
+            _storesState.value = UiState.Loading
+            fetchStores()
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds),
             initialValue = UiState.Idle
         )
 
     private val _loginUiState: MutableStateFlow<LoginUiState> = MutableStateFlow(LoginUiState.Idle)
-    val loginUiState: StateFlow<LoginUiState> = _loginUiState.asStateFlow()
+    val loginUiState: StateFlow<LoginUiState> = _loginUiState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5.seconds),
+        initialValue = LoginUiState.Idle
+    )
 
     var password: String by mutableStateOf("")
         private set
@@ -61,27 +84,30 @@ class LoginViewModel(
     }
 
     fun setUserToLogin(user: UserDomain?) {
-        when {
-            user == null -> {
-                _loginUiState.value = LoginUiState.Idle
-                password = ""
-            }
-
-            user.requiresPassword -> {
-                _loginUiState.value = LoginUiState.Waiting(user = user)
-            }
-
-            else -> {
-                login(user = user, password = null)
-            }
-        }
+        password = ""
+        setLoginData(user, _loginUiState.value.getStore())
     }
 
-    fun refreshUsers() {
-        if (_usersState.value.isLoadingOrReloading()) return
+    fun setStoreToLogin(store: AlmacenStoreDomain?) {
+        setLoginData(_loginUiState.value.getUser(), store)
+    }
 
-        _usersState.value = UiState.Reloading(_usersCache)
-        fetchUsers()
+    private fun setLoginData(user: UserDomain?, store: AlmacenStoreDomain?) {
+        _loginUiState.value = LoginUiState.Waiting(user = user, store = store)
+
+        if (user == null || store == null || user.requiresPassword) return
+    }
+
+    fun refresh() {
+        if (_usersState.value.isLoadingOrReloading().not()) {
+            _usersState.value = UiState.Reloading(_usersCache)
+            fetchUsers()
+        }
+
+        if (_storesState.value.isLoadingOrReloading().not()) {
+            _storesState.value = UiState.Reloading(_storesCache)
+            fetchStores()
+        }
     }
 
     private fun onUsersError(cause: Throwable, retry: Boolean) {
@@ -93,9 +119,9 @@ class LoginViewModel(
     }
 
     private fun fetchUsers() {
-        fetchJob?.cancel()
+        fetchUsersJob?.cancel()
 
-        fetchJob = viewModelScope.launch {
+        fetchUsersJob = viewModelScope.launch {
             val start: Long = System.currentTimeMillis()
 
             getUsersUseCase()
@@ -128,17 +154,69 @@ class LoginViewModel(
         }
     }
 
-    fun login(user: UserDomain, password: String?) {
+    private fun fetchStores() {
+        fetchStoresJob?.cancel()
+
+        fetchStoresJob = viewModelScope.launch {
+            val start: Long = System.currentTimeMillis()
+
+            getAlmacenStoresUseCase()
+                .retry(retries = 3) { throwable: Throwable ->
+                    _storesState.value = UiState.Error(
+                        cause = throwable,
+                        retry = true,
+                        cache = _storesCache
+                    )
+
+                    true
+                }
+                .catch { cause: Throwable ->
+                    _storesState.value = UiState.Error(
+                        cause = cause,
+                        retry = false,
+                        cache = _storesCache
+                    )
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { response: ResponseState ->
+                    when (response) {
+                        is ResponseState.OK<*> -> {
+                            @Suppress("UNCHECKED_CAST")
+                            val stores: List<UserDomain> = response.data as List<UserDomain>
+
+                            val elapsed: Long = System.currentTimeMillis() - start
+                            delay(500 - elapsed)
+
+                            _storesState.value = UiState.Success(stores)
+                        }
+
+                        else -> {
+                            _storesState.value = UiState.Error(
+                                cause = response.getExceptionOrDefault(),
+                                retry = false,
+                                cache = _storesCache
+                            )
+                        }
+                    }
+                }
+        }
+    }
+
+    fun login() {
+        if (_loginUiState.value is LoginUiState.Idle) return
         if (_loginUiState.value is LoginUiState.Loading) return
 
-        _loginUiState.value = LoginUiState.Loading(user)
+        val user: UserDomain = _loginUiState.value.getUser() ?: return
+        val store: AlmacenStoreDomain = _loginUiState.value.getStore() ?: return
+
+        _loginUiState.value = LoginUiState.Loading(user, store)
 
         viewModelScope.launch {
             val start: Long = System.currentTimeMillis()
 
-            manageLoginUsecase.logIn(user, password)
+            manageLoginUsecase.logIn(user, password, store)
                 .catch {
-                    _loginUiState.value = LoginUiState.Error(user = user, cause = it)
+                    _loginUiState.value = LoginUiState.Error(user = user, store = store, cause = it)
                 }
                 .flowOn(Dispatchers.IO)
                 .collect { result: ResponseState ->
@@ -149,17 +227,18 @@ class LoginViewModel(
 
                     when (result) {
                         is ResponseState.OK<*> -> {
-                            _loginUiState.value = LoginUiState.Success(user = user)
+                            _loginUiState.value = LoginUiState.Success(user = user, store = store)
                         }
 
                         is ResponseState.BadRequest,
                         is ResponseState.Unauthorized -> {
-                            _loginUiState.value = LoginUiState.Fail(user = user)
+                            _loginUiState.value = LoginUiState.Fail(user = user, store = store)
                         }
 
                         is ResponseState.Error -> {
                             _loginUiState.value = LoginUiState.Error(
                                 user = user,
+                                store = store,
                                 cause = result.cause
                             )
                         }

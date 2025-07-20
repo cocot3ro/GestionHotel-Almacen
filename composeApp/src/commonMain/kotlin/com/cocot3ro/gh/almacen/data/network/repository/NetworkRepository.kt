@@ -3,9 +3,11 @@ package com.cocot3ro.gh.almacen.data.network.repository
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.data.network.client.GhAlmacenClient
 import com.cocot3ro.gh.almacen.data.network.client.UpdateClient
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenAddStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeMultipleStockModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AppVersionModel
 import com.cocot3ro.gh.almacen.data.network.model.ext.toDomain
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
@@ -476,8 +478,14 @@ class NetworkRepository(
         }
     }
 
-    fun almacenItemAddStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.postAddStock(item.toModel(), AlmacenStockModel(amount))
+    fun almacenItemAddStock(
+        item: AlmacenItemDomain,
+        amount: Int
+    ): Flow<ResponseState> = flow {
+        val response: HttpResponse = client.postAddStock(
+            item.toModel(),
+            AlmacenAddStockModel(quantity = amount)
+        )
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 
@@ -521,8 +529,15 @@ class NetworkRepository(
         }
     }
 
-    fun almacenItemTakeStock(item: AlmacenItemDomain, amount: Int): Flow<ResponseState> = flow {
-        val response: HttpResponse = client.postTakeStock(item.toModel(), AlmacenStockModel(amount))
+    fun almacenItemTakeStock(
+        item: AlmacenItemDomain,
+        amount: Int,
+        store: AlmacenStoreDomain
+    ): Flow<ResponseState> = flow {
+        val response: HttpResponse = client.postTakeStock(
+            item.toModel(),
+            AlmacenTakeStockModel(storeId = store.toModel().id, quantity = amount)
+        )
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)
 
@@ -547,10 +562,16 @@ class NetworkRepository(
     }
 
     fun almacenItemTakeMultipleStock(
-        items: Map<AlmacenItemDomain, Int>
+        items: Map<AlmacenItemDomain, Int>,
+        store: AlmacenStoreDomain
     ): Flow<ResponseState> = flow {
         val response: HttpResponse =
-            client.postTakeMultipleStock(items.mapKeys { (k: AlmacenItemDomain, _) -> k.toModel().id })
+            client.postTakeMultipleStock(
+                AlmacenTakeMultipleStockModel(
+                    storeId = store.toModel().id,
+                    map = items.mapKeys { (k: AlmacenItemDomain, _) -> k.toModel().id }
+                )
+            )
 
         when (response.status) {
             HttpStatusCode.Unauthorized -> emit(ResponseState.Unauthorized)

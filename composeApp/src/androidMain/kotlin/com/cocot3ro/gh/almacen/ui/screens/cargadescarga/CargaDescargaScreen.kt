@@ -95,6 +95,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
 
+// TODO: Connection lost indicator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CargaDescargaScreen(
@@ -136,11 +137,19 @@ fun CargaDescargaScreen(
                     }
                 },
                 title = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = viewModel.loggedUser.name,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = viewModel.loggedUser.name,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Text(
+                            text = viewModel.loggedStore.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1
+                        )
+                    }
                 },
                 actions = actions@{
                     if (itemsUiState !is UiState.Success<*>) return@actions
@@ -375,9 +384,14 @@ fun CargaDescargaScreen(
                                     },
                                     trailingContent = {
                                         if (quantity != null) {
+                                            val prefix = when (viewModel.cargaDescargaMode) {
+                                                CargaDescargaMode.CARGA -> "+"
+                                                CargaDescargaMode.DESCARGA -> "-"
+                                            }
+
                                             Text(
                                                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                                                text = "+$quantity"
+                                                text = "$prefix$quantity"
                                             )
                                         } else {
                                             val coroutineScope: CoroutineScope =

@@ -3,16 +3,16 @@ package com.cocot3ro.gh.almacen.ui.screens.almacen
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,25 +20,24 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.cocot3ro.gh.almacen.domain.model.SortMode
-import com.cocot3ro.gh.almacen.domain.state.UiState
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.abc_24dp
+import gh_almacen.composeapp.generated.resources.delivery_truck_speed_24dp
 import gh_almacen.composeapp.generated.resources.format_list_bulleted_24dp
 import gh_almacen.composeapp.generated.resources.format_list_numbered_24dp
 import gh_almacen.composeapp.generated.resources.format_list_numbered_rtl_24dp
 import gh_almacen.composeapp.generated.resources.search_off_24dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import gh_almacen.composeapp.generated.resources.trolley_24dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
 
@@ -46,23 +45,16 @@ import org.jetbrains.compose.resources.vectorResource
 @Composable
 fun AlmacenTopAppBar(
     viewModel: AlmacenViewModel,
-    uiState: UiState,
-    drawerState: DrawerState,
-    lazyGridState: LazyGridState
+    lazyGridState: LazyGridState,
+    onNavigateToCarga: () -> Unit,
+    onNavigateToDescarga: () -> Unit,
+    onNavigateBackToLogin: () -> Unit
 ) {
-    val coroutineScope: CoroutineScope = rememberCoroutineScope()
-
     TopAppBar(
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    coroutineScope.launch {
-                        drawerState.open()
-                    }
-                }
-            ) {
+            IconButton(onClick = onNavigateBackToLogin) {
                 Icon(
-                    imageVector = Icons.Default.Menu,
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null,
                 )
             }
@@ -72,11 +64,19 @@ fun AlmacenTopAppBar(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = viewModel.loggedUser.name,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = viewModel.loggedUser.name,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        text = viewModel.loggedStore.name,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                    )
+                }
 
                 val orientation: Int = LocalConfiguration.current.orientation
 
@@ -95,10 +95,21 @@ fun AlmacenTopAppBar(
             }
         },
         actions = {
-            IconButton(
-                onClick = { viewModel.updateShowSearch(viewModel.showSearch.not()) },
-                enabled = uiState is UiState.Success<*>
-            ) {
+            IconButton(onClick = onNavigateToCarga) {
+                Icon(
+                    imageVector = vectorResource(Res.drawable.delivery_truck_speed_24dp),
+                    contentDescription = null
+                )
+            }
+
+            IconButton(onClick = onNavigateToDescarga) {
+                Icon(
+                    imageVector = vectorResource(Res.drawable.trolley_24dp),
+                    contentDescription = null
+                )
+            }
+
+            IconButton(onClick = { viewModel.updateShowSearch(viewModel.showSearch.not()) }) {
                 Icon(
                     imageVector = if (viewModel.showSearch) {
                         vectorResource(Res.drawable.search_off_24dp)
@@ -110,10 +121,7 @@ fun AlmacenTopAppBar(
             }
 
             Box {
-                IconButton(
-                    onClick = { viewModel.updateShowSortMode(viewModel.showSortMode.not()) },
-                    enabled = uiState is UiState.Success<*>
-                ) {
+                IconButton(onClick = { viewModel.updateShowSortMode(viewModel.showSortMode.not()) }) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.format_list_bulleted_24dp),
                         contentDescription = null

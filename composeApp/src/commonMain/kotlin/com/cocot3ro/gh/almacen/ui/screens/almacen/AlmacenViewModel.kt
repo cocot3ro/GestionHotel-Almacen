@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.model.AlmacenItemDomain
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.SortMode
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.ItemManagementUiState
@@ -45,6 +46,10 @@ class AlmacenViewModel(
 
     val loggedUser: UserDomain by lazy {
         manageLoginUsecase.getLoggedUser() ?: throw IllegalStateException("User not logged in")
+    }
+
+    val loggedStore: AlmacenStoreDomain by lazy {
+        manageLoginUsecase.getLoggedStore() ?: throw IllegalStateException("Store not selected")
     }
 
     var showSearch: Boolean by mutableStateOf(false)
@@ -353,7 +358,11 @@ class AlmacenViewModel(
         viewModelScope.launch {
             val start: Long = System.currentTimeMillis()
 
-            manageAlmacenItemUseCase.takeStock(item, amount)
+            manageAlmacenItemUseCase.takeStock(
+                item,
+                amount,
+                loggedStore
+            )
                 .catch { throwable: Throwable ->
                     _itemManagementUiState.apply {
                         value = (value as ItemManagementUiState.TakeStock).copy(

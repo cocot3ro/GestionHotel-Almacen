@@ -1,4 +1,8 @@
 {
+  "desktop": {
+    "version": "",
+    "url": ""
+  },
   "android": {
     "version": "1.3.0",
     "url": "https://github.com/cocot3ro/GestionHotel-Almacen/releases/download/v1.3.0/gh-almacen-v1.3.0.apk"

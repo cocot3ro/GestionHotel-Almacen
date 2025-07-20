@@ -3,10 +3,10 @@ package com.cocot3ro.gh.almacen.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cocot3ro.gh.almacen.domain.state.ResponseState
+import com.cocot3ro.gh.almacen.domain.state.UiState
 import com.cocot3ro.gh.almacen.domain.usecase.ManagePreferencesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.SetUpConnectionValuesUseCase
 import com.cocot3ro.gh.almacen.domain.usecase.TestConnectionUseCase
-import com.cocot3ro.gh.almacen.domain.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +27,14 @@ class HomeViewModel(
     @Provided private val setUpConnectionValuesUseCase: SetUpConnectionValuesUseCase,
 ) : ViewModel() {
 
+    // TODO: Replace with a HomeUiState sealed class: Idle, LoadingPrefs, TestingConnection, Success, Error
+    //  sealed class HomeUiState {
+    //      data object Idle : HomeUiState()
+    //      data object LoadingPrefs : HomeUiState()
+    //      data class TestingConnection(val isReloading: Boolean) : HomeUiState()
+    //      data class Success<T>(val value: T) : HomeUiState()
+    //      data class Error(val cause: Throwable, val retry: Boolean) : HomeUiState()
+    //  }
     private val _uiState: MutableStateFlow<Pair<UiState, UiState>> =
         MutableStateFlow(UiState.Idle to UiState.Idle)
 
@@ -60,7 +68,7 @@ class HomeViewModel(
                     delay(1000 - elapsed)
 
                     _uiState.value = UiState.Success(
-                        // Not null beacause it was already checked in the SplashScreen
+                        // Not null because it was already checked in the SplashScreen
                         value = preferences.host!! to preferences.port!!
                     ) to UiState.Idle
 

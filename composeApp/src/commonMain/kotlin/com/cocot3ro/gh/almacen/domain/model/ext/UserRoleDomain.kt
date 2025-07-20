@@ -1,6 +1,6 @@
 package com.cocot3ro.gh.almacen.domain.model.ext
 
-import com.cocot3ro.gh.almacen.core.user.UserRoleCore
+import com.cocot3ro.gh.almacen.core.session.UserRoleCore
 import com.cocot3ro.gh.almacen.domain.model.UserRoleDomain
 import com.cocot3ro.gh.services.users.UserRoleModel
 

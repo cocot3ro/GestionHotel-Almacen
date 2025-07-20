@@ -1,7 +1,7 @@
 package com.cocot3ro.gh.almacen.ui.screens.almacen
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.lifecycle.ViewModel
@@ -13,13 +13,13 @@ import org.koin.core.annotation.InjectedParam
 class TakeStockViewModel(
     @InjectedParam val item: AlmacenItemDomain
 ) : ViewModel() {
-    var min: Int by mutableStateOf(0)
+    var min: Int by mutableIntStateOf(0)
         private set
 
-    var amount: Int by mutableStateOf(0)
+    var amount: Int by mutableIntStateOf(0)
         private set
 
-    var max: Int by mutableStateOf(item.quantity)
+    var max: Int by mutableIntStateOf(item.quantity)
         private set
 
     fun updateAmount(input: String) {
@@ -36,5 +36,9 @@ class TakeStockViewModel(
 
     fun dismiss() {
         this.amount = 0
+    }
+
+    fun isValidForm(): Boolean {
+        return amount in min..max
     }
 }

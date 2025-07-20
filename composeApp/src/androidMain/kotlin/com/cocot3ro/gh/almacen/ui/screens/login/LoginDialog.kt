@@ -9,12 +9,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -32,8 +39,12 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import com.cocot3ro.gh.almacen.domain.model.AlmacenStoreDomain
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 import com.cocot3ro.gh.almacen.domain.state.LoginUiState
+import com.cocot3ro.gh.almacen.domain.state.UiState
+import com.cocot3ro.gh.almacen.domain.state.ext.getStore
+import com.cocot3ro.gh.almacen.domain.state.ext.getUser
 import gh_almacen.composeapp.generated.resources.Res
 import gh_almacen.composeapp.generated.resources.broken_image_24dp
 import gh_almacen.composeapp.generated.resources.password
@@ -42,12 +53,14 @@ import gh_almacen.composeapp.generated.resources.visibility_off_24dp
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginDialog(
-    user: UserDomain,
     state: LoginUiState,
     password: String,
     onPasswordChange: (String) -> Unit,
+    storesState: UiState,
+    onStoreChange: (AlmacenStoreDomain) -> Unit,
     onDismissRequest: () -> Unit,
     onLogin: () -> Unit,
     onSuccess: () -> Unit
@@ -59,6 +72,9 @@ fun LoginDialog(
             }
         }
     }
+
+    val user: UserDomain = state.getUser()!!
+    val store: AlmacenStoreDomain? = state.getStore()
 
     AlertDialog(
         onDismissRequest = onDismissRequest@{
@@ -102,6 +118,81 @@ fun LoginDialog(
                     .fillMaxWidth()
                     .padding(all = 8.dp)
             ) {
+                when (storesState) {
+                    UiState.Idle -> {
+
+                    }
+
+                    UiState.Loading,
+                    is UiState.Reloading<*> -> {
+                        ExposedDropdownMenuBox(
+                            expanded = false,
+                            onExpandedChange = { },
+                        ) {
+                            TextField(
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                                value = store?.name.orEmpty(),
+                                onValueChange = {},
+                                readOnly = true,
+                                singleLine = true,
+                                label = { Text("Centro de venta") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = false) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                                leadingIcon = { CircularProgressIndicator() }
+                            )
+                        }
+                    }
+
+                    is UiState.Success<*> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val options: List<AlmacenStoreDomain> =
+                            storesState.value as List<AlmacenStoreDomain>
+
+                        var expanded: Boolean by remember { mutableStateOf(false) }
+
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                        ) {
+                            TextField(
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                                value = store?.name.orEmpty(),
+                                onValueChange = {},
+                                readOnly = true,
+                                singleLine = true,
+                                label = { Text("Centro de venta") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                options.takeUnless { it.isEmpty() }?.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                option.name,
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+                                        },
+                                        onClick = {
+                                            onStoreChange(option)
+                                            expanded = false
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    is UiState.Error<*> -> {
+
+                    }
+                }
+
                 if (user.requiresPassword) {
                     var isPasswordVisible: Boolean by remember { mutableStateOf(false) }
 
@@ -144,9 +235,12 @@ fun LoginDialog(
             }
         },
         confirmButton = confirmButton@{
-            if (!user.requiresPassword) return@confirmButton
-
-            TextButton(onClick = onLogin) {
+            TextButton(
+                onClick = onLogin,
+                enabled = (state.let { it is LoginUiState.Waiting || it is LoginUiState.Error }) &&
+                        state.getUser() != null &&
+                        state.getStore() != null
+            ) {
                 Text(
                     text = "Continuar",
                     fontSize = 16.sp

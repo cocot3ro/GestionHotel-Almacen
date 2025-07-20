@@ -160,7 +160,7 @@ fun TakeStockBottomSheet(
                 modifier = Modifier.align(Alignment.End),
                 enabled = itemState !is ItemUiState.Idle &&
                         itemState !is ItemUiState.Loading &&
-                        viewModel.amount.let { it >= viewModel.min && it <= viewModel.max },
+                        viewModel.isValidForm(),
                 onClick = { onTakeStock(viewModel.amount) }
             ) {
                 Text(

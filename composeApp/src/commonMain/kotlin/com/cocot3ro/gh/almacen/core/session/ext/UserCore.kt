@@ -1,6 +1,6 @@
-package com.cocot3ro.gh.almacen.core.user.ext
+package com.cocot3ro.gh.almacen.core.session.ext
 
-import com.cocot3ro.gh.almacen.core.user.UserCore
+import com.cocot3ro.gh.almacen.core.session.UserCore
 import com.cocot3ro.gh.almacen.domain.model.UserDomain
 
 fun UserCore.toDomain(): UserDomain = UserDomain(

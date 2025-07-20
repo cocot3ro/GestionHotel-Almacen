@@ -14,8 +14,8 @@ import com.cocot3ro.gh.almacen.ui.screens.almacen.AlmacenScreen
 import com.cocot3ro.gh.almacen.ui.screens.cargadescarga.CargaDescargaScreen
 import com.cocot3ro.gh.almacen.ui.screens.home.HomeScreen
 import com.cocot3ro.gh.almacen.ui.screens.login.LoginScreen
-import com.cocot3ro.gh.almacen.ui.screens.settings.SettingsScreen
 import com.cocot3ro.gh.almacen.ui.screens.setup.SetupScreen
+import com.cocot3ro.gh.almacen.ui.screens.setup.SetupStep
 import com.cocot3ro.gh.almacen.ui.screens.splash.SplashScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -31,7 +31,7 @@ fun NavigationWrapper(startDestination: Any) {
                 modifier = Modifier.fillMaxSize(),
                 onSetupRequired = {
                     navController.popBackStack()
-                    navController.navigate(Setup)
+                    navController.navigate(Setup())
                 },
                 onSplashFinished = {
                     navController.popBackStack()
@@ -43,7 +43,7 @@ fun NavigationWrapper(startDestination: Any) {
         composable<Setup> { _ ->
             SetupScreen(
                 modifier = Modifier.fillMaxSize(),
-                onSetupCompleted = {
+                onNavigateToHome = {
                     navController.popBackStack()
                     navController.navigate(route = Home)
                 }
@@ -58,7 +58,8 @@ fun NavigationWrapper(startDestination: Any) {
                     navController.navigate(route = Login)
                 },
                 onNavigateToSettings = {
-                    navController.navigate(route = Settings)
+                    navController.popBackStack()
+                    navController.navigate(route = Setup(SetupStep.SERVER))
                 }
             )
         }
@@ -92,16 +93,6 @@ fun NavigationWrapper(startDestination: Any) {
                 onNavigateBack = navController::popBackStack,
                 onUnauthorized = {
                     navController.popBackStack(Login, false)
-                }
-            )
-        }
-
-        composable<Settings> { _ ->
-            SettingsScreen(
-                modifier = Modifier.fillMaxSize(),
-                onBack = navController::popBackStack,
-                onSettingsChanged = {
-                    navController.popBackStack(Almacen, false)
                 }
             )
         }

@@ -1,9 +1,11 @@
 package com.cocot3ro.gh.almacen.data.network.client
 
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenAddStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeMultipleStockModel
+import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeStockModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenItemResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenResource
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenStoreResource
@@ -163,7 +165,7 @@ class GhAlmacenClient(
 
     suspend fun postTakeStock(
         item: AlmacenItemModel,
-        stockModel: AlmacenStockModel
+        stockModel: AlmacenTakeStockModel
     ): HttpResponse {
         return authClient.post(resource = AlmacenItemResource.Id.TakeStock(AlmacenItemResource.Id(id = item.id))) {
             setConnectionValues()
@@ -175,7 +177,7 @@ class GhAlmacenClient(
 
     suspend fun postAddStock(
         item: AlmacenItemModel,
-        stockModel: AlmacenStockModel
+        stockModel: AlmacenAddStockModel
     ): HttpResponse {
         return authClient.post(resource = AlmacenItemResource.Id.AddStock(AlmacenItemResource.Id(id = item.id))) {
             setConnectionValues()
@@ -194,12 +196,12 @@ class GhAlmacenClient(
         }
     }
 
-    suspend fun postTakeMultipleStock(items: Map<Long, Int>): HttpResponse {
+    suspend fun postTakeMultipleStock(stockModel: AlmacenTakeMultipleStockModel): HttpResponse {
         return authClient.post(resource = AlmacenItemResource.TakeMultipleStock()) {
             setConnectionValues()
 
             contentType(ContentType.Application.Json)
-            setBody(items)
+            setBody(stockModel)
         }
     }
 

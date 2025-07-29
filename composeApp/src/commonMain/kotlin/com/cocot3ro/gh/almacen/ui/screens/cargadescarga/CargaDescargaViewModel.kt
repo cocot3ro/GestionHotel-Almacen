@@ -63,8 +63,8 @@ class CargaDescargaViewModel(
 
     private val _cargaUiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Idle)
     val cargaUiState: StateFlow<UiState> = _cargaUiState.asStateFlow()
-    private val _cargaMap: SnapshotStateMap<AlmacenItemDomain, Int?> = mutableStateMapOf()
-    val cargaMap: Map<AlmacenItemDomain, Int?> get() = _cargaMap.toMap()
+    private val _cargaMap: MutableMap<AlmacenItemDomain, Int?> = mutableStateMapOf()
+    val cargaMap: Map<AlmacenItemDomain, Int?> get() = (_cargaMap as SnapshotStateMap<AlmacenItemDomain, Int?>).toMap()
 
     private var itemsJob: Job? = null
     private var _itemsCache: List<AlmacenItemDomain> = emptyList()

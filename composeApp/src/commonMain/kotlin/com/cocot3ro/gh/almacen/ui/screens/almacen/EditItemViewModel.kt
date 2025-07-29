@@ -16,8 +16,10 @@ class EditItemViewModel(
     @InjectedParam private val originalItem: AlmacenItemDomain
 ) : ViewModel() {
 
-    var barcodes: SnapshotStateSet<Long> = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
-        private set
+    private val _barcodes: MutableSet<Long> =
+        mutableStateSetOf(*originalItem.barcodes.toTypedArray())
+    val barcodes: Set<Long> get() = (_barcodes as SnapshotStateSet<Long>).toSet()
+
     var name: String by mutableStateOf(originalItem.name)
         private set
     var supplier: String? by mutableStateOf(originalItem.supplier)
@@ -44,10 +46,10 @@ class EditItemViewModel(
     var showImageSelection: Boolean by mutableStateOf(false)
         private set
 
-    fun addBarcode(barcode: Long): Boolean = this.barcodes.add(barcode)
+    fun addBarcode(barcode: Long): Boolean = this._barcodes.add(barcode)
 
     fun removeBarcode(barcode: Long) {
-        this.barcodes -= barcode
+        this._barcodes -= barcode
     }
 
     fun updateName(name: String) {
@@ -110,7 +112,7 @@ class EditItemViewModel(
     }
 
     fun getItem(): AlmacenItemDomain = originalItem.copy(
-        barcodes = this.barcodes.toLongArray(),
+        barcodes = this._barcodes.toLongArray(),
         name = this.name,
         supplier = this.supplier,
         image = originalItem.image.takeUnless { image == null },
@@ -127,7 +129,8 @@ class EditItemViewModel(
     }
 
     fun dismiss() {
-        barcodes = mutableStateSetOf(*originalItem.barcodes.toTypedArray())
+        _barcodes.clear()
+        _barcodes.addAll(originalItem.barcodes.toList())
         name = originalItem.name
         supplier = originalItem.supplier
         image = originalItem.image

@@ -90,11 +90,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileSystems
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -391,16 +392,16 @@ fun EditBottomSheet(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                viewModel.barcodes.takeIf(MutableSet<Long>::isNotEmpty)?.forEach { barcode ->
+                viewModel.barcodes.takeIf(Set<Long>::isNotEmpty)?.forEach { barcode ->
                     InputChip(
                         onClick = { viewModel.removeBarcode(barcode) },
-                        label = { Text(barcode.toString()) },
+                        label = { Text(text = barcode.toString()) },
                         selected = false,
                         trailingIcon = {
                             Icon(
-                                Icons.Default.Close,
+                                imageVector = Icons.Default.Close,
                                 contentDescription = null,
-                                Modifier.size(InputChipDefaults.AvatarSize)
+                                modifier = Modifier.size(InputChipDefaults.AvatarSize)
                             )
                         },
                     )
@@ -639,6 +640,7 @@ fun EditBottomSheet(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 private fun createImageUri(context: Context): Uri {
     val photoFile: File = File.createTempFile(
         "photo_${Clock.System.now()}_", ".jpg", context.cacheDir

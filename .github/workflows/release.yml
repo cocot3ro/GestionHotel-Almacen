@@ -74,24 +74,14 @@ jobs:
             gh-almacen-v${{ steps.version.outputs.version }}.apk
 #            gh-almacen-v${{ steps.version.outputs.version }}.msi
 
-#      - name: Generate versions.json
-#        shell: bash
-#        run: |
-#          echo "{
-#            \"desktop\": {
-#              \"version\": \"${{ steps.version.outputs.version }}\",
-#              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.msi\"
-#            },
-#            \"android\": {
-#              \"version\": \"${{ steps.version.outputs.version }}\",
-#              \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.apk\"
-#            }
-#          }" > versions.json
-
       - name: Generate versions.json
         shell: bash
         run: |
           echo "{
+            \"desktop\": {
+              \"version\": \"\",
+              \"url\": \"\"
+            },
             \"android\": {
               \"version\": \"${{ steps.version.outputs.version }}\",
               \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/gh-almacen-v${{ steps.version.outputs.version }}.apk\"

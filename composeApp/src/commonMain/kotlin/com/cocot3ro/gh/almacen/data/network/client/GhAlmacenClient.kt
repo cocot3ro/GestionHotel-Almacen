@@ -3,7 +3,6 @@ package com.cocot3ro.gh.almacen.data.network.client
 import com.cocot3ro.gh.almacen.data.network.NetworkConstants
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenAddStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenItemModel
-import com.cocot3ro.gh.almacen.data.network.model.AlmacenStoreModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeMultipleStockModel
 import com.cocot3ro.gh.almacen.data.network.model.AlmacenTakeStockModel
 import com.cocot3ro.gh.almacen.data.network.resources.AlmacenItemResource
@@ -12,13 +11,10 @@ import com.cocot3ro.gh.almacen.data.network.resources.AlmacenStoreResource
 import com.cocot3ro.gh.services.login.LoginRequestModel
 import com.cocot3ro.gh.services.login.LoginRequestResource
 import com.cocot3ro.gh.services.login.RefreshRequestModel
-import com.cocot3ro.gh.services.users.UserModel
-import com.cocot3ro.gh.services.users.UserPasswordChangeModel
 import com.cocot3ro.gh.services.users.UserResource
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
-import io.ktor.client.plugins.resources.patch
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.plugins.resources.put
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -93,45 +89,6 @@ class GhAlmacenClient(
             port = this.port.toInt(),
             path = UserResource.All().getRoute()
         )
-    }
-
-    suspend fun postUser(multipart: List<PartData>): HttpResponse {
-        return authClient.post(resource = UserResource()) {
-            setConnectionValues()
-
-            contentType(ContentType.MultiPart.FormData)
-            setBody(MultiPartFormDataContent(multipart))
-        }
-    }
-
-    suspend fun putUser(
-        id: Long,
-        multipart: List<PartData>
-    ): HttpResponse {
-        return authClient.put(resource = UserResource.Id(id = id)) {
-            setConnectionValues()
-
-            contentType(ContentType.MultiPart.FormData)
-            setBody(MultiPartFormDataContent(multipart))
-        }
-    }
-
-    suspend fun patchUser(
-        userId: Long,
-        model: UserPasswordChangeModel
-    ): HttpResponse {
-        return authClient.patch(resource = UserResource.Id(id = userId)) {
-            setConnectionValues()
-
-            contentType(ContentType.Application.Json)
-            setBody(model)
-        }
-    }
-
-    suspend fun deleteUser(userModel: UserModel): HttpResponse {
-        return authClient.delete(resource = UserResource.Id(id = userModel.id)) {
-            setConnectionValues()
-        }
     }
 
     suspend fun wsAlmacenItems(): DefaultClientWebSocketSession {
@@ -217,29 +174,5 @@ class GhAlmacenClient(
             port = this.port.toInt(),
             path = AlmacenStoreResource.All().getRoute()
         )
-    }
-
-    suspend fun postAlmacenStore(almacenModel: AlmacenStoreModel): HttpResponse {
-        return authClient.post(resource = AlmacenStoreResource()) {
-            setConnectionValues()
-
-            contentType(ContentType.Application.Json)
-            setBody(almacenModel)
-        }
-    }
-
-    suspend fun putAlmacenStore(almacenModel: AlmacenStoreModel): HttpResponse {
-        return authClient.put(resource = AlmacenStoreResource.Id(id = almacenModel.id)) {
-            setConnectionValues()
-
-            contentType(ContentType.Application.Json)
-            setBody(almacenModel)
-        }
-    }
-
-    suspend fun deleteAlmacenStore(almacenModel: AlmacenStoreModel): HttpResponse {
-        return authClient.delete(resource = AlmacenStoreResource.Id(id = almacenModel.id)) {
-            setConnectionValues()
-        }
     }
 }

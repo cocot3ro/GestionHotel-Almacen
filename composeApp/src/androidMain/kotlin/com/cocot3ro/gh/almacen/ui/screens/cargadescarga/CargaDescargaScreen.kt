@@ -243,6 +243,7 @@ fun CargaDescargaScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         viewModel.updateShowSearch(false)
+                                        viewModel.updateFilter("")
                                         viewModel.selectItem(item)
                                     },
                                 leadingContent = {
@@ -276,8 +277,11 @@ fun CargaDescargaScreen(
                 }
             }
 
-            AnimatedVisibility(visible = cargaUiState is UiState.Loading) {
-                LinearProgressIndicator()
+            AnimatedVisibility(
+                modifier = Modifier.fillMaxWidth(),
+                visible = cargaUiState is UiState.Loading
+            ) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
             LazyVerticalGrid(
@@ -285,7 +289,7 @@ fun CargaDescargaScreen(
                 contentPadding = PaddingValues(all = 8.dp)
             ) {
                 if (viewModel.cargaMap.isEmpty()) {
-                    stickyHeader {
+                    stickyHeader { _ ->
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()

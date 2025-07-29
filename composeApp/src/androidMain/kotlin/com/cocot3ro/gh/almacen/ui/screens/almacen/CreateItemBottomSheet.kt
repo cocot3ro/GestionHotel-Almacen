@@ -90,11 +90,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileSystems
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -638,6 +639,7 @@ fun CreateItemBottomSheet(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 private fun createImageUri(context: Context): Uri {
     val photoFile: File = File.createTempFile(
         "photo_${Clock.System.now()}_", ".jpg", context.cacheDir
